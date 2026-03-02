@@ -75,7 +75,7 @@ getProjectPerformanceLevel(id: number) {
 
 analyzeDescription(description: string) {
   const body = { text: description };
-  return this.http.post<any>('http://localhost:8082/api/nlp/analyze', body);
+  return this.http.post<any>('http://localhost:8080/api/nlp/analyze', body);
 }
 
 

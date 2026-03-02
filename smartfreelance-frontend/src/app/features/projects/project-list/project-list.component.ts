@@ -20,7 +20,7 @@ export class ProjectListComponent implements OnInit {
   projects: Project[] = [];
 filteredProjects: Project[] = [];
 
-// 🔎 filtres
+
 searchTerm: string = '';
 selectedStatus: string = '';
 minBudget: number | null = null;

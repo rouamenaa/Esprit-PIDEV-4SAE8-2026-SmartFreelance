@@ -19,7 +19,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/condidatures")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+//@CrossOrigin(origins = "http://localhost:4200")
 public class CondidatureController {
 
     private final CondidatureService condidatureService;
