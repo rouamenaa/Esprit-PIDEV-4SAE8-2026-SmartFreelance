@@ -47,6 +47,12 @@ export interface CondidatureStats {
   freelancerSuccessRates: FreelancerSuccessRate[];
 }
 
+/** Condidatures grouped by project (for list view "by project"). */
+export interface CondidaturesByProject {
+  projectId: number;
+  condidatures: Condidature[];
+}
+
 /** Statistics related to a single candidature (for details view): project + freelancer. */
 export interface CondidatureDetailStats {
   projectApplicationsCount: number;

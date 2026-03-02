@@ -1,0 +1,107 @@
+/* Delete confirmation dialog */
+.delete-modal {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.delete-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background: #dc2626;
+  border-bottom: 1px solid #b91c1c;
+}
+
+.delete-modal__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.delete-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #fff;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.delete-modal__close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.delete-modal__body {
+  padding: 1.5rem 1.5rem;
+}
+
+.delete-modal__message {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #374151;
+  font-weight: 500;
+}
+
+.delete-modal__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem 1.25rem;
+  background: #fafafa;
+  border-top: 1px solid #e5e7eb;
+}
+
+.delete-modal__btn {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.delete-modal__btn--secondary {
+  background: #fff;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+.delete-modal__btn--secondary:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.delete-modal__btn--danger {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+  box-shadow: 0 1px 2px rgba(220, 38, 38, 0.2);
+}
+
+.delete-modal__btn--danger:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+}
+
+.delete-modal__btn--danger:active {
+  background: #991b1b;
+}

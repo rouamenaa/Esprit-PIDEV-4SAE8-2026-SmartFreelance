@@ -16,6 +16,7 @@ function toApiBody(data: Partial<Contrat>): Partial<Contrat> {
     dateDebut: data.dateDebut ?? (data as any).startDate ?? (data as any).start_date ?? '',
     dateFin: data.dateFin ?? (data as any).endDate ?? (data as any).end_date ?? '',
     statut: data.statut ?? 'BROUILLON',
+    latePenaltyPercent: data.latePenaltyPercent ?? (data as any).late_penalty_percent ?? undefined,
   };
 }
 
@@ -55,6 +56,20 @@ export class ContratService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
+  /** Client signs first. Pass contract id and client id (from contract details). Uses GET to avoid CORS preflight. */
+  signByClient(contractId: number, clientId: number): Observable<Contrat> {
+    return this.http.get<Contrat>(`${this.url}/${contractId}/sign/client`, {
+      params: { clientId: String(clientId) }
+    });
+  }
+
+  /** Freelancer signs second. Pass contract id and freelancer id (from contract details). Uses GET to avoid CORS preflight. */
+  signByFreelancer(contractId: number, freelancerId: number): Observable<Contrat> {
+    return this.http.get<Contrat>(`${this.url}/${contractId}/sign/freelancer`, {
+      params: { freelancerId: String(freelancerId) }
+    });
   }
 
   /** Client-side pagination for admin table */

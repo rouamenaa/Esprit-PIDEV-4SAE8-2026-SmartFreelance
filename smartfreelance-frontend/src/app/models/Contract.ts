@@ -13,6 +13,10 @@ export interface Contrat {
   statut: StatutContrat;
   dateCreation?: string;   // ISO date-time (backend set)
   dateModification?: string; // ISO date-time (backend set)
+  clientSignedAt?: string | null;   // ISO date-time when client signed
+  freelancerSignedAt?: string | null; // ISO date-time when freelancer signed (after client)
+  /** Late penalty: reduce payment by this % if delivery is late (e.g. 5 = 5%). Null = no penalty. */
+  latePenaltyPercent?: number | null;
 }
 
 /** Alias for backward compatibility */

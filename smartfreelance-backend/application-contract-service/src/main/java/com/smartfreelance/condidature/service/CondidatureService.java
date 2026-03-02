@@ -5,6 +5,7 @@ import com.smartfreelance.condidature.dto.CondidatureDetailStatsDTO;
 import com.smartfreelance.condidature.dto.CondidatureDTO;
 import com.smartfreelance.condidature.dto.CondidatureRequestDTO;
 import com.smartfreelance.condidature.dto.CondidatureStatsDTO;
+import com.smartfreelance.condidature.dto.CondidaturesByProjectDTO;
 import com.smartfreelance.condidature.dto.FreelancerSuccessRateDTO;
 import com.smartfreelance.condidature.model.Condidature;
 import com.smartfreelance.condidature.model.Condidature.CondidatureStatus;
@@ -75,6 +76,21 @@ public class CondidatureService {
         return rankAndToDTO(list);
     }
 
+    /**
+     * Returns candidatures grouped by project for list view "by project".
+     * Each group contains condidatures for one project (optionally ranked).
+     */
+    public List<CondidaturesByProjectDTO> getCondidaturesGroupedByProject(boolean ranked) {
+        List<Long> projectIds = condidatureRepository.findDistinctProjectIds();
+        if (projectIds.isEmpty()) return List.of();
+        return projectIds.stream()
+                .map(projectId -> CondidaturesByProjectDTO.builder()
+                        .projectId(projectId)
+                        .condidatures(ranked ? findRankedByProjectId(projectId) : findByProjectId(projectId))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     private List<CondidatureDTO> rankAndToDTO(List<Condidature> list) {
         if (list.isEmpty()) return List.of();
 
@@ -91,16 +107,13 @@ public class CondidatureService {
         double priceRange = maxPrice - minPrice;
         if (priceRange <= 0) priceRange = 1;
 
-        int minDays = list.stream()
+        java.util.IntSummaryStatistics daysStats = list.stream()
                 .map(Condidature::getEstimatedDeliveryDays)
                 .filter(java.util.Objects::nonNull)
                 .mapToInt(Integer::intValue)
-                .min().orElse(0);
-        int maxDays = list.stream()
-                .map(Condidature::getEstimatedDeliveryDays)
-                .filter(java.util.Objects::nonNull)
-                .mapToInt(Integer::intValue)
-                .max().orElse(1);
+                .summaryStatistics();
+        int minDays = daysStats.getCount() > 0 ? daysStats.getMin() : 0;
+        int maxDays = daysStats.getCount() > 0 ? daysStats.getMax() : 1;
         int daysRange = maxDays - minDays;
         if (daysRange <= 0) daysRange = 1;
 
@@ -131,6 +144,9 @@ public class CondidatureService {
     @Transactional
     public CondidatureDTO create(CondidatureRequestDTO dto) {
         Objects.requireNonNull(dto, "dto");
+        if (condidatureRepository.existsByFreelancerIdAndStatus(dto.getFreelancerId(), CondidatureStatus.ACCEPTED)) {
+            throw new IllegalArgumentException("You are already accepted in a project. You cannot apply to other projects.");
+        }
         if (condidatureRepository.existsByProjectIdAndFreelancerId(dto.getProjectId(), dto.getFreelancerId())) {
             throw new IllegalArgumentException("A condidature already exists for this project and freelancer.");
         }
@@ -166,8 +182,9 @@ public class CondidatureService {
     }
 
     /**
-     * Accept a candidature (client side): set status to ACCEPTED and reject all other
-     * candidatures for the same project.
+     * Accept a candidature (client side): set status to ACCEPTED, reject all other
+     * candidatures for the same project, and delete this freelancer's applications
+     * in other projects (a freelancer can only work on one project at a time).
      */
     @Transactional
     public CondidatureDTO accept(Long id) {
@@ -181,12 +198,23 @@ public class CondidatureService {
         condidatureRepository.save(accepted);
 
         Long projectId = accepted.getProjectId();
-        List<Condidature> others = condidatureRepository.findByProjectId(projectId).stream()
+        Long freelancerId = accepted.getFreelancerId();
+
+        // Reject other PENDING applications for the same project
+        List<Condidature> othersSameProject = condidatureRepository.findByProjectId(projectId).stream()
                 .filter(c -> !c.getId().equals(id) && c.getStatus() == CondidatureStatus.PENDING)
                 .collect(Collectors.toList());
-        for (Condidature c : others) {
+        for (Condidature c : othersSameProject) {
             c.setStatus(CondidatureStatus.REJECTED);
             condidatureRepository.save(c);
+        }
+
+        // Delete this freelancer's applications in other projects (one project at a time)
+        List<Condidature> otherProjects = condidatureRepository.findByFreelancerId(freelancerId).stream()
+                .filter(c -> !c.getProjectId().equals(projectId))
+                .collect(Collectors.toList());
+        for (Condidature c : otherProjects) {
+            condidatureRepository.delete(c);
         }
 
         return toDTO(accepted);

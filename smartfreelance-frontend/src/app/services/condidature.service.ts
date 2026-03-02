@@ -8,6 +8,7 @@ import {
   CondidatureStatus,
   CondidatureStats,
   CondidatureDetailStats,
+  CondidaturesByProject,
 } from '../models/Condidature';
 
 /** Read rating from raw API object (handles freelancer_rating, freelancerRating, or any case variant). */
@@ -117,6 +118,24 @@ export class CondidatureService {
     return this.http
       .put<Record<string, unknown>>(`${this.url}/condidatures/${id}/reject`, {})
       .pipe(map(normalizeCondidature));
+  }
+
+  /** List condidatures grouped by project (for list view "by project"). */
+  getGroupedByProject(ranked: boolean = true): Observable<CondidaturesByProject[]> {
+    const params = new HttpParams().set('ranked', ranked ? 'true' : 'false');
+    return this.http
+      .get<Array<{ projectId: number; condidatures: Record<string, unknown>[] }>>(
+        `${this.url}/condidatures/grouped-by-project`,
+        { params }
+      )
+      .pipe(
+        map((groups) =>
+          groups.map((g) => ({
+            projectId: g.projectId,
+            condidatures: (g.condidatures || []).map(normalizeCondidature),
+          }))
+        )
+      );
   }
 
   /** Statistics for admin dashboard: applications per project, acceptance rate, freelancer success rate. */

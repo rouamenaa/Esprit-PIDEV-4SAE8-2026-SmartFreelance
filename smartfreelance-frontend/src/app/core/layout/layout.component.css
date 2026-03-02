@@ -1,5 +1,7 @@
 .main-container {
-  
-  margin-left: 210px; 
-  padding: 20px; 
+  margin-left: 210px;
+  padding: 20px;
+  padding-top: 82px; /* below fixed navbar (62px) + gap */
+  min-height: 100vh;
+  box-sizing: border-box;
 }

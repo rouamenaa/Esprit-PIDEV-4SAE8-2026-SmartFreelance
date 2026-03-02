@@ -63,4 +63,20 @@ public class ContratController {
         contratService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    /** GET to avoid CORS preflight. Client signs first; clientId must match contract's client. */
+    @GetMapping("/{id}/sign/client")
+    public ResponseEntity<ContratResponse> signByClient(
+            @PathVariable Long id,
+            @RequestParam Long clientId) {
+        return ResponseEntity.ok(contratService.signByClient(id, clientId));
+    }
+
+    /** GET to avoid CORS preflight. Freelancer signs second; freelancerId must match contract's freelancer. */
+    @GetMapping("/{id}/sign/freelancer")
+    public ResponseEntity<ContratResponse> signByFreelancer(
+            @PathVariable Long id,
+            @RequestParam Long freelancerId) {
+        return ResponseEntity.ok(contratService.signByFreelancer(id, freelancerId));
+    }
 }
