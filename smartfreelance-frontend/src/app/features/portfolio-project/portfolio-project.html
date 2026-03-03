@@ -1,0 +1,55 @@
+<div class="project-card">
+  <h2>{{ isEditMode ? 'Edit Portfolio Project' : 'Add Portfolio Project' }}</h2>
+
+  <form #f="ngForm" (ngSubmit)="save()" novalidate>
+
+    <input type="text" [(ngModel)]="project.title" name="title" placeholder="Project Title" required>
+
+    <textarea [(ngModel)]="project.description" name="description" placeholder="Description" required></textarea>
+
+    <input type="text" [(ngModel)]="project.projectUrl" name="projectUrl" placeholder="Project URL">
+
+    <input type="text" [(ngModel)]="project.technologiesUsed" name="technologiesUsed"
+      placeholder="Technologies (comma-separated)">
+
+    <div class="actions">
+      <button type="submit" [disabled]="f.invalid">
+        {{ isEditMode ? 'Update Project' : 'Save Project' }}
+      </button>
+      <button type="button" *ngIf="isEditMode" (click)="resetForm()">
+        Cancel
+      </button>
+    </div>
+
+  </form>
+
+  <hr>
+
+  <h3>My Projects</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Technologies</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of projects">
+        <td>{{ p.title }}</td>
+        <td>{{ p.technologiesUsed }}</td>
+        <td>
+          <ng-container *ngIf="confirmDeleteId !== p.id">
+            <button (click)="editProject(p)">Edit</button>
+            <button (click)="confirmDelete(p.id)" style="background:#e74c3c;color:white">Delete</button>
+          </ng-container>
+          <ng-container *ngIf="confirmDeleteId === p.id">
+            <span style="color:#e74c3c;font-weight:bold;">Delete?</span>
+            <button (click)="deleteProject(p.id)" style="background:#e74c3c;color:white;margin-left:4px">Yes</button>
+            <button (click)="cancelDelete()" style="margin-left:4px">No</button>
+          </ng-container>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
