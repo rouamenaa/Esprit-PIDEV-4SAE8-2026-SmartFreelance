@@ -5,7 +5,7 @@ import { FreelancerProfile } from '../models/freelancer-profile.model';
 
 @Injectable({ providedIn: 'root' })
 export class FreelancerService {
-  private apiUrl = 'http://localhost:8082/api/profile';
+  private apiUrl = 'http://localhost:8080/freelancer-api/profile';
 
   constructor(private http: HttpClient) { }
 

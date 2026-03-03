@@ -8,11 +8,7 @@ export const routes: Routes = [
       import('./features/projects/projects.module')
         .then(m => m.ProjectsModule)
   },
-<<<<<<< HEAD
 
-  
-=======
->>>>>>> cd47ed2ce417443f91a218ad6c85750be98d208f
   {
     path: 'condidatures',
     loadChildren: () =>
@@ -31,6 +27,7 @@ export const routes: Routes = [
       import('./features/freelancer-profile/freelancer-profile')
         .then(m => m.FreelancerProfileComponent)
   },
+  
   {
     path: 'portfolio',
     loadComponent: () =>
