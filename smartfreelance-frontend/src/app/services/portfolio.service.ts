@@ -5,7 +5,7 @@ import { PortfolioProject } from '../models/portfolio-project.model';
 
 @Injectable({ providedIn: 'root' })
 export class PortfolioService {
-  private apiUrl = 'http://localhost:8082/api/profile';
+  private apiUrl = 'http://localhost:8080/freelancer-api/profile';
 
   constructor(private http: HttpClient) { }
 
