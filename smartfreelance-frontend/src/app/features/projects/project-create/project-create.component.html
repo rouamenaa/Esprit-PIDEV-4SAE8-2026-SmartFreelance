@@ -1,52 +1,98 @@
-<div class="form-container">
-  <h2>Create Project</h2>
+<div class="create-wrapper">
+  <div class="form-card">
 
-  <form [formGroup]="projectForm" (ngSubmit)="submit()">
-
-    <!-- TITLE -->
-    <div class="form-group">
-      <label for="title">Title</label>
-      <input id="title" type="text" formControlName="title" placeholder="Enter project title">
-      <span class="error" *ngIf="projectForm.get('title')?.invalid && (projectForm.get('title')?.touched || projectForm.get('title')?.dirty)">
-        <span *ngIf="projectForm.get('title')?.hasError('required')">Title is required</span>
-        <span *ngIf="projectForm.get('title')?.hasError('minlength')">Title must be at least 3 characters</span>
-      </span>
+    <!-- HEADER -->
+    <div class="form-header">
+      <div class="form-header-icon">🚀</div>
+      <h2>Create New Project</h2>
+      <p class="form-header-sub">Fill in the details below to launch your project</p>
     </div>
 
-    <!-- DESCRIPTION -->
-    <div class="form-group">
-      <label for="description">Description</label>
-      <textarea id="description" rows="4" formControlName="description" placeholder="Enter project description"></textarea>
-      <span class="error" *ngIf="projectForm.get('description')?.invalid && (projectForm.get('description')?.touched || projectForm.get('description')?.dirty)">
-        Description cannot exceed 500 characters
-      </span>
-    </div>
+    <form [formGroup]="projectForm" (ngSubmit)="submit()">
 
-    <!-- BUDGET -->
-    <div class="form-group">
-      <label for="budget">Budget</label>
-      <input id="budget" type="number" formControlName="budget" placeholder="Enter budget">
-      <span class="error" *ngIf="projectForm.get('budget')?.invalid && (projectForm.get('budget')?.touched || projectForm.get('budget')?.dirty)">
-        <span *ngIf="projectForm.get('budget')?.hasError('required')">Budget is required</span>
-        <span *ngIf="projectForm.get('budget')?.hasError('min')">Budget must be positive</span>
-      </span>
-    </div>
+      <!-- TITLE -->
+      <div class="form-group" [class.has-error]="projectForm.get('title')?.invalid && projectForm.get('title')?.touched">
+        <label for="title">
+          <span class="label-icon">📌</span> Project Title
+          <span class="required-star">*</span>
+        </label>
+        <input id="title" type="text" formControlName="title" placeholder="e.g. E-Commerce Platform">
+        <div class="input-hint">Minimum 3 characters</div>
+        <div class="error-msg" *ngIf="projectForm.get('title')?.invalid && projectForm.get('title')?.touched">
+          <span *ngIf="projectForm.get('title')?.hasError('required')">⚠ Title is required</span>
+          <span *ngIf="projectForm.get('title')?.hasError('minlength')">⚠ At least 3 characters required</span>
+        </div>
+      </div>
 
-    <!-- DEADLINE -->
-    <div class="form-group">
-      <label for="deadline">Deadline</label>
-      <input id="deadline" type="date" formControlName="deadline">
-      <span class="error" *ngIf="projectForm.get('deadline')?.invalid && (projectForm.get('deadline')?.touched || projectForm.get('deadline')?.dirty)">
-        <span *ngIf="projectForm.get('deadline')?.hasError('required')">Deadline is required</span>
-        <span *ngIf="projectForm.get('deadline')?.hasError('futureDate')">Deadline must be a future date</span>
-      </span>
-    </div>
+      <!-- DESCRIPTION -->
+      <div class="form-group" [class.has-error]="projectForm.get('description')?.invalid && projectForm.get('description')?.touched">
+        <label for="description">
+          <span class="label-icon">📝</span> Description
+          <span class="char-count" [class.over-limit]="(projectForm.get('description')?.value?.length ?? 0) > 500">
+            {{ projectForm.get('description')?.value?.length ?? 0 }} / 500
+          </span>
+        </label>
+        <textarea id="description" rows="4" formControlName="description" placeholder="Describe your project goals, scope and deliverables..."></textarea>
+        <div class="error-msg" *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched">
+          ⚠ Description cannot exceed 500 characters
+        </div>
+      </div>
 
-    <!-- ACTIONS -->
-    <div class="form-actions">
-      <button type="submit" [disabled]="loading">{{ loading ? 'Creating...' : 'Create Project' }}</button>
-      <button type="button" routerLink="/">Cancel</button>
-    </div>
+      <!-- BUDGET + DEADLINE side by side -->
+      <div class="form-row-2">
 
-  </form>
+        <!-- BUDGET -->
+        <div class="form-group" [class.has-error]="projectForm.get('budget')?.invalid && projectForm.get('budget')?.touched">
+          <label for="budget">
+            <span class="label-icon">💰</span> Budget (USD)
+            <span class="required-star">*</span>
+          </label>
+          <div class="input-prefix-wrapper">
+            <span class="input-prefix">$</span>
+            <input id="budget" type="number" formControlName="budget" placeholder="0.00">
+          </div>
+          <div class="error-msg" *ngIf="projectForm.get('budget')?.invalid && projectForm.get('budget')?.touched">
+            <span *ngIf="projectForm.get('budget')?.hasError('required')">⚠ Budget is required</span>
+            <span *ngIf="projectForm.get('budget')?.hasError('min')">⚠ Budget must be positive</span>
+          </div>
+        </div>
+
+        <!-- DEADLINE -->
+        <div class="form-group" [class.has-error]="projectForm.get('deadline')?.invalid && projectForm.get('deadline')?.touched">
+          <label for="deadline">
+            <span class="label-icon">📅</span> Deadline
+            <span class="required-star">*</span>
+          </label>
+          <input id="deadline" type="date" formControlName="deadline">
+          <div class="error-msg" *ngIf="projectForm.get('deadline')?.invalid && projectForm.get('deadline')?.touched">
+            <span *ngIf="projectForm.get('deadline')?.hasError('required')">⚠ Deadline is required</span>
+            <span *ngIf="projectForm.get('deadline')?.hasError('futureDate')">⚠ Must be a future date</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FORM STATUS HINT -->
+      <div class="form-status-hint" *ngIf="projectForm.invalid && projectForm.touched">
+        ⚠️ Please fix the errors above before submitting.
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" routerLink="/projects">← Cancel</button>
+        <button
+          type="submit"
+          class="btn-submit"
+          [disabled]="projectForm.invalid || loading"
+          [class.btn-disabled]="projectForm.invalid"
+          [class.btn-loading]="loading">
+          <span *ngIf="!loading">🚀 Create Project</span>
+          <span *ngIf="loading" class="spinner-row">
+            <span class="spinner"></span> Creating...
+          </span>
+        </button>
+      </div>
+
+    </form>
+  </div>
 </div>

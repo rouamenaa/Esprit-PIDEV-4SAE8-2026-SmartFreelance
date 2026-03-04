@@ -23,8 +23,13 @@ export class ProjectDetailComponent implements OnInit {
   progress: number = 0;
   performanceIndex: number = 0;
   performanceLevel: string = '';
+totalTasks: number = 0;
+completedTasks: number = 0;
+daysRemaining: number = 0;
+isOverdue: boolean = false;
+progressStatus: string = '';
+progressStatusColor: string = '';
 
-  // 🔥 Nouvelle propriété
   aiSummary: string = '';
 
   constructor(
@@ -54,6 +59,7 @@ export class ProjectDetailComponent implements OnInit {
     this.projectService.getById(id).subscribe({
       next: (data: Project) => {
         this.project = data;
+this.computeDeadlineInfo(data);
 
         if (this.project?.description) {
           this.projectService.analyzeDescription(this.project.description).subscribe({
@@ -65,7 +71,6 @@ export class ProjectDetailComponent implements OnInit {
               this.project!.complexity = nlpResult.complexity;
               this.project!.duration = nlpResult.duration;
 
-              // 🔥 Génération du résumé IA
               this.generateAiSummary();
             },
             error: (err) => console.error('NLP error', err)
@@ -80,6 +85,29 @@ export class ProjectDetailComponent implements OnInit {
       }
     });
   }
+  computeDeadlineInfo(project: Project): void {
+  if (!project.deadline) return;
+
+  const today = new Date();
+  const deadline = new Date(project.deadline);
+  const diffMs = deadline.getTime() - today.getTime();
+  this.daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  this.isOverdue = this.daysRemaining < 0;
+
+  if (project.status === 'COMPLETED') {
+    this.progressStatus = 'Completed';
+    this.progressStatusColor = '#16a34a';
+  } else if (this.isOverdue) {
+    this.progressStatus = 'Overdue';
+    this.progressStatusColor = '#dc2626';
+  } else if (this.daysRemaining <= 7) {
+    this.progressStatus = 'Due soon';
+    this.progressStatusColor = '#f59e0b';
+  } else {
+    this.progressStatus = 'On track';
+    this.progressStatusColor = '#3b82f6';
+  }
+}
 
   // 🔥 Fonction qui génère le message IA naturel
   generateAiSummary() {
@@ -105,12 +133,12 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   loadProgress(id: number) {
-    this.projectService.getProjectProgress(id)
-      .subscribe(value => {
-        console.log("Raw value:", value, typeof value);
-        this.progress = Number(value);
-      });
-  }
+  this.projectService.getProjectProgressDetails(id).subscribe(data => {
+    this.progress = data.progress;
+    this.totalTasks = data.totalTasks;
+    this.completedTasks = data.completedTasks;
+  });
+}
 
   loadPerformance(id: number) {
     this.projectService.getProjectPerformance(id)

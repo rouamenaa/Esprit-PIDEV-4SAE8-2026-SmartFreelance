@@ -1,79 +1,173 @@
 <div class="phases-container">
-  <h3>Project Phases</h3>
 
-  <!-- Bouton Add Phase -->
-  <div class="add-btn-wrapper">
-    <button type="button" class="btn btn-primary" (click)="toggleAddPhaseForm()">
-      <span *ngIf="!showAddPhaseForm">➕</span>
-      <span *ngIf="showAddPhaseForm">❌</span>
-      {{ showAddPhaseForm ? ' Cancel' : ' Add Phase' }}
-    </button>
+  <!-- HEADER -->
+  <div class="phases-header">
+    <h3>Project Phases</h3>
+    <div class="header-actions">
+      <button type="button" class="btn-gantt" (click)="toggleGantt()">
+        📅 {{ showGantt ? 'Hide Timeline' : 'Show Timeline' }}
+      </button>
+      <button type="button" class="btn btn-primary" (click)="toggleAddPhaseForm()">
+        <span *ngIf="!showAddPhaseForm">➕</span>
+        <span *ngIf="showAddPhaseForm">❌</span>
+        {{ showAddPhaseForm ? ' Cancel' : ' Add Phase' }}
+      </button>
+    </div>
   </div>
 
-  <!-- Formulaire Add Phase -->
+  <!-- ADD FORM -->
   <div class="add-phase-form" *ngIf="showAddPhaseForm">
+    <div class="add-form-header">
+      <div class="add-form-icon">⚡</div>
+      <div>
+        <h4>New Phase</h4>
+        <p>Add a new phase to structure your project timeline</p>
+      </div>
+    </div>
+
     <form [formGroup]="addPhaseForm" (ngSubmit)="addPhase()">
 
-      <div class="form-row">
+      <!-- NAME -->
+      <div class="af-group" [class.af-error]="addNameControl.invalid && addNameControl.touched">
+        <label>
+          <span>📌</span> Phase Name
+          <span class="af-required">*</span>
+        </label>
+        <input type="text" formControlName="name" class="af-input" placeholder="e.g. Design, Development, Testing..."/>
+        <div class="af-hint">Minimum 3 characters</div>
+        <div class="af-error-msg" *ngIf="addNameControl.invalid && addNameControl.touched">
+          <span *ngIf="addNameControl.hasError('required')">⚠ Name is required</span>
+          <span *ngIf="addNameControl.hasError('minlength')">⚠ At least 3 characters required</span>
+        </div>
+      </div>
 
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input id="name" type="text" formControlName="name" class="form-control" />
-          <div class="error" *ngIf="addNameControl.invalid && addNameControl.touched">
-            Name is required
+      <!-- DATES + STATUS row -->
+      <div class="af-row">
+
+        <!-- START DATE -->
+        <div class="af-group" [class.af-error]="addStartDateControl.invalid && addStartDateControl.touched">
+          <label><span>📅</span> Start Date <span class="af-required">*</span></label>
+          <input type="date" formControlName="startDate" class="af-input"/>
+          <div class="af-error-msg" *ngIf="addStartDateControl.invalid && addStartDateControl.touched">
+            ⚠ Start date is required
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="startDate">Start Date</label>
-          <input id="startDate" type="date" formControlName="startDate" class="form-control" />
-          <div class="error" *ngIf="addStartDateControl.invalid && addStartDateControl.touched">
-            Start date required
+        <!-- END DATE -->
+        <div class="af-group" [class.af-error]="(addEndDateControl.invalid && addEndDateControl.touched) || (addPhaseForm.hasError('dateRange') && addEndDateControl.touched)">
+          <label><span>🏁</span> End Date <span class="af-required">*</span></label>
+          <input type="date" formControlName="endDate" class="af-input"/>
+          <div class="af-error-msg" *ngIf="addEndDateControl.invalid && addEndDateControl.touched">
+            ⚠ End date is required
+          </div>
+          <div class="af-error-msg" *ngIf="addPhaseForm.hasError('dateRange') && addEndDateControl.touched">
+            ⚠ End date must be after start date
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="endDate">End Date</label>
-          <input id="endDate" type="date" formControlName="endDate" class="form-control" />
-          <div class="error" *ngIf="addEndDateControl.invalid && addEndDateControl.touched">
-            End date required
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="status">Status</label>
-          <select id="status" formControlName="status" class="form-control">
-            <option *ngFor="let status of statusOptions" [value]="status">
-              {{ status }}
-            </option>
+        <!-- STATUS -->
+        <div class="af-group">
+          <label><span>🏷️</span> Status</label>
+          <select formControlName="status" class="af-input">
+            <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
           </select>
         </div>
 
       </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn btn-success" [disabled]="addPhaseForm.invalid">
-          ✅ Add Phase
+      <!-- FORM ERROR HINT -->
+      <div class="af-global-hint" *ngIf="addPhaseForm.invalid && addPhaseForm.touched">
+        ⚠️ Please fix the errors above before adding the phase.
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="af-actions">
+        <button type="button" class="af-btn-cancel" (click)="toggleAddPhaseForm()">Cancel</button>
+        <button type="submit" class="af-btn-submit"
+                [disabled]="addPhaseForm.invalid"
+                [class.af-btn-disabled]="addPhaseForm.invalid">
+          <span *ngIf="!addPhaseForm.invalid">✅ Add Phase</span>
+          <span *ngIf="addPhaseForm.invalid">🔒 Fix errors to continue</span>
         </button>
       </div>
 
     </form>
   </div>
+
+  <!-- GANTT TIMELINE -->
+  <div class="gantt-wrapper" *ngIf="showGantt && ganttPhases.length > 0">
+
+    <div class="gantt-header-bar">
+      <div class="gantt-title-col">
+        <span>Phase</span>
+      </div>
+      <div class="gantt-chart-col">
+        <div class="gantt-date-labels">
+          <span>{{ ganttStart | date:'MMM d' }}</span>
+          <span>{{ ganttEnd | date:'MMM d, y' }}</span>
+        </div>
+        <div class="gantt-today-line" [style.left.%]="getTodayPercent()">
+          <span class="gantt-today-label">Today</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="gantt-row" *ngFor="let gp of ganttPhases">
+      <div class="gantt-title-col">
+        <div class="gantt-phase-name">{{ gp.name }}</div>
+        <div class="gantt-phase-meta">
+          <span class="gantt-badge" [style.background]="getGanttColor(gp.status) + '22'" [style.color]="getGanttColor(gp.status)">
+            {{ gp.status }}
+          </span>
+          <span class="gantt-tasks" *ngIf="gp.taskCount > 0">
+            ✓ {{ gp.doneCount }}/{{ gp.taskCount }}
+          </span>
+        </div>
+      </div>
+      <div class="gantt-chart-col">
+        <div class="gantt-track">
+          <div class="gantt-bar"
+               [style.left.%]="gp.leftPercent"
+               [style.width.%]="gp.widthPercent"
+               [style.background]="getGanttColor(gp.status)">
+            <div class="gantt-bar-progress"
+                 *ngIf="gp.taskCount > 0"
+                 [style.width.%]="(gp.doneCount / gp.taskCount) * 100"
+                 style="background: rgba(255,255,255,0.35); height:100%; border-radius: 6px;">
+            </div>
+            <span class="gantt-bar-label">
+              {{ gp.startDate | date:'MMM d' }} → {{ gp.endDate | date:'MMM d' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gantt-legend">
+      <span class="gantt-legend-item"><span class="dot" style="background:#16a34a"></span> Completed</span>
+      <span class="gantt-legend-item"><span class="dot" style="background:#6366f1"></span> In Progress</span>
+      <span class="gantt-legend-item"><span class="dot" style="background:#d97706"></span> Review</span>
+      <span class="gantt-legend-item"><span class="dot" style="background:#dc2626"></span> Blocked</span>
+      <span class="gantt-legend-item"><span class="dot" style="background:#94a3b8"></span> Pending</span>
+      <span class="gantt-legend-item gantt-today-legend"><span class="dot today-dot"></span> Today</span>
+    </div>
+  </div>
+
+  <div class="gantt-empty" *ngIf="showGantt && ganttPhases.length === 0">
+    ⚠️ No phases with dates available to display the timeline.
+  </div>
+
+  <!-- FILTERS -->
   <div class="filters">
-
     <input type="text" placeholder="Search phase..." [(ngModel)]="searchTerm" (input)="applyFilters()">
-
     <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
       <option value="">All Status</option>
-      <option *ngFor="let status of statusOptions" [value]="status">
-        {{ status }}
-      </option>
+      <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
     </select>
-
   </div>
-  <!-- Tableau des phases -->
-  <table class="phases-table" *ngIf="phases.length > 0">
 
+  <!-- TABLE -->
+  <table class="phases-table" *ngIf="phases.length > 0">
     <thead>
       <tr>
         <th (click)="sortBy('name')">Name ⬍</th>
@@ -83,82 +177,67 @@
         <th class="text-center">Actions</th>
       </tr>
     </thead>
-
     <tbody>
       <tr *ngFor="let phase of filteredPhases">
-        <!-- NAME -->
         <td>
-          <ng-container *ngIf="editingPhaseId !== phase.id; else editName">
-            {{ phase.name }}
-          </ng-container>
-          <ng-template #editName>
-            <input type="text" [formControl]="nameControl" class="form-control">
-          </ng-template>
+          <ng-container *ngIf="editingPhaseId !== phase.id; else editName">{{ phase.name }}</ng-container>
+          <ng-template #editName><input type="text" [formControl]="nameControl" class="form-control"></ng-template>
         </td>
-
-        <!-- START DATE -->
         <td>
-          <ng-container *ngIf="editingPhaseId !== phase.id; else editStart">
-            {{ phase.startDate | date:'shortDate' }}
-          </ng-container>
-          <ng-template #editStart>
-            <input type="date" [formControl]="startDateControl" class="form-control">
-          </ng-template>
+          <ng-container *ngIf="editingPhaseId !== phase.id; else editStart">{{ phase.startDate | date:'shortDate' }}</ng-container>
+          <ng-template #editStart><input type="date" [formControl]="startDateControl" class="form-control"></ng-template>
         </td>
-
-        <!-- END DATE -->
         <td>
-          <ng-container *ngIf="editingPhaseId !== phase.id; else editEnd">
-            {{ phase.endDate | date:'shortDate' }}
-          </ng-container>
-          <ng-template #editEnd>
-            <input type="date" [formControl]="endDateControl" class="form-control">
-          </ng-template>
+          <ng-container *ngIf="editingPhaseId !== phase.id; else editEnd">{{ phase.endDate | date:'shortDate' }}</ng-container>
+          <ng-template #editEnd><input type="date" [formControl]="endDateControl" class="form-control"></ng-template>
         </td>
-
-        <!-- STATUS -->
         <td>
           <ng-container *ngIf="editingPhaseId !== phase.id; else editStatus">
-            <span class="badge" [ngClass]="phase.status.toLowerCase()">
-              {{ phase.status }}
-            </span>
+            <span class="badge" [ngClass]="phase.status.toLowerCase()">{{ phase.status }}</span>
           </ng-container>
           <ng-template #editStatus>
             <select [formControl]="statusControl" class="form-control">
-              <option *ngFor="let status of statusOptions" [value]="status">
-                {{ status }}
-              </option>
+              <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
             </select>
           </ng-template>
         </td>
-
-        <!-- ACTIONS -->
         <td class="actions-cell">
-
-          <!-- MODE NORMAL -->
           <ng-container *ngIf="editingPhaseId !== phase.id">
             <button class="btn-icon btn-details" (click)="viewDetails(phase)" title="View Details">👁️</button>
             <button class="btn-icon btn-edit" (click)="startEdit(phase)" title="Edit">✏️</button>
             <button class="btn-icon btn-delete" (click)="deletePhase(phase.id)" title="Delete">🗑️</button>
           </ng-container>
-
-          <!-- MODE EDIT -->
           <ng-container *ngIf="editingPhaseId === phase.id">
             <button class="btn-icon btn-save" (click)="saveEdit(phase)" title="Save">✅</button>
             <button class="btn-icon btn-cancel" (click)="cancelEdit()" title="Cancel">❌</button>
           </ng-container>
-
         </td>
-
       </tr>
     </tbody>
-
   </table>
 
   <!-- EMPTY STATE -->
   <div class="empty-state" *ngIf="phases.length === 0 && !showAddPhaseForm">
     📂
     <p>No phases found for this project.</p>
+  </div>
+
+  <!-- DELETE CONFIRMATION MODAL -->
+  <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-icon">🗑️</div>
+      <h4 class="modal-title">Delete Phase</h4>
+      <p class="modal-message">
+        Are you sure you want to delete
+        <strong>{{ phaseToDeleteName }}</strong> ?
+        <br>
+        <span class="modal-warning">This action cannot be undone.</span>
+      </p>
+      <div class="modal-actions">
+        <button class="modal-btn-cancel" (click)="closeDeleteModal()">Cancel</button>
+        <button class="modal-btn-confirm" (click)="confirmDelete()">🗑️ Delete</button>
+      </div>
+    </div>
   </div>
 
 </div>

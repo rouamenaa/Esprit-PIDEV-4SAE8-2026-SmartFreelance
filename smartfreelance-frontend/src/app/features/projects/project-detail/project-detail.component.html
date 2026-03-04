@@ -54,70 +54,142 @@
       </div>
     </section>
 
-<!-- 2️⃣ AI Suggestions -->
-<section class="ai-suggestions" *ngIf="aiSummary">
-  <h3>🤖 AI Analysis</h3>
+    <!-- 2️⃣ AI Suggestions -->
+    <section class="ai-suggestions" *ngIf="aiSummary">
+      <h3>🤖 AI Analysis</h3>
 
-  <!-- 🔹 Résumé naturel généré par IA -->
-  <div class="ai-summary-card">
-    <mat-icon class="suggestion-icon">auto_awesome</mat-icon>
-    <p class="ai-summary-text">{{ aiSummary }}</p>
-  </div>
-
-  <!-- 🔹 Cartes détaillées (optionnel, si tu veux garder la structure) -->
-  <div class="suggestion-grid">
-    <div class="suggestion-card" *ngIf="project?.category && project.category !== 'Unknown'">
-      <mat-icon class="suggestion-icon">category</mat-icon>
-      <div class="suggestion-content">
-        <span class="suggestion-label">Category</span>
-        <span class="suggestion-value">{{ project.category }}</span>
+      <div class="ai-summary-card">
+        <mat-icon class="suggestion-icon">auto_awesome</mat-icon>
+        <p class="ai-summary-text">{{ aiSummary }}</p>
       </div>
-      <span class="ai-badge">AI Suggestion</span>
-    </div>
 
-    <div class="suggestion-card" *ngIf="project?.stack?.length">
-      <mat-icon class="suggestion-icon">code</mat-icon>
-      <div class="suggestion-content">
-        <span class="suggestion-label">Stack</span>
-        <span class="suggestion-value">{{ project.stack?.join(', ') || '-' }}</span>
-      </div>
-      <span class="ai-badge">AI Suggestion</span>
-    </div>
+      <div class="suggestion-grid">
+        <div class="suggestion-card" *ngIf="project.category && project.category !== 'Unknown'">
+          <mat-icon class="suggestion-icon">category</mat-icon>
+          <div class="suggestion-content">
+            <span class="suggestion-label">Category</span>
+            <span class="suggestion-value">{{ project.category }}</span>
+          </div>
+          <span class="ai-badge">AI Suggestion</span>
+        </div>
 
-    <div class="suggestion-card" *ngIf="project?.complexity && project.complexity !== 'Unknown'">
-      <mat-icon class="suggestion-icon">bar_chart</mat-icon>
-      <div class="suggestion-content">
-        <span class="suggestion-label">Complexity</span>
-        <span class="suggestion-value">{{ project.complexity }}</span>
-      </div>
-      <span class="ai-badge">AI Suggestion</span>
-    </div>
+        <div class="suggestion-card" *ngIf="project.stack?.length">
+          <mat-icon class="suggestion-icon">code</mat-icon>
+          <div class="suggestion-content">
+            <span class="suggestion-label">Stack</span>
+            <span class="suggestion-value">{{ project.stack?.join(', ') || '-' }}</span>
+          </div>
+          <span class="ai-badge">AI Suggestion</span>
+        </div>
 
-    <div class="suggestion-card" *ngIf="project?.duration && project.duration !== 'Unknown'">
-      <mat-icon class="suggestion-icon">schedule</mat-icon>
-      <div class="suggestion-content">
-        <span class="suggestion-label">Duration</span>
-        <span class="suggestion-value">{{ project.duration }}</span>
-      </div>
-      <span class="ai-badge">AI Suggestion</span>
-    </div>
-  </div>
-</section>
+        <div class="suggestion-card" *ngIf="project.complexity && project.complexity !== 'Unknown'">
+          <mat-icon class="suggestion-icon">bar_chart</mat-icon>
+          <div class="suggestion-content">
+            <span class="suggestion-label">Complexity</span>
+            <span class="suggestion-value">{{ project.complexity }}</span>
+          </div>
+          <span class="ai-badge">AI Suggestion</span>
+        </div>
 
-    <!-- 3️⃣ Progress -->
-    <section class="section-card progress-section">
-      <h3>Project Progress</h3>
-      <div class="progress-bar">
-        <div class="progress-fill" [style.width.%]="progress"></div>
+        <div class="suggestion-card" *ngIf="project.duration && project.duration !== 'Unknown'">
+          <mat-icon class="suggestion-icon">schedule</mat-icon>
+          <div class="suggestion-content">
+            <span class="suggestion-label">Duration</span>
+            <span class="suggestion-value">{{ project.duration }}</span>
+          </div>
+          <span class="ai-badge">AI Suggestion</span>
+        </div>
       </div>
-      <div class="progress-text">{{ progress | number:'1.0-0' }}%</div>
     </section>
 
+    <!-- 3️⃣ Progress -->
+<section class="section-card progress-section">
+  <div class="progress-header">
+    <div>
+      <h3>Project Progress</h3>
+      <p class="progress-subtitle">
+        Tracks task completion over time and evaluates whether the project is on schedule relative to its deadline.
+      </p>
+    </div>
+    <span class="progress-status-badge" [ngStyle]="{'background-color': progressStatusColor}">
+      <mat-icon>{{ isOverdue ? 'error' : project.status === 'COMPLETED' ? 'check_circle' : daysRemaining <= 7 ? 'schedule' : 'verified' }}</mat-icon>
+      {{ progressStatus }}
+    </span>
+  </div>
+
+  <div class="progress-kpi-row">
+    <div class="progress-kpi-card">
+      <mat-icon style="color:#3b82f6">task_alt</mat-icon>
+      <div>
+        <span class="progress-kpi-label">Completion</span>
+        <span class="progress-kpi-value">{{ progress | number:'1.0-0' }}%</span>
+      </div>
+    </div>
+    <div class="progress-kpi-card">
+      <mat-icon style="color:#6366f1">check_box</mat-icon>
+      <div>
+        <span class="progress-kpi-label">Tasks Done</span>
+        <span class="progress-kpi-value">{{ completedTasks }} / {{ totalTasks }}</span>
+      </div>
+    </div>
+    <div class="progress-kpi-card">
+      <mat-icon [style.color]="progressStatusColor">event</mat-icon>
+      <div>
+        <span class="progress-kpi-label">Deadline</span>
+        <span class="progress-kpi-value">{{ project.deadline | date:'mediumDate' }}</span>
+      </div>
+    </div>
+    <div class="progress-kpi-card">
+      <mat-icon [style.color]="isOverdue ? '#dc2626' : '#f59e0b'">hourglass_bottom</mat-icon>
+      <div>
+        <span class="progress-kpi-label">Days Remaining</span>
+        <span class="progress-kpi-value" [style.color]="isOverdue ? '#dc2626' : '#1e293b'">
+          {{ isOverdue ? 'Overdue by ' + (-daysRemaining) + 'd' : daysRemaining + ' days' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-bar-wrapper">
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill"
+           [style.width.%]="progress"
+           [style.background-color]="progressStatusColor">
+      </div>
+    </div>
+    <span class="progress-bar-label">{{ progress | number:'1.0-0' }}%</span>
+  </div>
+
+  <p class="progress-hint" *ngIf="!isOverdue && project.status !== 'COMPLETED'">
+    🎯 {{ daysRemaining }} days left to complete {{ totalTasks - completedTasks }} remaining task(s).
+  </p>
+  <p class="progress-hint overdue" *ngIf="isOverdue && project.status !== 'COMPLETED'">
+    ⚠️ This project is overdue by {{ -daysRemaining }} day(s). Immediate action required.
+  </p>
+  <p class="progress-hint done" *ngIf="project.status === 'COMPLETED'">
+    ✅ All {{ totalTasks }} tasks completed. Project successfully delivered.
+  </p>
+</section>
     <!-- 4️⃣ Performance Dashboard -->
     <section class="section-card performance-dashboard">
-      <h3>Performance Analysis</h3>
-      <div class="performance-card">
-        <div class="radial-progress">
+      <div class="perf-header">
+        <div>
+          <h3>Performance Analysis</h3>
+          <p class="perf-subtitle">
+            Measures project execution efficiency based on task completion rate vs. time elapsed.
+            A high score means tasks are completed faster than expected.
+          </p>
+        </div>
+        <span class="perf-badge" [ngStyle]="{'background-color': getPerformanceColor()}">
+          <mat-icon>{{ performanceLevel === 'HIGH_PERFORMANCE' ? 'rocket_launch' : performanceLevel === 'MODERATE' ? 'hourglass_top' : 'warning' }}</mat-icon>
+          {{ performanceLevel === 'HIGH_PERFORMANCE' ? 'High Performance' : performanceLevel === 'MODERATE' ? 'Moderate' : 'At Risk' }}
+        </span>
+      </div>
+
+      <div class="perf-body">
+
+        <!-- Radial gauge -->
+        <div class="radial-wrapper">
           <svg viewBox="0 0 36 36" class="circular-chart">
             <path class="circle-bg"
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
@@ -125,30 +197,77 @@
                   [attr.stroke]="getPerformanceColor()"
                   [attr.stroke-dasharray]="performanceIndex + ', 100'"
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-            <text x="18" y="20.35" class="percentage">{{ performanceIndex | number:'1.0-0' }}%</text>
+            <text x="18" y="17" class="percentage">{{ performanceIndex | number:'1.0-0' }}%</text>
+            <text x="18" y="23" class="perf-label-svg">score</text>
           </svg>
+          <p class="gauge-caption">Performance Index</p>
         </div>
-        <div class="performance-badge" [ngStyle]="{'background-color': getPerformanceColor()}">
-          {{ performanceLevel }}
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <mat-icon class="kpi-icon" style="color:#6366f1">trending_up</mat-icon>
+            <div>
+              <span class="kpi-label">Completion Rate</span>
+              <span class="kpi-value">{{ progress | number:'1.0-0' }}%</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <mat-icon class="kpi-icon" [style.color]="getPerformanceColor()">speed</mat-icon>
+            <div>
+              <span class="kpi-label">Efficiency Score</span>
+              <span class="kpi-value">{{ performanceIndex | number:'1.0-0' }}%</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <mat-icon class="kpi-icon" style="color:#f59e0b">flag</mat-icon>
+            <div>
+              <span class="kpi-label">Status</span>
+              <span class="kpi-value" [style.color]="getPerformanceColor()">
+                {{ performanceLevel === 'HIGH_PERFORMANCE' ? 'Ahead of schedule' : performanceLevel === 'MODERATE' ? 'On track' : 'At risk' }}
+              </span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <mat-icon class="kpi-icon" style="color:#10b981">insights</mat-icon>
+            <div>
+              <span class="kpi-label">Recommendation</span>
+              <span class="kpi-value recommendation">
+                {{ performanceLevel === 'HIGH_PERFORMANCE' ? 'Maintain pace' : performanceLevel === 'MODERATE' ? 'Monitor closely' : 'Take action' }}
+              </span>
+            </div>
+          </div>
         </div>
-        <div class="performance-status">
-          <span *ngIf="performanceLevel==='HIGH'">🚀 Ahead of schedule</span>
-          <span *ngIf="performanceLevel==='MEDIUM'">⏳ On track</span>
-          <span *ngIf="performanceLevel==='LOW'">⚠ At risk</span>
+
+      </div>
+
+      <!-- Scale bar with threshold markers -->
+      <div class="perf-scale">
+        <span class="scale-label">0%</span>
+        <div class="scale-bar">
+          <div class="scale-fill" [style.width.%]="performanceIndex" [style.background-color]="getPerformanceColor()"></div>
+          <span class="scale-marker low">40%</span>
+          <span class="scale-marker high">75%</span>
         </div>
+        <span class="scale-label">100%</span>
+      </div>
+      <div class="scale-legend">
+        <span class="legend-dot" style="background:#dc2626"></span> At Risk (&lt;40%)
+        <span class="legend-dot" style="background:#eab308; margin-left:12px"></span> Moderate (40–75%)
+        <span class="legend-dot" style="background:#16a34a; margin-left:12px"></span> High Performance (&gt;75%)
       </div>
     </section>
 
     <!-- 5️⃣ Phases toggle -->
     <div class="phases-toggle">
-  <button mat-stroked-button (click)="showPhases = !showPhases">
-    <mat-icon>{{ showPhases ? 'expand_less' : 'expand_more' }}</mat-icon>
-    {{ showPhases ? 'Hide Phases' : 'Show Phases' }}
-  </button>
-</div>
-<div *ngIf="showPhases && projectId !== null" class="project-phases">
-  <app-project-phases [projectId]="projectId"></app-project-phases>
-</div>
+      <button mat-stroked-button (click)="showPhases = !showPhases">
+        <mat-icon>{{ showPhases ? 'expand_less' : 'expand_more' }}</mat-icon>
+        {{ showPhases ? 'Hide Phases' : 'Show Phases' }}
+      </button>
+    </div>
+    <div *ngIf="showPhases && projectId !== null" class="project-phases">
+      <app-project-phases [projectId]="projectId"></app-project-phases>
+    </div>
 
   </div>
 </div>

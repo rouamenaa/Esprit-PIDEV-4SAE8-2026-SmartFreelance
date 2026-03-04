@@ -1,24 +1,29 @@
 <div class="task-container">
 
-  <h4>Tasks</h4>
+  <!-- HEADER -->
+  <div class="task-header-section">
+    <div class="task-header-left">
+      <div class="task-header-icon">✅</div>
+      <div>
+        <h4>Tasks</h4>
+        <p class="task-subtitle">{{ filteredTasks.length }} task(s) found</p>
+      </div>
+    </div>
+  </div>
 
-  <!-- FILTRES -->
+  <!-- FILTERS -->
   <div class="task-filters">
-    <input type="text"
-           placeholder="Search task..."
-           [(ngModel)]="searchTerm"
-           (input)="applyFilters()">
-
-    <select [(ngModel)]="selectedStatus"
-            (change)="applyFilters()">
+    <div class="filter-search">
+      <span class="filter-icon">🔍</span>
+      <input type="text" placeholder="Search task..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+    </div>
+    <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
       <option value="">All Status</option>
       <option value="TODO">TODO</option>
-      <option value="IN_PROGRESS">IN_PROGRESS</option>
+      <option value="IN_PROGRESS">IN PROGRESS</option>
       <option value="DONE">DONE</option>
     </select>
-
-    <select [(ngModel)]="selectedPriority"
-            (change)="applyFilters()">
+    <select [(ngModel)]="selectedPriority" (change)="applyFilters()">
       <option value="">All Priority</option>
       <option value="LOW">Low</option>
       <option value="MEDIUM">Medium</option>
@@ -26,63 +31,165 @@
     </select>
   </div>
 
-  <!-- FORMULAIRE AJOUT -->
-  <div class="task-form">
-    <input type="text" placeholder="Title" [(ngModel)]="newTask.title">
-    <textarea placeholder="Description" [(ngModel)]="newTask.description"></textarea>
-    <select [(ngModel)]="newTask.priority">
-      <option value="LOW">Low</option>
-      <option value="MEDIUM">Medium</option>
-      <option value="HIGH">High</option>
-    </select>
-    <button (click)="addTask()">Add Task</button>
-  </div>
-
-  <!-- LISTE DES TÂCHES FILTRÉES -->
-  <div *ngFor="let task of filteredTasks" class="task-card">
-
-    <!-- MODE ÉDITION -->
-    <div *ngIf="editingTask?.id === task.id; else viewMode">
-      <input [(ngModel)]="editingTask!.title" placeholder="Title">
-      <textarea [(ngModel)]="editingTask!.description" placeholder="Description"></textarea>
-      <select [(ngModel)]="editingTask!.priority">
-        <option value="LOW">Low</option>
-        <option value="MEDIUM">Medium</option>
-        <option value="HIGH">High</option>
-      </select>
-      <select [(ngModel)]="editingTask!.status">
-        <option value="TODO">TODO</option>
-        <option value="IN_PROGRESS">IN_PROGRESS</option>
-        <option value="DONE">DONE</option>
-      </select>
-      <button (click)="saveEdit()">Save</button>
-      <button (click)="cancelEdit()">Cancel</button>
+  <!-- ADD TASK FORM -->
+  <div class="add-task-form">
+    <div class="add-task-form-header">
+      <span>➕</span>
+      <strong>Add New Task</strong>
     </div>
 
-    <!-- MODE LECTURE -->
-    <ng-template #viewMode>
-      <div class="task-header">
-        <strong>{{ task.title }}</strong>
-        <button (click)="deleteTask(task.id)">X</button>
-        <button (click)="startEdit(task)">Edit</button>
+    <div class="atf-body">
+
+      <div class="atf-group" [class.atf-error]="!newTask.title && taskSubmitAttempted">
+        <label><span>📌</span> Title <span class="atf-required">*</span></label>
+        <input type="text"
+               [(ngModel)]="newTask.title"
+               placeholder="e.g. Design homepage wireframe"
+               class="atf-input"
+               (focus)="taskSubmitAttempted = false">
+        <div class="atf-error-msg" *ngIf="!newTask.title && taskSubmitAttempted">
+          ⚠ Title is required
+        </div>
       </div>
 
-      <p>{{ task.description }}</p>
-
-      <div class="task-footer">
-        <label>Status:</label>
-        <select [ngModel]="task.status" (ngModelChange)="updateStatus(task, $event)">
-          <option value="TODO">TODO</option>
-          <option value="IN_PROGRESS">IN_PROGRESS</option>
-          <option value="DONE">DONE</option>
-        </select>
-
-        <span class="priority {{ task.priority.toLowerCase() }}">
-          {{ task.priority }}
-        </span>
+      <div class="atf-group">
+        <label><span>📝</span> Description</label>
+        <textarea [(ngModel)]="newTask.description"
+                  placeholder="Describe what needs to be done..."
+                  class="atf-input atf-textarea"
+                  rows="2"></textarea>
       </div>
-    </ng-template>
 
+      <div class="atf-row">
+        <div class="atf-group">
+          <label><span>🚦</span> Priority</label>
+          <select [(ngModel)]="newTask.priority" class="atf-input">
+            <option value="LOW">🟢 Low</option>
+            <option value="MEDIUM">🟡 Medium</option>
+            <option value="HIGH">🔴 High</option>
+          </select>
+        </div>
+        <div class="atf-group">
+          <label><span>📋</span> Status</label>
+          <select [(ngModel)]="newTask.status" class="atf-input">
+            <option value="TODO">TODO</option>
+            <option value="IN_PROGRESS">IN PROGRESS</option>
+            <option value="DONE">DONE</option>
+          </select>
+        </div>
+        <div class="atf-group atf-submit-col">
+          <label>&nbsp;</label>
+          <button class="atf-btn-submit" (click)="tryAddTask()">
+            ✅ Add Task
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TASK LIST -->
+  <div class="task-list" *ngIf="filteredTasks.length > 0">
+    <div *ngFor="let task of filteredTasks" class="task-card" [class.task-done]="task.status === 'DONE'">
+
+      <!-- EDIT MODE -->
+      <div *ngIf="editingTask?.id === task.id; else viewMode" class="task-edit-mode">
+        <div class="edit-grid">
+          <div class="atf-group" [class.atf-error]="!editingTask!.title">
+            <label>📌 Title <span class="atf-required">*</span></label>
+            <input [(ngModel)]="editingTask!.title" class="atf-input" placeholder="Task title">
+            <div class="atf-error-msg" *ngIf="!editingTask!.title">⚠ Title is required</div>
+          </div>
+          <div class="atf-group">
+            <label>📝 Description</label>
+            <textarea [(ngModel)]="editingTask!.description" class="atf-input" rows="2" placeholder="Description"></textarea>
+          </div>
+          <div class="edit-row">
+            <div class="atf-group">
+              <label>🚦 Priority</label>
+              <select [(ngModel)]="editingTask!.priority" class="atf-input">
+                <option value="LOW">🟢 Low</option>
+                <option value="MEDIUM">🟡 Medium</option>
+                <option value="HIGH">🔴 High</option>
+              </select>
+            </div>
+            <div class="atf-group">
+              <label>📋 Status</label>
+              <select [(ngModel)]="editingTask!.status" class="atf-input">
+                <option value="TODO">TODO</option>
+                <option value="IN_PROGRESS">IN PROGRESS</option>
+                <option value="DONE">DONE</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="edit-actions">
+          <button class="btn-edit-cancel" (click)="cancelEdit()">Cancel</button>
+          <button class="btn-edit-save" (click)="trySaveEdit()"
+                  [disabled]="!editingTask!.title"
+                  [class.btn-disabled]="!editingTask!.title">
+            <span *ngIf="editingTask!.title">💾 Save Changes</span>
+            <span *ngIf="!editingTask!.title">🔒 Fix errors</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW MODE -->
+      <ng-template #viewMode>
+        <div class="task-view-top">
+          <div class="task-view-left">
+            <span class="task-status-dot" [ngClass]="task.status.toLowerCase()"></span>
+            <strong class="task-title">{{ task.title }}</strong>
+          </div>
+          <div class="task-view-actions">
+            <button class="tc-btn tc-edit" (click)="startEdit(task)" title="Edit">✏️</button>
+            <button class="tc-btn tc-delete" (click)="deleteTask(task.id)" title="Delete">🗑️</button>
+          </div>
+        </div>
+
+        <p class="task-desc" *ngIf="task.description">{{ task.description }}</p>
+
+        <div class="task-view-footer">
+          <span class="priority-badge" [ngClass]="task.priority.toLowerCase()">
+            {{ task.priority === 'HIGH' ? '🔴' : task.priority === 'MEDIUM' ? '🟡' : '🟢' }}
+            {{ task.priority }}
+          </span>
+          <div class="status-select-wrap">
+            <label>Status:</label>
+            <select class="status-select" [ngModel]="task.status" (ngModelChange)="updateStatus(task, $event)">
+              <option value="TODO">TODO</option>
+              <option value="IN_PROGRESS">IN PROGRESS</option>
+              <option value="DONE">DONE</option>
+            </select>
+          </div>
+        </div>
+      </ng-template>
+
+    </div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="task-empty" *ngIf="filteredTasks.length === 0">
+    <span>📭</span>
+    <p>No tasks found. Add one above!</p>
+  </div>
+
+  <!-- DELETE CONFIRMATION MODAL -->
+  <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-icon">🗑️</div>
+      <h4 class="modal-title">Delete Task</h4>
+      <p class="modal-message">
+        Are you sure you want to delete
+        <strong>{{ taskToDeleteName }}</strong> ?
+        <br>
+        <span class="modal-warning">This action cannot be undone.</span>
+      </p>
+      <div class="modal-actions">
+        <button class="modal-btn-cancel" (click)="closeDeleteModal()">Cancel</button>
+        <button class="modal-btn-confirm" (click)="confirmDelete()">🗑️ Delete</button>
+      </div>
+    </div>
   </div>
 
 </div>

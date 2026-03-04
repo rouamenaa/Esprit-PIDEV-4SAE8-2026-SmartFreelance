@@ -1,148 +1,241 @@
-/* ===================== */
-/* Phase Card Container  */
-/* ===================== */
+:host {
+  --primary: #1e3a8a;
+  --accent: #6366f1;
+  --border: #e5e7eb;
+  --bg: #f8fafc;
+  --white: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+}
+
+/* =========================
+   CARD
+========================= */
 .phase-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 20px;
-  background-color: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  max-width: 900px;
+  margin: 40px auto;
+  background: var(--white);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  padding: 32px;
 }
 
-/* Title */
-.phase-title {
-  margin: 0 0 12px 0;
-  font-size: 1.5rem;
-  color: #333;
-}
-
-/* ===================== */
-/* Phase Info Section    */
-/* ===================== */
-.phase-info {
+/* =========================
+   HEADER
+========================= */
+.phase-header {
   display: flex;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 16px;
-  margin-bottom: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
 }
 
-.info-item {
+.phase-header-left {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 14px;
 }
 
-.info-icon {
-  font-size: 1.2rem; /* taille des emojis */
+.phase-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #eef2ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
 }
 
-.info-label {
-  font-weight: 600;
-  color: #555;
+.phase-title {
+  margin: 0 0 3px 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
 }
 
-.info-value {
-  color: #333;
+.phase-subtitle {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
 }
 
-/* Status badges */
-.info-value.pending { color: orange; font-weight: bold; }
-.info-value.in_progress { color: #007bff; font-weight: bold; }
-.info-value.completed { color: green; font-weight: bold; }
-.info-value.blocked { color: red; font-weight: bold; }
-.info-value.ready_for_review { color: #6f42c1; font-weight: bold; }
+/* Status badge in header */
+.phase-status-badge {
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
 
-/* ===================== */
-/* Divider               */
-/* ===================== */
-hr {
+.phase-status-badge.pending          { background: #e0e7ff; color: #3730a3; }
+.phase-status-badge.in_progress      { background: #ede9fe; color: #5b21b6; }
+.phase-status-badge.completed        { background: #dcfce7; color: #166534; }
+.phase-status-badge.blocked          { background: #fee2e2; color: #991b1b; }
+.phase-status-badge.ready_for_review { background: #fef3c7; color: #92400e; }
+
+/* =========================
+   DIVIDER
+========================= */
+.phase-divider {
   border: none;
-  border-top: 1px solid #eee;
-  margin: 12px 0;
+  border-top: 1px solid var(--border);
+  margin: 20px 0;
 }
 
-/* ===================== */
-/* Tasks Toggle Button   */
-/* ===================== */
-.tasks-toggle {
-  margin-bottom: 12px;
+/* =========================
+   KPI CARDS
+========================= */
+.phase-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
 }
 
-.tasks-toggle .btn-stroked {
+.phase-kpi-card {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1px solid #007bff;
-  background-color: #fff;
-  color: #007bff;
-  border-radius: 4px;
-  cursor: pointer;
+  gap: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  transition: box-shadow 0.2s;
+}
+
+.phase-kpi-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+}
+
+.kpi-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.kpi-label {
+  display: block;
+  font-size: 0.7rem;
   font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 3px;
+}
+
+.kpi-value {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.kpi-value.status-text.pending          { color: #3730a3; }
+.kpi-value.status-text.in_progress      { color: #5b21b6; }
+.kpi-value.status-text.completed        { color: #166534; }
+.kpi-value.status-text.blocked          { color: #991b1b; }
+.kpi-value.status-text.ready_for_review { color: #92400e; }
+
+/* =========================
+   TASKS SECTION
+========================= */
+.tasks-section {
+  margin-bottom: 16px;
+}
+
+.btn-tasks-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border: 1.5px solid var(--accent);
+  background: #eef2ff;
+  color: var(--accent);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.tasks-toggle .btn-stroked:hover {
-  background-color: #007bff;
+.btn-tasks-toggle:hover {
+  background: var(--accent);
   color: #fff;
 }
 
-.toggle-icon {
+/* =========================
+   TASK LIST
+========================= */
+.task-list {
+  border-left: 3px solid var(--accent);
+  padding-left: 20px;
+  margin-top: 8px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+.empty-state {
+  text-align: center;
+  color: var(--muted);
+  padding: 40px;
   font-size: 1rem;
 }
 
-/* ===================== */
-/* Task List             */
-/* ===================== */
-.task-list {
-  padding-left: 16px;
-  border-left: 2px solid #eee;
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .phase-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .phase-header {
+    flex-direction: column;
+  }
 }
 
-/* ===================== */
-/* Buttons inside Task/Phase table */
-/* ===================== */
-.btn-icon {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  margin: 0 2px;
-  font-size: 1.1rem;
-  transition: transform 0.2s ease;
+@media (max-width: 480px) {
+  .phase-kpi-row {
+    grid-template-columns: 1fr;
+  }
 }
-
-.btn-icon:hover {
-  transform: scale(1.2);
-}
-
-/* ===================== */
-/* Table badges          */
-/* ===================== */
-.badge {
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  text-transform: uppercase;
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--muted);
+  font-size: 13px;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.badge.pending { background-color: #fff3cd; color: #856404; }
-.badge.in_progress { background-color: #cce5ff; color: #004085; }
-.badge.completed { background-color: #d4edda; color: #155724; }
-.badge.blocked { background-color: #f8d7da; color: #721c24; }
-.badge.ready_for_review { background-color: #e2d6f0; color: #4b0082; }
-
-/* ===================== */
-/* Empty State           */
-/* ===================== */
-.empty-state {
-  text-align: center;
-  color: #888;
-  padding: 20px;
-  font-size: 1.1rem;
-}
-.empty-state i {
-  font-size: 2rem;
-  margin-bottom: 8px;
+.btn-back:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #eff6ff;
 }

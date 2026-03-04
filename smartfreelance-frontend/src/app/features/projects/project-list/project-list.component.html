@@ -8,110 +8,100 @@
       Create Project
     </button>
   </div>
-<div class="filters">
 
-  <!-- 🔎 Recherche -->
-  <input type="text"
-         placeholder="Search by title..."
-         [(ngModel)]="searchTerm"
-         (input)="applyFilters()">
+  <!-- FILTERS -->
+  <div class="filters">
+    <input type="text"
+           placeholder="Search by title..."
+           [(ngModel)]="searchTerm"
+           (input)="applyFilters()">
+    <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+      <option value="">All Status</option>
+      <option value="DRAFT">Draft</option>
+      <option value="APPROVED">Approved</option>
+      <option value="IN_PROGRESS">In Progress</option>
+    </select>
+    <input type="number"
+           placeholder="Min Budget"
+           [(ngModel)]="minBudget"
+           (input)="applyFilters()">
+  </div>
 
-  <!-- 📌 Status -->
-  <select [(ngModel)]="selectedStatus"
-          (change)="applyFilters()">
-    <option value="">All Status</option>
-    <option value="DRAFT">Draft</option>
-    <option value="APPROVED">Approved</option>
-    <option value="IN_PROGRESS">In Progress</option>
-  </select>
-
-  <!-- 💰 Budget -->
-  <input type="number"
-         placeholder="Min Budget"
-         [(ngModel)]="minBudget"
-         (input)="applyFilters()">
-
-</div>
   <!-- GRID -->
   <div class="projects-grid" *ngIf="projects.length > 0; else noProjects">
 
-<mat-card class="project-card" *ngFor="let project of filteredProjects">
+    <mat-card class="project-card" *ngFor="let project of filteredProjects">
+
       <!-- TOP -->
       <div class="card-top">
         <h3>{{ project.title }}</h3>
-        <span class="status-badge"
-              [ngClass]="project.status.toLowerCase()">
+        <span class="status-badge" [ngClass]="project.status.toLowerCase()">
           {{ project.status }}
         </span>
       </div>
 
       <!-- CONTENT -->
       <div class="card-content">
-
         <div class="info-row">
           <mat-icon>attach_money</mat-icon>
           <span>{{ project.budget | currency }}</span>
         </div>
-
         <div class="info-row">
           <mat-icon>event</mat-icon>
           <span>{{ project.deadline | date:'mediumDate' }}</span>
         </div>
-
       </div>
 
-      
-
       <!-- ACTIONS -->
- <div class="card-actions">
+      <div class="card-actions">
+        <button mat-icon-button [routerLink]="['/edit', project.id]" matTooltip="Edit">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button (click)="approve(project.id)" matTooltip="Approve">
+          <mat-icon>check_circle</mat-icon>
+        </button>
+        <button mat-icon-button (click)="start(project.id)" matTooltip="Start">
+          <mat-icon>play_arrow</mat-icon>
+        </button>
+        <button mat-icon-button (click)="delete(project.id)" matTooltip="Delete">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-stroked-button [routerLink]="['/projects', project.id]" matTooltip="View">
+          <mat-icon>visibility</mat-icon>
+          View
+        </button>
+      </div>
 
-  <!-- Edit -->
-  <button mat-icon-button
-          [routerLink]="['/edit', project.id]"
-          matTooltip="Edit">
-    <mat-icon>edit</mat-icon>
-  </button>
-
-  <!-- Approve -->
-  <button mat-icon-button
-          (click)="approve(project.id)"
-          matTooltip="Approve">
-    <mat-icon>check_circle</mat-icon>
-  </button>
-
-  <!-- Start -->
-  <button mat-icon-button
-          (click)="start(project.id)"
-          matTooltip="Start">
-    <mat-icon>play_arrow</mat-icon>
-  </button>
-
-  <!-- Delete -->
-  <button mat-icon-button
-          (click)="delete(project.id)"
-          matTooltip="Delete">
-    <mat-icon>delete</mat-icon>
-  </button>
-
-  <!-- View -->
-  <button mat-stroked-button
-          [routerLink]="['/projects', project.id]"
-          matTooltip="View">
-    <mat-icon>visibility</mat-icon>
-    View
-  </button>
-
-</div>
     </mat-card>
 
   </div>
-</div>
 
-<ng-template #noProjects>
-  <div class="no-projects">
-    <p>No projects found.</p>
-    <button mat-raised-button color="primary" routerLink="/create">
-      Create Project
-    </button>
+  <!-- NO PROJECTS -->
+  <ng-template #noProjects>
+    <div class="no-projects">
+      <p>No projects found.</p>
+      <button mat-raised-button color="primary" routerLink="/create">
+        Create Project
+      </button>
+    </div>
+  </ng-template>
+
+  <!-- DELETE CONFIRMATION MODAL -->
+  <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-icon">🗑️</div>
+      <h4 class="modal-title">Delete Project</h4>
+      <p class="modal-message">
+        Are you sure you want to delete
+        <strong>{{ projectToDeleteName }}</strong> ?
+        <br>
+        <span class="modal-warning">This action cannot be undone.</span>
+      </p>
+      <div class="modal-actions">
+        <button class="modal-btn-cancel" (click)="closeDeleteModal()">Cancel</button>
+        <button class="modal-btn-confirm" (click)="confirmDelete()">🗑️ Delete</button>
+      </div>
+    </div>
   </div>
-</ng-template>
+
+</div>

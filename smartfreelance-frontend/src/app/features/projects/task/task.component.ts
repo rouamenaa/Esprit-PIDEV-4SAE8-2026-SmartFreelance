@@ -18,23 +18,22 @@ import { Task } from '../../../models/task.model';
 })
 export class TaskComponent implements OnChanges {
 
-  @Input() phaseId!: number; // Doit être défini depuis ProjectPhaseDetailsComponent
+  @Input() phaseId!: number; 
 
   tasks: Task[] = [];
-// 🔎 Recherche
 searchTerm: string = '';
+taskSubmitAttempted: boolean = false;
+showDeleteModal: boolean = false;
+taskToDeleteId: number | undefined = undefined;
+taskToDeleteName: string = '';
 
-// 📌 Filtres
 selectedStatus: string = '';
 selectedPriority: string = '';
 
-// ⬆⬇ Tri
 sortField: string = '';
 sortDirection: 'asc' | 'desc' = 'asc';
 
-// Liste filtrée
 filteredTasks: Task[] = [];
-  // Nouvelle tâche à créer
   newTask: Task = {
     title: '',
     description: '',
@@ -66,6 +65,17 @@ filteredTasks: Task[] = [];
     error: err => console.error('Error loading tasks:', err)
   });
 }
+tryAddTask(): void {
+  this.taskSubmitAttempted = true;
+  if (!this.newTask.title?.trim()) return;
+  this.addTask();
+  this.taskSubmitAttempted = false;
+}
+
+trySaveEdit(): void {
+  if (!this.editingTask?.title?.trim()) return;
+  this.saveEdit();
+}
 
   // Ajouter une nouvelle tâche
   addTask(): void {
@@ -87,15 +97,31 @@ filteredTasks: Task[] = [];
 
   // Supprimer une tâche
   deleteTask(id: number | undefined): void {
-    if (!id) return;
-    if (!confirm('Are you sure to delete this task?')) return;
+  if (!id) return;
+  const task = this.tasks.find(t => t.id === id);
+  this.taskToDeleteId = id;
+  this.taskToDeleteName = task?.title || 'this task';
+  this.showDeleteModal = true;
+}
+confirmDelete(): void {
+  if (!this.taskToDeleteId) return;
+  this.taskService.deleteTask(this.taskToDeleteId).subscribe({
+    next: () => {
+      this.loadTasks();
+      this.closeDeleteModal();
+    },
+    error: err => {
+      console.error('Error deleting task:', err);
+      this.closeDeleteModal();
+    }
+  });
+}
 
-    this.taskService.deleteTask(id).subscribe({
-      next: () => this.loadTasks(),
-      error: err => console.error('Error deleting task:', err)
-    });
-  }
-
+closeDeleteModal(): void {
+  this.showDeleteModal = false;
+  this.taskToDeleteId = undefined;
+  this.taskToDeleteName = '';
+}
   // Mettre à jour uniquement le statut
   updateStatus(task: Task, status: Task['status']): void {
     task.status = status;

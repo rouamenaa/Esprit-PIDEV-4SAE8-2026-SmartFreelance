@@ -24,6 +24,10 @@ filteredProjects: Project[] = [];
 searchTerm: string = '';
 selectedStatus: string = '';
 minBudget: number | null = null;
+showDeleteModal: boolean = false;
+projectToDeleteId: number | undefined = undefined;
+projectToDeleteName: string = '';
+
   constructor(private projectService: ProjectService) {}
 
   ngOnInit(): void {
@@ -54,14 +58,34 @@ minBudget: number | null = null;
     });
   }
 
-  delete(id: number): void {
-    if (!confirm("Are you sure you want to delete this project?")) return;
+ delete(id: number): void {
+  const project = this.projects.find(p => p.id === id);
+  this.projectToDeleteId = id;
+  this.projectToDeleteName = project?.title || 'this project';
+  this.showDeleteModal = true;
+}
 
-    this.projectService.delete(id).subscribe({
-      next: () => this.loadProjects(),
-      error: (err) => this.showError(err, 'delete')
-    });
-  }
+
+confirmDelete(): void {
+  if (!this.projectToDeleteId) return;
+  this.projectService.delete(this.projectToDeleteId).subscribe({
+    next: () => {
+      this.loadProjects();
+      this.closeDeleteModal();
+    },
+    error: (err) => {
+      this.showError(err, 'delete');
+      this.closeDeleteModal();
+    }
+  });
+}
+
+closeDeleteModal(): void {
+  this.showDeleteModal = false;
+  this.projectToDeleteId = undefined;
+  this.projectToDeleteName = '';
+}
+
 
   private showError(err: any, action: string): void {
     let msg = '';

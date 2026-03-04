@@ -60,9 +60,12 @@ complete(id: number): Observable<Project> {
 cancel(id: number): Observable<Project> {
   return this.http.put<Project>(`${this.apiUrl1}/${id}/cancel`, {});
 }
-getProjectProgress(id: number) {
-  return this.http.get<number>(`${this.apiUrl1}/${id}/progress`);
+getProjectProgressDetails(id: number): Observable<{ totalTasks: number, completedTasks: number, progress: number }> {
+  return this.http.get<any>(`${this.apiUrl1}/${id}/progress-details`);
 }
+// getProjectProgress(id: number) {
+//   return this.http.get<number>(`${this.apiUrl1}/${id}/progress`);
+// }
 getProjectPerformance(id: number) {
   return this.http.get<number>(`${this.apiUrl1}/${id}/performance`);
 }

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators, FormControl, AbstractControl } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,6 +28,16 @@ export class ProjectPhasesComponent implements OnInit, OnChanges {
   addPhaseForm!: FormGroup;
 
   showAddPhaseForm: boolean = false;
+  showGantt: boolean = false;
+ganttPhases: any[] = [];
+ganttStart: Date = new Date();
+ganttEnd: Date = new Date();
+ganttTotalDays: number = 1;
+today: Date = new Date();
+showDeleteModal: boolean = false;
+phaseToDeleteId: number | undefined = undefined;
+phaseToDeleteName: string = '';
+
 
   statusOptions: string[] = [
     'PENDING',
@@ -79,14 +89,21 @@ filteredPhases: ProjectPhase[] = [];
   // INIT ADD FORM
   // -----------------------------
   initAddPhaseForm(): void {
-    this.addPhaseForm = this.fb.group({
-      name: ['', Validators.required],
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required],
-      status: ['PENDING', Validators.required]
-    });
+  this.addPhaseForm = this.fb.group({
+    name:      ['', [Validators.required, Validators.minLength(3)]],
+    startDate: ['', Validators.required],
+    endDate:   ['', Validators.required],
+    status:    ['PENDING', Validators.required]
+  }, { validators: this.dateRangeValidator });
+}
+dateRangeValidator(group: AbstractControl) {
+  const start = group.get('startDate')?.value;
+  const end   = group.get('endDate')?.value;
+  if (start && end && new Date(end) <= new Date(start)) {
+    return { dateRange: true };
   }
-
+  return null;
+}
   // -----------------------------
   // TOGGLE ADD FORM
   // -----------------------------
@@ -156,13 +173,31 @@ filteredPhases: ProjectPhase[] = [];
   // DELETE PHASE
   // -----------------------------
   deletePhase(id: number | undefined): void {
-    if (!id || !confirm('Are you sure you want to delete this phase?')) return;
-
-    this.phaseService.deletePhase(id).subscribe({
-      next: () => this.loadPhases(),
-      error: (err: any) => { const msg = err.error?.message || 'Cannot delete phase'; if (typeof window !== 'undefined') alert(msg); else console.error(msg); }
-    });
-  }
+  if (!id) return;
+  const phase = this.phases.find(p => p.id === id);
+  this.phaseToDeleteId = id;
+  this.phaseToDeleteName = phase?.name || 'this phase';
+  this.showDeleteModal = true;
+}
+confirmDelete(): void {
+  if (!this.phaseToDeleteId) return;
+  this.phaseService.deletePhase(this.phaseToDeleteId).subscribe({
+    next: () => {
+      this.loadPhases();
+      this.closeDeleteModal();
+    },
+    error: (err: any) => {
+      const msg = err.error?.message || 'Cannot delete phase';
+      console.error(msg);
+      this.closeDeleteModal();
+    }
+  });
+}
+closeDeleteModal(): void {
+  this.showDeleteModal = false;
+  this.phaseToDeleteId = undefined;
+  this.phaseToDeleteName = '';
+}
 
   // -----------------------------
   // VIEW DETAILS
@@ -231,5 +266,61 @@ sortBy(field: string): void {
   }
 
   this.applyFilters();
+}
+toggleGantt(): void {
+  this.showGantt = !this.showGantt;
+  if (this.showGantt) this.buildGantt();
+}
+
+buildGantt(): void {
+  const valid = this.phases.filter(p => p.startDate && p.endDate);
+  if (!valid.length) return;
+
+  const allStarts = valid.map(p => new Date(p.startDate).getTime());
+  const allEnds   = valid.map(p => new Date(p.endDate).getTime());
+
+  this.ganttStart     = new Date(Math.min(...allStarts));
+  this.ganttEnd       = new Date(Math.max(...allEnds));
+  this.ganttTotalDays = Math.max(1,
+    Math.ceil((this.ganttEnd.getTime() - this.ganttStart.getTime()) / 86400000)
+  );
+
+  this.ganttPhases = valid.map(p => {
+    const start    = new Date(p.startDate).getTime();
+    const end      = new Date(p.endDate).getTime();
+    const origin   = this.ganttStart.getTime();
+    const total    = this.ganttTotalDays * 86400000;
+    const done     = p.tasks?.filter((t: any) => t.status === 'DONE').length ?? 0;
+    const total_t  = p.tasks?.length ?? 0;
+
+    return {
+      name:         p.name,
+      status:       p.status,
+      startDate:    p.startDate,
+      endDate:      p.endDate,
+      leftPercent:  ((start - origin) / total) * 100,
+      widthPercent: Math.max(2, ((end - start) / total) * 100),
+      taskCount:    total_t,
+      doneCount:    done
+    };
+  });
+}
+
+getTodayPercent(): number {
+  const origin = this.ganttStart.getTime();
+  const total  = this.ganttTotalDays * 86400000;
+  const now    = this.today.getTime();
+  const pct    = ((now - origin) / total) * 100;
+  return Math.max(0, Math.min(100, pct));
+}
+
+getGanttColor(status: string): string {
+  switch (status) {
+    case 'COMPLETED':       return '#16a34a';
+    case 'IN_PROGRESS':     return '#6366f1';
+    case 'BLOCKED':         return '#dc2626';
+    case 'READY_FOR_REVIEW':return '#d97706';
+    default:                return '#94a3b8';
+  }
 }
 }

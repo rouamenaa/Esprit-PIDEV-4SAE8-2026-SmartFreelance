@@ -3,6 +3,7 @@ package com.smartfreelance.projectservice.service;
 import com.smartfreelance.projectservice.entity.Project;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ProjectService {
 
@@ -35,4 +36,5 @@ public interface ProjectService {
     double calculateProjectPerformanceIndex(Long projectId);
 
     String classifyProjectPerformance(Long projectId);
+    Map<String, Object> getProjectProgressDetails(Long projectId);
 }

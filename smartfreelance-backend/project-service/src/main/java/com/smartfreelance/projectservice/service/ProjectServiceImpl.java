@@ -9,7 +9,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -243,4 +245,28 @@ public class ProjectServiceImpl implements ProjectService {
                         "Project not found with id: " + id
                 ));
     }
+    @Override
+    public Map<String, Object> getProjectProgressDetails(Long projectId) {
+
+        Project project = getProjectOrThrow(projectId);
+
+        long totalTasks = project.getPhases().stream()
+                .flatMap(p -> p.getTasks().stream())
+                .count();
+
+        long completedTasks = project.getPhases().stream()
+                .flatMap(p -> p.getTasks().stream())
+                .filter(t -> t.getStatus().name().equals("DONE"))
+                .count();
+
+        double progress = totalTasks == 0 ? 0 : (completedTasks * 100.0) / totalTasks;
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalTasks", totalTasks);
+        result.put("completedTasks", completedTasks);
+        result.put("progress", progress);
+
+        return result;
+    }
+
 }
