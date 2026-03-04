@@ -1,0 +1,133 @@
+.form-container {
+  max-width: 680px;
+  margin: 2.5rem auto;
+  padding: 0 1rem;
+}
+
+.form-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  border: 1px solid #e8eaf0;
+  overflow: hidden;
+}
+
+.form-card-header {
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%);
+  border-bottom: 1px solid #f0d080;
+}
+
+.form-title-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-badge {
+  display: inline-block;
+  background: #f0a500;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.form-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1d2e;
+}
+
+.form-card-body { padding: 2rem; }
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.field-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4a4f68;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.required { color: #e53e3e; }
+
+.field-input {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 1.5px solid #dde1ee;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #1a1d2e;
+  background: #fafbff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.field-input:focus {
+  border-color: #f0a500;
+  box-shadow: 0 0 0 3px rgba(240,165,0,0.12);
+  background: #fff;
+}
+
+.field-input.input-error {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229,62,62,0.1);
+}
+
+.field-error {
+  font-size: 0.82rem;
+  color: #e53e3e;
+  font-weight: 500;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e8eaf0;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.3rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel { background: #f0f2f5; color: #4a4f68; }
+.btn-cancel:hover { background: #e2e5ec; color: #1a1d2e; }
+
+.btn-submit { background: #f0a500; color: #fff; }
+.btn-submit:hover:not(:disabled) {
+  background: #d4920a;
+  box-shadow: 0 4px 12px rgba(240,165,0,0.35);
+  transform: translateY(-1px);
+}
+.btn-submit:disabled { background: #f5d080; cursor: not-allowed; }
+
+@media (max-width: 500px) {
+  .form-card-body { padding: 1.25rem; }
+  .form-actions { flex-direction: column-reverse; }
+  .btn { width: 100%; justify-content: center; }
+}

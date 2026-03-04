@@ -8,26 +8,26 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class ProjectPhaseService {
-  private apiUrl = `${environment.apiUrl}/phases`;
+  private apiUrl1 = `${environment.apiUrl1}/phases`;
 
   constructor(private http: HttpClient) {}
 
   getPhasesByProject(projectId: number): Observable<ProjectPhase[]> {
-    return this.http.get<ProjectPhase[]>(`${this.apiUrl}/project/${projectId}`);
+    return this.http.get<ProjectPhase[]>(`${this.apiUrl1}/project/${projectId}`);
   }
 
   updatePhase(id: number, phase: ProjectPhase): Observable<ProjectPhase> {
-    return this.http.put<ProjectPhase>(`${this.apiUrl}/${id}`, phase);
+    return this.http.put<ProjectPhase>(`${this.apiUrl1}/${id}`, phase);
   }
 
   deletePhase(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl1}/${id}`);
   }
 
   createPhase(phase: ProjectPhase): Observable<ProjectPhase> {
-    return this.http.post<ProjectPhase>(this.apiUrl, phase);
+    return this.http.post<ProjectPhase>(this.apiUrl1, phase);
   }
   getPhaseById(id: number): Observable<ProjectPhase> {
-  return this.http.get<ProjectPhase>(`${this.apiUrl}/${id}`);
+  return this.http.get<ProjectPhase>(`${this.apiUrl1}/${id}`);
 }
 }

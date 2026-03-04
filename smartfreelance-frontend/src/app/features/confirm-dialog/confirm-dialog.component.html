@@ -1,0 +1,33 @@
+<div class="confirm-container">
+
+  <div class="confirm-header">
+    <div class="confirm-icon-wrapper"
+      [class.icon-danger]="!data.type || data.type === 'danger'"
+      [class.icon-warning]="data.type === 'warning'"
+      [class.icon-info]="data.type === 'info'">
+      <span class="confirm-icon">
+        {{ data.type === 'warning' ? '⚠️' : data.type === 'info' ? 'ℹ️' : '🗑️' }}
+      </span>
+    </div>
+    <button class="dialog-close" (click)="cancel()">✕</button>
+  </div>
+
+  <div class="confirm-body">
+    <h3 class="confirm-title">{{ data.title }}</h3>
+    <p class="confirm-message">{{ data.message }}</p>
+  </div>
+
+  <div class="confirm-actions">
+    <button class="btn btn-cancel" (click)="cancel()">
+      {{ data.cancelText || 'Annuler' }}
+    </button>
+    <button class="btn"
+      [class.btn-danger]="!data.type || data.type === 'danger'"
+      [class.btn-warning]="data.type === 'warning'"
+      [class.btn-info]="data.type === 'info'"
+      (click)="confirm()">
+      {{ data.confirmText || 'Confirmer' }}
+    </button>
+  </div>
+
+</div>

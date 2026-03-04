@@ -142,7 +142,7 @@ filteredTasks: Task[] = [];
       task.status === this.selectedStatus;
 
     const matchesPriority =
-      !this.selectedPriority ||
+    !this.selectedPriority ||
       task.priority === this.selectedPriority;
 
     return matchesSearch && matchesStatus && matchesPriority;

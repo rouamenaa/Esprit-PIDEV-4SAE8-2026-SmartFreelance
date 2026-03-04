@@ -1,0 +1,203 @@
+/* ── Container ── */
+.form-container {
+  max-width: 720px;
+  margin: 2.5rem auto;
+  padding: 0 1rem;
+}
+
+/* ── Card ── */
+.form-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8eaf0;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.form-card-header {
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, #f5f7ff 0%, #eef0fb 100%);
+  border-bottom: 1px solid #e0e3f0;
+}
+
+.form-title-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-badge {
+  display: inline-block;
+  background: #4f6ef7;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.form-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1d2e;
+}
+
+/* ── Body ── */
+.form-card-body {
+  padding: 2rem;
+}
+
+/* ── Field Row (2 colonnes) ── */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+/* ── Field Group ── */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.field-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4a4f68;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.required {
+  color: #e53e3e;
+  font-size: 1rem;
+}
+
+/* ── Inputs ── */
+.field-input {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 1.5px solid #dde1ee;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #1a1d2e;
+  background: #fafbff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.field-input:focus {
+  border-color: #4f6ef7;
+  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.12);
+  background: #fff;
+}
+
+.field-input.input-error {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+}
+
+.field-textarea {
+  resize: vertical;
+  min-height: 110px;
+  line-height: 1.6;
+}
+
+/* ── Prefix Input (durée) ── */
+.input-prefix-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-prefix {
+  position: absolute;
+  left: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #4f6ef7;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.field-input.with-prefix {
+  padding-left: 2.2rem;
+}
+
+/* ── Select ── */
+.select-wrapper {
+  position: relative;
+}
+
+.field-select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 2.5rem;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: #4f6ef7;
+  pointer-events: none;
+}
+
+/* ── Field Error ── */
+.field-error {
+  font-size: 0.82rem;
+  color: #e53e3e;
+  font-weight: 500;
+}
+
+/* ── Actions ── */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e8eaf0;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.3rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel {
+  background: #f0f2f5;
+  color: #4a4f68;
+}
+.btn-cancel:hover {
+  background: #e2e5ec;
+  color: #1a1d2e;
+}
+
+.btn-submit {
+  background: #4f6ef7;
+  color: #fff;
+}
+.btn-submit:hover:not(:disabled) {
+  background: #3a57e8;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
