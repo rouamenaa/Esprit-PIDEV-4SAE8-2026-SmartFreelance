@@ -1,0 +1,14 @@
+<div class="container">
+  <button type="button" class="btn btn-primary btn-sm" (click)="onAddClick()">
+    <i class="fas fa-plus fa-sm text-white-50"></i>&nbsp;Candidature
+  </button>
+  <app-condidature-table></app-condidature-table>
+</div>
+
+<div *ngIf="showAddModal" class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-m">
+    <div class="modal-content">
+      <app-condidature-add (closeModal)="onCloseModal()"></app-condidature-add>
+    </div>
+  </div>
+</div>

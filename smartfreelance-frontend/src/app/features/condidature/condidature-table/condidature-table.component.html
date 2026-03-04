@@ -1,0 +1,86 @@
+<div class="condidature-cards">
+  <header class="page-top-bar">
+    <h2 class="page-top-bar__title">Candidatures</h2>
+    <div class="page-top-bar__actions">
+      <div *ngIf="!loading" class="page-top-bar__filter">
+        <label for="sortSelect" class="page-top-bar__filter-label">Trier par</label>
+        <select id="sortSelect" class="page-top-bar__filter-select" [value]="sortBy" (change)="onSortChange($event)">
+          <option value="default">Classement (défaut)</option>
+          <option value="rating">Note freelancer (↑)</option>
+          <option value="ratingDesc">Note freelancer (↓)</option>
+          <option value="id">Id (↑)</option>
+          <option value="idDesc">Id (↓)</option>
+          <option value="status">Statut (A–Z)</option>
+          <option value="price">Prix (↑)</option>
+          <option value="priceDesc">Prix (↓)</option>
+          <option value="days">Jours (↑)</option>
+          <option value="daysDesc">Jours (↓)</option>
+        </select>
+      </div>
+      <a routerLink="/condidatures/add" class="btn-add-condidature">
+        <span class="btn-add-condidature__icon" aria-hidden="true">+</span>
+        Ajouter une candidature
+      </a>
+    </div>
+  </header>
+
+  <p *ngIf="loading" class="text-muted">Chargement...</p>
+  <div *ngIf="!loading && list.length > 0" class="cards-grid">
+    <article *ngFor="let c of sortedList; trackBy: trackById" class="condidature-card">
+      <header class="card-header">
+        <span class="card-id">#{{ c.id }}</span>
+        <span class="badge card-status" [ngClass]="{
+          'status-accepted': c.status === 'ACCEPTED',
+          'status-rejected': c.status === 'REJECTED',
+          'status-pending': c.status === 'PENDING',
+          'status-withdrawn': c.status === 'WITHDRAWN'
+        }">{{ c.status }}</span>
+      </header>
+      <div class="card-body">
+        <div class="card-row">
+          <span class="card-label">Projet</span>
+          <span class="card-value">{{ c.projectId }}</span>
+        </div>
+        <div class="card-row">
+          <span class="card-label">Freelancer</span>
+          <span class="card-value">{{ c.freelancerId }}</span>
+        </div>
+        <div class="card-row">
+          <span class="card-label">Prix proposé</span>
+          <span class="card-value">{{ c.proposedPrice != null ? (c.proposedPrice | number) : '-' }}</span>
+        </div>
+        <div class="card-row">
+          <span class="card-label">Jours</span>
+          <span class="card-value">{{ c.estimatedDeliveryDays ?? '-' }}</span>
+        </div>
+        <div class="card-row">
+          <span class="card-label">Note freelancer</span>
+          <span class="card-value card-rating">{{ getRatingDisplay(c) }}</span>
+        </div>
+      </div>
+      <footer class="card-actions">
+        <a [routerLink]="['/condidatures', c.id]" class="card-btn card-btn-details">Voir détails</a>
+        <ng-container *ngIf="c.status === 'PENDING'">
+          <button type="button" class="card-btn card-btn-success" (click)="accept(c)" [disabled]="actionLoading === c.id">
+            {{ actionLoading === c.id ? '...' : 'Accepter' }}
+          </button>
+          <button type="button" class="card-btn card-btn-danger-outline" (click)="reject(c)" [disabled]="actionLoading === c.id">Refuser</button>
+        </ng-container>
+        <a [routerLink]="['/condidatures', c.id, 'edit']" class="card-btn card-btn-primary-outline">Modifier</a>
+        <button type="button" class="card-btn card-btn-danger-outline" (click)="openDelete(c)">Supprimer</button>
+      </footer>
+    </article>
+  </div>
+  <p *ngIf="!loading && list.length === 0" class="text-muted">Aucune candidature.</p>
+</div>
+
+<div *ngIf="showDeleteModal && selected" class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <app-condidature-delete
+        [condidatureId]="selected.id"
+        (closeModal)="onCloseDelete()">
+      </app-condidature-delete>
+    </div>
+  </div>
+</div>

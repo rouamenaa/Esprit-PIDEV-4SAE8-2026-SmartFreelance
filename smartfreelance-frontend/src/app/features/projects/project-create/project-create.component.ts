@@ -1,12 +1,15 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ProjectService } from '../../../services/project.service';
 
 @Component({
   selector: 'app-project-create',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './project-create.component.html',
-  styleUrls: ['./project-create.component.css']  
+  styleUrls: ['./project-create.component.css'],
 })
 export class ProjectCreateComponent {
   loading = false;

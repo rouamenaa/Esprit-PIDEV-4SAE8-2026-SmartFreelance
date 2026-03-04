@@ -1,22 +1,26 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { FormationService, PageResponse } from '../../../services/formation.service';
 import { Formation } from '../../../models/formation.model';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-formation-list',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './formation-list.component.html',
   styleUrls: ['./formation-list.component.css']
 })
 export class FormationListComponent implements OnInit {
   formations: Formation[] = [];
   currentPage = 0;
-  pageSize = 6; // 6 cartes par page
+  pageSize = 6;
   totalElements = 0;
   totalPages = 0;
   searchTerm = '';
   selectedLevel = '';
-  levels: string[] = ['Débutant', 'Intermédiaire', 'Avancé']; // À ajuster selon tes données
+  levels: string[] = ['Débutant', 'Intermédiaire', 'Avancé'];
 
   constructor(private formationService: FormationService, private router: Router) {}
 
@@ -25,7 +29,6 @@ export class FormationListComponent implements OnInit {
   }
 
   loadFormations(): void {
-    // Si un terme de recherche ou un niveau est sélectionné, on utilise la recherche
     if (this.searchTerm || this.selectedLevel) {
       this.formationService.searchFormations(
         { title: this.searchTerm, level: this.selectedLevel },
@@ -72,7 +75,7 @@ export class FormationListComponent implements OnInit {
     this.router.navigate(['/formations', id]);
   }
 
- addFormation(): void {
-  this.router.navigate(['/formations/new']);
-}
+  addFormation(): void {
+    this.router.navigate(['/formations/new']);
+  }
 }

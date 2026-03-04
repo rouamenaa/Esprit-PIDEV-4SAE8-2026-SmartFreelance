@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { Test } from '../../../models/test.model';
 import { TestService } from '../../../services/test.service';
 import { ConfirmService } from '../../../shared/services/confirm.service';
 
 @Component({
   selector: 'app-test-detail',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './test-detail.component.html',
   styleUrls: ['./test-detail.component.css']
 })

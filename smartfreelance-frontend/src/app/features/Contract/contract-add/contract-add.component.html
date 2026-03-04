@@ -1,0 +1,51 @@
+<div class="add-form-wrap">
+  <form [formGroup]="form" (ngSubmit)="add()">
+    <div class="add-form-body">
+      <div class="form-group">
+        <label for="clientId" class="form-label">ID Client</label>
+        <input type="number" min="1" class="form-input" id="clientId" formControlName="clientId" placeholder="Ex. 1">
+      </div>
+      <div class="form-group">
+        <label for="freelancerId" class="form-label">ID Freelancer</label>
+        <input type="number" min="1" class="form-input" id="freelancerId" formControlName="freelancerId" placeholder="Ex. 1">
+      </div>
+      <div class="form-group">
+        <label for="titre" class="form-label">Titre</label>
+        <input type="text" class="form-input" id="titre" formControlName="titre" placeholder="Titre du contrat">
+      </div>
+      <div class="form-group">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-input form-textarea" id="description" formControlName="description" rows="3" placeholder="Description..."></textarea>
+      </div>
+      <div class="form-group">
+        <label for="montant" class="form-label">Montant</label>
+        <input type="number" step="0.01" min="0.01" class="form-input" id="montant" formControlName="montant" placeholder="0.00">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dateDebut" class="form-label">Date début</label>
+          <input type="date" class="form-input" id="dateDebut" formControlName="dateDebut">
+        </div>
+        <div class="form-group">
+          <label for="dateFin" class="form-label">Date fin</label>
+          <input type="date" class="form-input" id="dateFin" formControlName="dateFin">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="statut" class="form-label">Statut</label>
+        <select class="form-input form-select" id="statut" formControlName="statut">
+          <option value="BROUILLON">Brouillon</option>
+          <option value="EN_ATTENTE">En attente</option>
+          <option value="ACTIF">Actif</option>
+          <option value="TERMINE">Terminé</option>
+          <option value="ANNULE">Annulé</option>
+        </select>
+      </div>
+      <p *ngIf="errorhandling" class="form-error">{{ errorhandling }}</p>
+    </div>
+    <div class="add-form-actions">
+      <button type="button" class="btn btn-secondary" (click)="close()">Annuler</button>
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Créer le contrat</button>
+    </div>
+  </form>
+</div>

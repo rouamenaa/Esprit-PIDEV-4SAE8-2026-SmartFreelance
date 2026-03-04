@@ -1,17 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { CourseService } from '../../../services/course.service';
 import { Course } from '../../../models/course.model';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-course-list',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './course-list.component.html',
   styleUrls: ['./course-list.component.css']
 })
 export class CourseListComponent implements OnInit {
   courses: Course[] = [];
-  formationId?: number; // optionnel
+  formationId?: number;
   loading = false;
   error = '';
 
@@ -22,7 +25,6 @@ export class CourseListComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Récupérer le paramètre 'formationId' depuis l'URL s'il existe
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.formationId = +idParam;
@@ -36,10 +38,8 @@ export class CourseListComponent implements OnInit {
     let obs;
 
     if (this.formationId) {
-      // Charger les cours liés à cette formation
       obs = this.courseService.getCoursesByFormation(this.formationId);
     } else {
-      // Charger tous les cours
       obs = this.courseService.getAllCourses();
     }
 
@@ -48,7 +48,7 @@ export class CourseListComponent implements OnInit {
         this.courses = data;
         this.loading = false;
       },
-      error: (err: HttpErrorResponse) => { // ✅ type strict
+      error: (err: HttpErrorResponse) => {
         console.error(err);
         this.error = `Erreur ${err.status}: ${err.message}`;
         this.loading = false;

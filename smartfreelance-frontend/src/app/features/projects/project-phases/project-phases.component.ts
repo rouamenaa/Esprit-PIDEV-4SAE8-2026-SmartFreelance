@@ -1,15 +1,21 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { ProjectPhaseService } from '../../../services/phase.service';
 import { ProjectPhase } from '../../../models/project-phase.model';
 import { faEye, faPen, faTrash, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 
-
 @Component({
   selector: 'app-project-phases',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule],
   templateUrl: './project-phases.component.html',
-  styleUrls: ['./project-phases.component.css']
+  styleUrls: ['./project-phases.component.css'],
 })
 export class ProjectPhasesComponent implements OnInit, OnChanges {
 
@@ -105,7 +111,7 @@ filteredPhases: ProjectPhase[] = [];
         this.addPhaseForm.reset({ status: 'PENDING' });
         this.showAddPhaseForm = false;
       },
-      error: (err: any) => alert(err.error?.message || 'Cannot create phase')
+      error: (err: any) => { const msg = err.error?.message || 'Cannot create phase'; if (typeof window !== 'undefined') alert(msg); else console.error(msg); }
     });
   }
 
@@ -142,7 +148,7 @@ filteredPhases: ProjectPhase[] = [];
         this.editingPhaseId = null;
         this.loadPhases();
       },
-      error: (err: any) => alert(err.error?.message || 'Cannot update phase')
+      error: (err: any) => { const msg = err.error?.message || 'Cannot update phase'; if (typeof window !== 'undefined') alert(msg); else console.error(msg); }
     });
   }
 
@@ -154,7 +160,7 @@ filteredPhases: ProjectPhase[] = [];
 
     this.phaseService.deletePhase(id).subscribe({
       next: () => this.loadPhases(),
-      error: (err: any) => alert(err.error?.message || 'Cannot delete phase')
+      error: (err: any) => { const msg = err.error?.message || 'Cannot delete phase'; if (typeof window !== 'undefined') alert(msg); else console.error(msg); }
     });
   }
 

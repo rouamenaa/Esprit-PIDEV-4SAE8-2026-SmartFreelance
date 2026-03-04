@@ -1,18 +1,21 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Meta, Title } from '@angular/platform-browser';
+import { PLATFORM_ID } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { FormationService } from '../../../services/formation.service';
 import { Formation } from '../../../models/formation.model';
 import { Participant } from '../../../models/participant.model';
 import { GlobalStatistics, FormationStatistics, MonthlyRegistration } from '../../../models/statistics.model';
-import { Meta, Title } from '@angular/platform-browser';
-import { PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { MatDialog } from '@angular/material/dialog';
 import { ConfirmService } from '../../../shared/services/confirm.service';
 import { RegistrationDialogComponent } from '../registration-dialog/registration-dialog.component';
 
 @Component({
   selector: 'app-formation-detail',
+  standalone: true,
+  imports: [CommonModule, MatDialogModule],
   templateUrl: './formation-detail.component.html',
   styleUrls: ['./formation-detail.component.css']
 })
@@ -22,11 +25,9 @@ export class FormationDetailComponent implements OnInit {
   loading = true;
   error = '';
 
-  // Participants
   participants: Participant[] = [];
   showParticipants = false;
 
-  // Statistics
   globalStats: GlobalStatistics | null = null;
   formationStats: FormationStatistics | null = null;
   monthlyRegistrations: MonthlyRegistration[] = [];
@@ -119,7 +120,6 @@ export class FormationDetailComponent implements OnInit {
     window.open(fbShareUrl, '_blank', 'width=600,height=400');
   }
 
-  // ── Participants ──
   loadParticipants(): void {
     if (!this.formation) return;
     this.formationService.getParticipantsByFormation(this.formation.id).subscribe({
@@ -149,7 +149,6 @@ export class FormationDetailComponent implements OnInit {
     }
   }
 
-  // ── Statistics ──
   loadStatistics(): void {
     if (!this.formation) return;
     this.showStats = true;

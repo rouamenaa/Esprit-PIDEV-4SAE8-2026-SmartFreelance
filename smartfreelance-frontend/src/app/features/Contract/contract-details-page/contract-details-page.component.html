@@ -1,0 +1,46 @@
+<div class="details-page">
+  <div class="details-page-toolbar">
+    <button type="button" class="btn-back" (click)="goBack()">&larr; Retour à la liste</button>
+    <button *ngIf="contrat" type="button" class="btn-modifier" (click)="goToEdit()">Modifier</button>
+  </div>
+
+  <p *ngIf="loading" class="message">Chargement...</p>
+  <p *ngIf="error" class="error-message">{{ error }}</p>
+
+  <div *ngIf="!loading && !error && contrat" class="details-card">
+    <header class="details-header">
+      <span class="details-id">#{{ contrat.id }}</span>
+      <span class="badge details-statut" [ngClass]="getStatutClass(contrat.statut)">{{ contrat.statut }}</span>
+    </header>
+    <div class="details-body">
+      <div class="details-row">
+        <span class="details-label">Titre</span>
+        <span class="details-value">{{ contrat.titre || '-' }}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">Description</span>
+        <span class="details-value">{{ contrat.description || '-' }}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">Client</span>
+        <span class="details-value">{{ contrat.clientId }}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">Freelancer</span>
+        <span class="details-value">{{ contrat.freelancerId }}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">Montant</span>
+        <span class="details-value">{{ contrat.montant != null ? (contrat.montant | number) : '-' }}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">Date début</span>
+        <span class="details-value">{{ formatDate(contrat.dateDebut) }}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">Date fin</span>
+        <span class="details-value">{{ formatDate(contrat.dateFin) }}</span>
+      </div>
+    </div>
+  </div>
+</div>

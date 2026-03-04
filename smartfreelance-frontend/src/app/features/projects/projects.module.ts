@@ -1,3 +1,5 @@
+
+
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProjectsRoutingModule } from './projects-routing.module';
@@ -20,15 +22,7 @@ import { MatOption } from "@angular/material/core";
 
 
 @NgModule({
-  declarations: [
-    ProjectListComponent,
-    ProjectCreateComponent,
-    ProjectEditComponent,
-    ProjectDetailComponent,
-    ProjectPhasesComponent,
-    ProjectPhaseDetailsComponent,
-    TaskComponent   
-  ],
+  declarations: [],
   imports: [
     CommonModule,
     ProjectsRoutingModule,
@@ -42,6 +36,13 @@ import { MatOption } from "@angular/material/core";
     MatFormFieldModule,
     MatInputModule,
     MatOption,
-],
+    ProjectListComponent,
+    ProjectCreateComponent,
+    ProjectEditComponent,
+    ProjectDetailComponent,
+    ProjectPhasesComponent,
+    ProjectPhaseDetailsComponent,
+    TaskComponent,
+  ],
 })
 export class ProjectsModule { }

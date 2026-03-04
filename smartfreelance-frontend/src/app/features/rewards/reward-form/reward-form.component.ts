@@ -1,9 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RewardService } from '../../../services/reward.service';
 
 @Component({
   selector: 'app-reward-form',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './reward-form.component.html',
   styleUrls: ['./reward-form.component.css']
 })

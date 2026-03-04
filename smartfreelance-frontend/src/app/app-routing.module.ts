@@ -18,8 +18,8 @@ import { TestListComponent } from './features/tests/test-list/test-list.componen
 import { TestFormComponent } from './features/tests/test-form/test-form.component';
 import { TestDetailComponent } from './features/tests/test-detail/test-detail.component';
 
-const routes: Routes = [
-
+// ✅ Export de la constante routes
+export const routes: Routes = [
   // ===== Home =====
   {
     path: '',
@@ -73,8 +73,46 @@ const routes: Routes = [
   { path: 'formations/:id', component: FormationDetailComponent },
 
   // ===== Fallback =====
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: '' },
 
+  {
+    path: '',
+    loadChildren: () =>
+      import('./features/projects/projects.module')
+        .then(m => m.ProjectsModule)
+  },
+
+  {
+    path: 'condidatures',
+    loadChildren: () =>
+      import('./features/condidature/condidature.module')
+        .then(m => m.CondidatureModule)
+  },
+  {
+    path: 'contrats',
+    loadChildren: () =>
+      import('./features/Contract/contract.module')
+        .then(m => m.ContractModule)
+  },
+  {
+    path: 'profil-freelancer',
+    loadComponent: () =>
+      import('./features/freelancer-profile/freelancer-profile')
+        .then(m => m.FreelancerProfileComponent)
+  },
+  
+  {
+    path: 'portfolio',
+    loadComponent: () =>
+      import('./features/portfolio-project/portfolio-project')
+        .then(m => m.PortfolioProjectComponent)
+  },
+  {
+    path: 'skills',
+    loadComponent: () =>
+      import('./features/skill/skill')
+        .then(m => m.SkillComponent)
+  }
 ];
 
 @NgModule({
