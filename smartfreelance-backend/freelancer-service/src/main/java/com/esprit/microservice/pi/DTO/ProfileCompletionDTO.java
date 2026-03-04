@@ -8,7 +8,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ProfileCompletionDTO {
-
     private int percentage;
     private List<String> missingFields;
 }

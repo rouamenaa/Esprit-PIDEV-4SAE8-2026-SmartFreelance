@@ -1,33 +1,392 @@
-<h2>Freelancer Profile</h2>
+<div class="profile-wrapper">
 
-<div *ngIf="successMessage" class="success">{{ successMessage }}</div>
-<div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+  <!-- HEADER -->
+  <div class="profile-header">
+    <h2>Freelancer Profile</h2>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="showUpdateForm()" matTooltip="Update Profile">
+        <mat-icon>edit</mat-icon>
+        Update Profile
+      </button>
+    </div>
+  </div>
 
-<form #f="ngForm" (ngSubmit)="save()" novalidate>
+  <!-- PROFILE INFO DISPLAY -->
+  <div class="profile-info" *ngIf="showProfileInfo && existingProfile">
+    <mat-card class="profile-display-card">
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <mat-icon>person</mat-icon>
+            <div class="info-content">
+              <h4>Name</h4>
+              <p>{{ existingProfile.firstName }} {{ existingProfile.lastName }}</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>work</mat-icon>
+            <div class="info-content">
+              <h4>Title</h4>
+              <p>{{ existingProfile.title }}</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>psychology</mat-icon>
+            <div class="info-content">
+              <h4>Overview</h4>
+              <p>{{ existingProfile.overview }}</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>attach_money</mat-icon>
+            <div class="info-content">
+              <h4>Hourly Rate</h4>
+              <p>${{ existingProfile.hourlyRate }}/hour</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>trending_up</mat-icon>
+            <div class="info-content">
+              <h4>Experience Level</h4>
+              <p>{{ existingProfile.experienceLevel }}</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>schedule</mat-icon>
+            <div class="info-content">
+              <h4>Availability</h4>
+              <p>{{ existingProfile.availability }}</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>public</mat-icon>
+            <div class="info-content">
+              <h4>Country</h4>
+              <p>{{ existingProfile.country }}</p>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
-	<input type="text" [(ngModel)]="freelancer.firstName" name="firstName" placeholder="First Name" required>
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions">
+      <h3>Manage Your Portfolio</h3>
+      <div class="action-buttons">
+        <button mat-raised-button color="accent" (click)="navigateToSkills()" matTooltip="Manage Skills">
+          <mat-icon>psychology</mat-icon>
+          Skills
+        </button>
+        <button mat-raised-button color="accent" (click)="navigateToPortfolio()" matTooltip="Manage Portfolio Projects">
+          <mat-icon>work</mat-icon>
+          Portfolio
+        </button>
+      </div>
+    </div>
 
-	<input type="text" [(ngModel)]="freelancer.lastName" name="lastName" placeholder="Last Name" required>
+    <!-- ═══════════════════════════════════════════════════════
+         🔹 ADVANCED FEATURES SECTION
+    ════════════════════════════════════════════════════════ -->
+    <div class="advanced-section" *ngIf="showProfileInfo && existingProfile">
 
-	<input type="text" [(ngModel)]="freelancer.title" name="title" placeholder="Title" required>
+      <div class="advanced-header">
+        <mat-icon>auto_awesome</mat-icon>
+        <h3>Profile Insights</h3>
+      </div>
 
-	<textarea [(ngModel)]="freelancer.overview" name="overview" placeholder="Overview"></textarea>
+      <!-- Loading spinner -->
+      <div class="advanced-loading" *ngIf="loadingAdvanced">
+        <div class="loading-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <p>Analysing your profile…</p>
+      </div>
 
-	<input type="number" [(ngModel)]="freelancer.hourlyRate" name="hourlyRate" placeholder="Hourly Rate" required>
+      <div class="advanced-grid" *ngIf="showAdvanced">
 
-	<select [(ngModel)]="freelancer.experienceLevel" name="experienceLevel">
-		<option>Beginner</option>
-		<option>Intermediate</option>
-		<option>Advanced</option>
-		<option>Expert</option>
-	</select>
+        <!-- ── CARD 1 : Profile Analytics ─────────────────── -->
+        <div class="adv-card analytics-card" *ngIf="analytics">
+          <div class="adv-card-header">
+            <div class="adv-icon-wrap analytics-icon">
+              <mat-icon>bar_chart</mat-icon>
+            </div>
+            <div>
+              <h4>Profile Analytics</h4>
+              <span class="adv-subtitle">Your key stats at a glance</span>
+            </div>
+          </div>
 
-	<input type="text" [(ngModel)]="freelancer.availability" name="availability" placeholder="Availability">
+          <div class="stats-row">
+            <div class="stat-chip">
+              <mat-icon>psychology</mat-icon>
+              <div>
+                <span class="stat-number">{{ analytics.totalSkills }}</span>
+                <span class="stat-label">Skills</span>
+              </div>
+            </div>
+            <div class="stat-chip">
+              <mat-icon>work_outline</mat-icon>
+              <div>
+                <span class="stat-number">{{ analytics.totalProjects }}</span>
+                <span class="stat-label">Projects</span>
+              </div>
+            </div>
+            <div class="stat-chip">
+              <mat-icon>attach_money</mat-icon>
+              <div>
+                <span class="stat-number">${{ analytics.hourlyRate }}</span>
+                <span class="stat-label">/ hour</span>
+              </div>
+            </div>
+            <div class="stat-chip">
+              <mat-icon>calendar_today</mat-icon>
+              <div>
+                <span class="stat-number">{{ analytics.experienceInYears }}y</span>
+                <span class="stat-label">Experience</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-	<input type="text" [(ngModel)]="freelancer.country" name="country" placeholder="Country">
+        <!-- ── CARD 2 : Profile Completion ───────────────── -->
+        <div class="adv-card completion-card" *ngIf="completion">
+          <div class="adv-card-header">
+            <div class="adv-icon-wrap completion-icon">
+              <mat-icon>task_alt</mat-icon>
+            </div>
+            <div>
+              <h4>Profile Completion</h4>
+              <span class="adv-subtitle">{{ getCompletionLabel() }}</span>
+            </div>
+          </div>
 
-	<button type="submit" [disabled]="f.invalid">
-		{{ isEditMode ? 'Update Profile' : 'Create Profile' }}
-	</button>
+          <!-- Circular progress -->
+          <div class="completion-gauge">
+            <svg viewBox="0 0 100 100" class="gauge-svg">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" stroke-width="8" />
+              <circle cx="50" cy="50" r="42" fill="none" [attr.stroke]="getCompletionColor()" stroke-width="8"
+                stroke-linecap="round" stroke-dasharray="263.9"
+                [attr.stroke-dashoffset]="263.9 - (263.9 * (completion.percentage / 100))" transform="rotate(-90 50 50)"
+                class="gauge-progress" />
+              <text x="50" y="54" text-anchor="middle" class="gauge-text">
+                {{ completion.percentage }}%
+              </text>
+            </svg>
+          </div>
 
-</form>
+          <!-- Missing fields -->
+          <div class="missing-fields" *ngIf="completion.missingFields.length > 0">
+            <p class="missing-title">
+              <mat-icon>info_outline</mat-icon>
+              Missing fields:
+            </p>
+            <div class="missing-tags">
+              <span class="missing-tag" *ngFor="let field of completion.missingFields">
+                {{ field }}
+              </span>
+            </div>
+          </div>
+          <div class="all-complete" *ngIf="completion.missingFields.length === 0">
+            <mat-icon>verified</mat-icon>
+            <span>All fields complete!</span>
+          </div>
+        </div>
+
+        <!-- ── CARD 3 : Skill Recommendation ─────────────── -->
+        <div class="adv-card skills-card" *ngIf="skillRecommendation">
+          <div class="adv-card-header">
+            <div class="adv-icon-wrap skills-icon">
+              <mat-icon>lightbulb</mat-icon>
+            </div>
+            <div>
+              <h4>Skill Insights</h4>
+              <span class="adv-subtitle">Based on your skill set</span>
+            </div>
+          </div>
+
+          <!-- Global score bar -->
+          <div class="score-section">
+            <div class="score-label-row">
+              <span>Global Skill Score</span>
+              <span class="score-value" [ngClass]="getScoreClass()">
+                {{ skillRecommendation.globalSkillScore }} / 100
+              </span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill" [style.width.%]="skillRecommendation.globalSkillScore"
+                [ngClass]="getScoreClass()">
+              </div>
+            </div>
+          </div>
+
+          <!-- Dominant skill -->
+          <div class="dominant-skill" *ngIf="skillRecommendation.dominantSkill !== 'N/A'">
+            <mat-icon>military_tech</mat-icon>
+            <div>
+              <span class="dominant-label">Dominant Skill</span>
+              <span class="dominant-name">{{ skillRecommendation.dominantSkill }}</span>
+            </div>
+          </div>
+
+          <!-- Top skills -->
+          <div class="top-skills" *ngIf="skillRecommendation.topSkills.length > 0">
+            <p class="top-skills-label">Top Skills</p>
+            <div class="top-skills-list">
+              <div class="top-skill-item" *ngFor="let skill of skillRecommendation.topSkills; let i = index">
+                <span class="rank-badge rank-{{ i + 1 }}">{{ i + 1 }}</span>
+                <span>{{ skill }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <div class="no-skills-msg" *ngIf="skillRecommendation.dominantSkill === 'N/A'">
+            <mat-icon>psychology</mat-icon>
+            <p>Add skills to get personalised insights</p>
+            <button mat-stroked-button (click)="navigateToSkills()">
+              <mat-icon>add</mat-icon> Add Skills
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /advanced-grid -->
+    </div><!-- /advanced-section -->
+
+  </div><!-- /profile-info -->
+
+  <!-- EMPTY STATE -->
+  <div class="no-profile" *ngIf="showProfileInfo && !existingProfile">
+    <mat-card class="empty-card">
+      <mat-card-content>
+        <mat-icon class="empty-icon">person_off</mat-icon>
+        <h3>No Profile Yet</h3>
+        <p>Create your freelancer profile to get started</p>
+        <button mat-raised-button color="primary" (click)="showUpdateForm()">
+          <mat-icon>add</mat-icon>
+          Create Profile
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- ALERTS -->
+  <div *ngIf="successMessage" class="success-alert">
+    <mat-icon>check_circle</mat-icon>
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="error-alert">
+    <mat-icon>error</mat-icon>
+    {{ errorMessage }}
+  </div>
+
+  <!-- PROFILE FORM CARD -->
+  <mat-card class="profile-card" *ngIf="showForm">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>person</mat-icon>
+        {{ isEditMode ? 'Edit Profile' : 'Create Profile' }}
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="profileForm" (ngSubmit)="save()" class="profile-form">
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="firstName" required>
+            <mat-icon matSuffix>person</mat-icon>
+            <button mat-icon-button matSuffix (click)="resetField('firstName')" matTooltip="Reset"
+              type="button"><mat-icon>clear</mat-icon></button>
+            <mat-error *ngIf="profileForm.get('firstName')?.errors?.['required']">Le prénom est obligatoire</mat-error>
+            <mat-error *ngIf="profileForm.get('firstName')?.errors?.['minlength']">Au moins 2 caractères</mat-error>
+            <mat-error *ngIf="profileForm.get('firstName')?.errors?.['maxlength']">50 caractères max</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="lastName" required>
+            <mat-icon matSuffix>person</mat-icon>
+            <button mat-icon-button matSuffix (click)="resetField('lastName')" matTooltip="Reset"
+              type="button"><mat-icon>clear</mat-icon></button>
+            <mat-error *ngIf="profileForm.get('lastName')?.errors?.['required']">Le nom est obligatoire</mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Professional Title</mat-label>
+          <input matInput formControlName="title" required>
+          <mat-icon matSuffix>work</mat-icon>
+          <button mat-icon-button matSuffix (click)="resetField('title')"
+            type="button"><mat-icon>clear</mat-icon></button>
+          <mat-error *ngIf="profileForm.get('title')?.errors?.['required']">Le titre est obligatoire</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Overview</mat-label>
+          <textarea matInput formControlName="overview" rows="4"></textarea>
+          <mat-icon matSuffix>description</mat-icon>
+          <button mat-icon-button matSuffix (click)="resetField('overview')"
+            type="button"><mat-icon>clear</mat-icon></button>
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Hourly Rate ($)</mat-label>
+            <input matInput type="number" formControlName="hourlyRate" required>
+            <mat-icon matSuffix>attach_money</mat-icon>
+            <button mat-icon-button matSuffix (click)="resetField('hourlyRate')"
+              type="button"><mat-icon>clear</mat-icon></button>
+            <mat-error *ngIf="profileForm.get('hourlyRate')?.errors?.['required']">Obligatoire</mat-error>
+            <mat-error *ngIf="profileForm.get('hourlyRate')?.errors?.['min']">Min 5$/h</mat-error>
+            <mat-error *ngIf="profileForm.get('hourlyRate')?.errors?.['max']">Max 300$/h</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Experience Level</mat-label>
+            <mat-select formControlName="experienceLevel" required>
+              <mat-option value="Beginner">Beginner</mat-option>
+              <mat-option value="Intermediate">Intermediate</mat-option>
+              <mat-option value="Advanced">Advanced</mat-option>
+              <mat-option value="Expert">Expert</mat-option>
+            </mat-select>
+            <mat-error *ngIf="profileForm.get('experienceLevel')?.errors?.['required']">Obligatoire</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Availability</mat-label>
+            <input matInput formControlName="availability" required>
+            <mat-icon matSuffix>schedule</mat-icon>
+            <button mat-icon-button matSuffix (click)="resetField('availability')"
+              type="button"><mat-icon>clear</mat-icon></button>
+            <mat-error *ngIf="profileForm.get('availability')?.errors?.['required']">Obligatoire</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Country</mat-label>
+            <input matInput formControlName="country" required>
+            <mat-icon matSuffix>location_on</mat-icon>
+            <button mat-icon-button matSuffix (click)="resetField('country')"
+              type="button"><mat-icon>clear</mat-icon></button>
+            <mat-error *ngIf="profileForm.get('country')?.errors?.['required']">Obligatoire</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid">
+            <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+            {{ isEditMode ? 'Update Profile' : 'Create Profile' }}
+          </button>
+          <button mat-stroked-button type="button" (click)="hideForm()">
+            <mat-icon>close</mat-icon>
+            Cancel
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+</div>

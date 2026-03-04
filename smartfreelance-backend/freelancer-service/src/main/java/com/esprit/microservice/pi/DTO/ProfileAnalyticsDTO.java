@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ProfileAnalyticsDTO {
-
     private int totalSkills;
     private int totalProjects;
     private java.math.BigDecimal hourlyRate;

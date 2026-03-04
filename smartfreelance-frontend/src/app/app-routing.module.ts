@@ -8,7 +8,6 @@ export const routes: Routes = [
       import('./features/projects/projects.module')
         .then(m => m.ProjectsModule)
   },
-
   {
     path: 'condidatures',
     loadChildren: () =>
@@ -27,7 +26,7 @@ export const routes: Routes = [
       import('./features/freelancer-profile/freelancer-profile')
         .then(m => m.FreelancerProfileComponent)
   },
-  
+
   {
     path: 'portfolio',
     loadComponent: () =>
@@ -39,7 +38,8 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/skill/skill')
         .then(m => m.SkillComponent)
-  }
+  },
+
 ];
 
 @NgModule({

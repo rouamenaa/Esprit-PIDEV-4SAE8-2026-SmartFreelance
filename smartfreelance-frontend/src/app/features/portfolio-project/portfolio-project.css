@@ -1,11 +1,418 @@
 /* Styles for portfolio project component */
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+/* ===== GLOBAL BACKGROUND ===== */
+body {
+  min-height: 100vh;
+  background: #0f172a;   /* navy profond */
+  color: #1e293b;
+  font-family: 'Inter', sans-serif;
 }
 
-input, textarea {
-  padding: 0.4rem;
+/* ===== WRAPPER ===== */
+.portfolio-wrapper {
+  padding: 60px;
+  max-width: 1400px;
+  margin: auto;
+}
+
+/* ===== HEADER ===== */
+.portfolio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 60px;
+}
+
+.portfolio-header h2 {
+  font-size: 36px;      
+  font-weight: 700;
+  color: #323d47;       
+  letter-spacing: 0.5px;
+}
+
+.header-actions button {
+  background-color: #2563eb !important;  /* bleu professionnel */
+  color: #ffffff !important;             /* texte blanc */
+}
+
+.header-actions button:hover {
+  background-color: #1e40af !important;  /* bleu foncé au hover */
+}
+
+/* ===== PROJECTS SECTION ===== */
+.projects-section h3 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #323d47;
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.projects-section h3::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 28px;
+  background: #2563eb;
+  border-radius: 2px;
+}
+
+/* ===== CARDS ===== */
+.form-card,
+.project-card {
+  background: #f8fafc;     
+  padding: 34px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.25s ease;
+  margin-bottom: 35px;
+}
+
+.form-card:hover,
+.project-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== CARD HEADER ===== */
+::ng-deep .mat-mdc-card-header {
+  margin-bottom: 28px;
+}
+
+::ng-deep .mat-mdc-card-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 22px;        
+  font-weight: 700;
+  color: #0f172a;
+}
+
+::ng-deep .mat-mdc-card-title mat-icon {
+  color: #2563eb;   
+  font-size: 24px;
+}
+
+/* ===== CARD TOP ===== */
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.card-top h3 {
+  font-size: 22px;        
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+/* ===== PORTFOLIO BADGE ===== */
+.portfolio-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.portfolio-badge mat-icon {
+  font-size: 14px;
+  color: #1e40af;
+}
+
+/* ===== FORM ===== */
+.project-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-field {
+  flex: 1;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* ===== MATERIAL FORM FIELDS ===== */
+::ng-deep .mat-mdc-form-field {
+  width: 100%;
+}
+
+::ng-deep .mat-mdc-text-field-wrapper {
+  background-color: #ffffff !important;
+  border-radius: 8px !important;
+}
+
+::ng-deep .mat-mdc-form-field-focus-overlay {
+  background-color: transparent !important;
+}
+
+::ng-deep .mat-mdc-form-field-outline {
+  border-color: #e2e8f0 !important;
+}
+
+::ng-deep .mat-mdc-form-field-outline-thick {
+  border-color: #2563eb !important;
+}
+
+::ng-deep .mat-mdc-form-field-label {
+  color: #64748b !important;
+}
+
+::ng-deep .mat-mdc-form-field.mat-mdc-focused .mat-mdc-form-field-label {
+  color: #2563eb !important;
+}
+
+::ng-deep .mat-mdc-select-value {
+  color: #1e293b !important;
+}
+
+::ng-deep .mat-mdc-select-arrow {
+  color: #64748b !important;
+}
+
+::ng-deep .mat-mdc-icon-button {
+  color: #64748b !important;
+}
+
+::ng-deep .mat-mdc-icon-button:hover {
+  color: #2563eb !important;
+}
+
+/* ===== FORM ACTIONS ===== */
+.form-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.form-actions button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+/* Primary button */
+.form-actions button[color="primary"] {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  border: none;
+}
+
+.form-actions button[color="primary"]:hover {
+  background-color: #1e40af !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* Stroked button */
+.form-actions button[mat-stroked-button] {
+  border-color: #e2e8f0 !important;
+  color: #64748b !important;
+  background: transparent !important;
+}
+
+.form-actions button[mat-stroked-button]:hover {
+  border-color: #2563eb !important;
+  color: #2563eb !important;
+  background: #f1f5f9 !important;
+}
+
+/* ===== PROJECTS GRID ===== */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 35px;
+}
+
+/* ===== CARD CONTENT ===== */
+.card-content {
+  margin: 28px 0;
+}
+
+.project-description {
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  min-height: 60px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: #475569;
+  font-size: 15px;
+}
+
+.info-row mat-icon {
+  color: #2563eb;   
+  font-size: 20px;
+}
+
+.project-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.project-link:hover {
+  color: #1e40af;
+  text-decoration: underline;
+}
+
+.tech-list {
+  color: #475569;
+  font-size: 14px;
+}
+
+/* ===== CARD ACTIONS ===== */
+.card-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.confirm-delete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #fee2e2;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+.delete-text {
+  color: #991b1b;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ===== ACTION ICON COLORS ===== */
+.card-actions button mat-icon {
+  font-size: 20px;
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Edit */
+.card-actions button[matTooltip="Edit"] mat-icon {
+  color: #5b21b6; /* violet professionnel */
+}
+
+/* Delete */
+.card-actions button[matTooltip="Delete"] mat-icon {
+  color: #ab64ab; /* rouge doux */
+}
+
+/* View / Details */
+.card-actions button[matTooltip="View Live Project"] mat-icon {
+  color: #1e3a8a; /* bleu foncé */
+}
+
+/* Hover effet léger pour icônes */
+.card-actions button:hover mat-icon {
+  transform: scale(1.1);
+}
+
+/* ===== EMPTY STATE ===== */
+.no-projects {
+  text-align: center;
+  margin-top: 140px;
+  color: #cbd5e1;
+  font-size: 16px;
+}
+
+.empty-icon {
+  font-size: 64px !important;
+  color: #cbd5e1 !important;
+  margin-bottom: 20px;
+}
+
+.no-projects p {
+  margin-bottom: 30px;
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+.no-projects button {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.no-projects button:hover {
+  background-color: #1e40af !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .portfolio-wrapper {
+    padding: 20px;
+  }
+  
+  .portfolio-header {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+  
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .card-top {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .portfolio-wrapper {
+    padding: 16px;
+  }
+  
+  .portfolio-header h2 {
+    font-size: 28px;
+  }
+  
+  .projects-section h3 {
+    font-size: 24px;
+  }
+  
+  .form-card,
+  .project-card {
+    padding: 24px;
+  }
 }
