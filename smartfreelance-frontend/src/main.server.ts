@@ -1,7 +1,17 @@
 import { bootstrapApplication } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideServerRendering } from '@angular/platform-server';
 import { AppComponent } from './app/app.component';
-import { config } from './app/app.config.server';
+import { routes } from './app/app-routing.module';
 
-const bootstrap = () => bootstrapApplication(AppComponent, config);
-
-export default bootstrap;
+// ⚠️ DOIT être une fonction exportée, jamais appelée directement
+export default function bootstrap() {
+  return bootstrapApplication(AppComponent, {
+    providers: [
+      provideRouter(routes),
+      provideHttpClient(),
+      provideServerRendering(),
+    ],
+  });
+}

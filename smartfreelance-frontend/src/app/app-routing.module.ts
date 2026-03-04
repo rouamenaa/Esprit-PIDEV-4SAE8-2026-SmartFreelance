@@ -18,105 +18,74 @@ import { TestListComponent } from './features/tests/test-list/test-list.componen
 import { TestFormComponent } from './features/tests/test-form/test-form.component';
 import { TestDetailComponent } from './features/tests/test-detail/test-detail.component';
 
-// ✅ Export de la constante routes
 export const routes: Routes = [
-  // ===== Home =====
-  {
-    path: '',
-    loadChildren: () =>
-      import('./features/projects/projects.module').then(m => m.ProjectsModule)
-  },
-
   // ===== FORMATIONS =====
-  { path: 'formations',            component: FormationListComponent },
-  { path: 'formations/new',        component: FormationFormComponent },
+  { path: 'formations', component: FormationListComponent },
+  { path: 'formations/new', component: FormationFormComponent },
   { path: 'formations/statistics', component: FormationStatisticsComponent },
-  { path: 'formations/:id/edit',   component: FormationFormComponent },
+  { path: 'formations/:id/edit', component: FormationFormComponent },
 
-  // ===== COURSES (global) =====
-  { path: 'courses',          component: CourseListComponent },
-  { path: 'courses/new',      component: CourseFormComponent },
+  // ===== COURSES =====
+  { path: 'courses', component: CourseListComponent },
+  { path: 'courses/new', component: CourseFormComponent },
   { path: 'courses/:id/edit', component: CourseFormComponent },
-  { path: 'courses/:id',      component: CourseDetailComponent },
-
-  // ===== COURSES (liés à une formation) =====
-  { path: 'formations/:formationId/courses',          component: CourseListComponent },
-  { path: 'formations/:formationId/courses/new',      component: CourseFormComponent },
+  { path: 'courses/:id', component: CourseDetailComponent },
+  { path: 'formations/:formationId/courses', component: CourseListComponent },
+  { path: 'formations/:formationId/courses/new', component: CourseFormComponent },
   { path: 'formations/:formationId/courses/:id/edit', component: CourseFormComponent },
-  { path: 'formations/:formationId/courses/:id',      component: CourseDetailComponent },
+  { path: 'formations/:formationId/courses/:id', component: CourseDetailComponent },
 
-  // ===== TESTS (global) =====
-  { path: 'tests',          component: TestListComponent },
-  { path: 'tests/new',      component: TestFormComponent },
+  // ===== TESTS =====
+  { path: 'tests', component: TestListComponent },
+  { path: 'tests/new', component: TestFormComponent },
   { path: 'tests/:id/edit', component: TestFormComponent },
-  { path: 'tests/:id',      component: TestDetailComponent },
-
-  // ===== TESTS (liés à une formation) =====
-  { path: 'formations/:formationId/tests',          component: TestListComponent },
-  { path: 'formations/:formationId/tests/new',      component: TestFormComponent },
+  { path: 'tests/:id', component: TestDetailComponent },
+  { path: 'formations/:formationId/tests', component: TestListComponent },
+  { path: 'formations/:formationId/tests/new', component: TestFormComponent },
   { path: 'formations/:formationId/tests/:id/edit', component: TestFormComponent },
-  { path: 'formations/:formationId/tests/:id',      component: TestDetailComponent },
+  { path: 'formations/:formationId/tests/:id', component: TestDetailComponent },
 
-  // ===== REWARDS (global) =====
-  { path: 'rewards',          component: RewardListComponent },
-  { path: 'rewards/new',      component: RewardFormComponent },
+  // ===== REWARDS =====
+  { path: 'rewards', component: RewardListComponent },
+  { path: 'rewards/new', component: RewardFormComponent },
   { path: 'rewards/:id/edit', component: RewardFormComponent },
-  { path: 'rewards/:id',      component: RewardDetailComponent },
-
-  // ===== REWARDS (liés à une formation) =====
-  { path: 'formations/:formationId/rewards',          component: RewardListComponent },
-  { path: 'formations/:formationId/rewards/new',      component: RewardFormComponent },
+  { path: 'rewards/:id', component: RewardDetailComponent },
+  { path: 'formations/:formationId/rewards', component: RewardListComponent },
+  { path: 'formations/:formationId/rewards/new', component: RewardFormComponent },
   { path: 'formations/:formationId/rewards/:id/edit', component: RewardFormComponent },
-  { path: 'formations/:formationId/rewards/:id',      component: RewardDetailComponent },
+  { path: 'formations/:formationId/rewards/:id', component: RewardDetailComponent },
 
-  // ===== FORMATION DETAIL (toujours en dernier) =====
+  // ===== FORMATION DETAIL =====
   { path: 'formations/:id', component: FormationDetailComponent },
 
-  // ===== Fallback =====
-  { path: '**', redirectTo: '' },
-
-  {
-    path: '',
-    loadChildren: () =>
-      import('./features/projects/projects.module')
-        .then(m => m.ProjectsModule)
-  },
-
+  // ===== LAZY LOADED MODULES =====
   {
     path: 'condidatures',
-    loadChildren: () =>
-      import('./features/condidature/condidature.module')
-        .then(m => m.CondidatureModule)
+    loadChildren: () => import('./features/condidature/condidature.module').then(m => m.CondidatureModule)
   },
   {
     path: 'contrats',
-    loadChildren: () =>
-      import('./features/Contract/contract.module')
-        .then(m => m.ContractModule)
+    loadChildren: () => import('./features/Contract/contract.module').then(m => m.ContractModule)
   },
   {
     path: 'profil-freelancer',
-    loadComponent: () =>
-      import('./features/freelancer-profile/freelancer-profile')
-        .then(m => m.FreelancerProfileComponent)
+    loadComponent: () => import('./features/freelancer-profile/freelancer-profile').then(m => m.FreelancerProfileComponent)
   },
-  
   {
     path: 'portfolio',
-    loadComponent: () =>
-      import('./features/portfolio-project/portfolio-project')
-        .then(m => m.PortfolioProjectComponent)
+    loadComponent: () => import('./features/portfolio-project/portfolio-project').then(m => m.PortfolioProjectComponent)
   },
   {
     path: 'skills',
-    loadComponent: () =>
-      import('./features/skill/skill')
-        .then(m => m.SkillComponent)
-  }
-];
+    loadComponent: () => import('./features/skill/skill').then(m => m.SkillComponent)
+  },
 
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
-})
-export class AppRoutingModule { }
+  // ===== HOME (toujours avant le wildcard) =====
+  {
+    path: '',
+    loadChildren: () => import('./features/projects/projects.module').then(m => m.ProjectsModule)
+  },
+
+  // ===== Fallback (TOUJOURS EN DERNIER) =====
+  { path: '**', redirectTo: '' },
+];
