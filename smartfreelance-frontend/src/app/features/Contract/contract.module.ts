@@ -9,14 +9,11 @@ import { ContractAddComponent } from '../Contract/contract-add/contract-add.comp
 import { ContractDetailsPageComponent } from '../Contract/contract-details-page/contract-details-page.component';
 import { ContractEditPageComponent } from '../Contract/contract-edit-page/contract-edit-page.component';
 import { ContractEditComponent } from '../Contract/contract-edit/contract-edit.component';
+import { ContractDeleteComponent } from '../Contract/contract-delete/contract-delete.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
-  declarations: [],
-  imports: [
-    CommonModule,
-    ContractRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
+  declarations: [
     ContractComponent,
     ContractTableComponent,
     ContractAddPageComponent,
@@ -24,6 +21,14 @@ import { ContractEditComponent } from '../Contract/contract-edit/contract-edit.c
     ContractDetailsPageComponent,
     ContractEditPageComponent,
     ContractEditComponent,
+  ],
+  imports: [
+    CommonModule,
+    RouterModule,
+    ContractRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ContractDeleteComponent,
   ],
 })
 export class ContractModule {}

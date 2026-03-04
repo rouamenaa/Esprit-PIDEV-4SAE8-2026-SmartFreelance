@@ -12,6 +12,12 @@ export interface Condidature {
   status: CondidatureStatus;
   createdAt?: string | null;
   updatedAt?: string | null;
+  /** When the application was signed. */
+  signedAt?: string | null;
+  /** Signature image as base64 (optional). */
+  signatureData?: string | null;
+  /** Client ID who signed the application. */
+  signedByClientId?: number | null;
 }
 
 export interface CondidatureRequest {

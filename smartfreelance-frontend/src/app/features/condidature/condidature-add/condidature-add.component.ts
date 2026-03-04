@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CondidatureRequest, CondidatureStatus } from '../../../models/Condidature';
 import { CondidatureService } from '../../../services/condidature.service';
+import { ProjectService } from '../../../services/project.service';
+import { Project } from '../../../models/project.model';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -17,10 +19,13 @@ export class CondidatureAddComponent implements OnInit {
 
   form!: FormGroup;
   errorhandling: string | null = null;
+  /** Projects from project-service (for project dropdown). */
+  projects: Project[] = [];
 
   constructor(
     private fb: FormBuilder,
-    private condidatureService: CondidatureService
+    private condidatureService: CondidatureService,
+    private projectService: ProjectService
   ) {}
 
   ngOnInit(): void {
@@ -31,6 +36,10 @@ export class CondidatureAddComponent implements OnInit {
       proposedPrice: [null, Validators.min(0)],
       estimatedDeliveryDays: [null, Validators.min(1)],
       status: ['PENDING' as CondidatureStatus, Validators.required],
+    });
+    this.projectService.getAll().subscribe({
+      next: (list) => (this.projects = list),
+      error: () => (this.projects = []),
     });
   }
 
@@ -58,7 +67,7 @@ export class CondidatureAddComponent implements OnInit {
         this.closeModal.emit();
       },
       error: (err) => {
-        this.errorhandling = err?.error?.message || err?.message || 'Erreur lors de la création.';
+        this.errorhandling = err?.error?.message || err?.message || 'Error while creating.';
       },
     });
   }

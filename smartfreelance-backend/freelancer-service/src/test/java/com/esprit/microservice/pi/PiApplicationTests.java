@@ -1,10 +1,10 @@
-package com.smartfreelance.projectservice;
+package com.esprit.microservice.pi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SmartfreelanceApplicationTests {
+class PiApplicationTests {
 
     @Test
     void contextLoads() {

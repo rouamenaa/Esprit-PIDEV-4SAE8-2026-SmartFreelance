@@ -4,22 +4,45 @@ import { RouterModule, Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    pathMatch: 'full',
     loadChildren: () =>
       import('./features/projects/projects.module')
         .then(m => m.ProjectsModule)
   },
+
+  {
+    path: 'condidature',
+    redirectTo: 'condidatures',
+    pathMatch: 'full'
+  },
   {
     path: 'condidatures',
     loadChildren: () =>
-      import('./features/condidature/condidature.module')
-        .then(m => m.CondidatureModule)
+      import('./features/condidature').then((m) => m.CONDIDATURE_ROUTES)
   },
   {
     path: 'contrats',
     loadChildren: () =>
-      import('./features/contract/contract.module')
+      import('./features/Contract/contract.module')
         .then(m => m.ContractModule)
+  },
+  {
+    path: 'profil-freelancer',
+    loadComponent: () =>
+      import('./features/freelancer-profile/freelancer-profile')
+        .then(m => m.FreelancerProfileComponent)
+  },
+  
+  {
+    path: 'portfolio',
+    loadComponent: () =>
+      import('./features/portfolio-project/portfolio-project')
+        .then(m => m.PortfolioProjectComponent)
+  },
+  {
+    path: 'skills',
+    loadComponent: () =>
+      import('./features/skill/skill')
+        .then(m => m.SkillComponent)
   }
 ];
 
@@ -27,4 +50,4 @@ export const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

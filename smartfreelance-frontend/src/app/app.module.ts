@@ -32,7 +32,7 @@ import { SidebarComponent } from './core/sidebar/sidebar.component';
     provideClientHydration(),
     provideAnimationsAsync()
   ],
-  bootstrap: [AppComponent],
+  bootstrap: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 
 })

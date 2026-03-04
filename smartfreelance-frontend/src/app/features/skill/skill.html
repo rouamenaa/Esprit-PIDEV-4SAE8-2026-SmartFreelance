@@ -1,0 +1,49 @@
+<div class="skill-card">
+  <h2>{{ isEditMode ? 'Edit Skill' : 'Add Skill' }}</h2>
+
+  <form #f="ngForm" (ngSubmit)="save()" novalidate>
+
+    <input type="text" name="name" [(ngModel)]="skill.name" required minlength="2" placeholder="Skill Name">
+
+    <select name="level" [(ngModel)]="skill.level" required>
+      <option value="">Select Level</option>
+      <option>Beginner</option>
+      <option>Intermediate</option>
+      <option>Advanced</option>
+      <option>Expert</option>
+    </select>
+
+    <div class="actions">
+      <button type="submit" [disabled]="f.invalid">
+        {{ isEditMode ? 'Update Skill' : 'Add Skill' }}
+      </button>
+      <button type="button" *ngIf="isEditMode" (click)="resetForm()">
+        Cancel
+      </button>
+    </div>
+
+  </form>
+
+  <hr>
+
+  <h3>My Skills</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Skill</th>
+        <th>Level</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let s of skills">
+        <td>{{ s.name }}</td>
+        <td>{{ s.level }}</td>
+        <td>
+          <button (click)="editSkill(s)">Edit</button>
+          <button (click)="deleteSkill(s.id)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

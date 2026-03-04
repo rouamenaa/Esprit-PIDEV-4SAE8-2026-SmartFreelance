@@ -21,3 +21,10 @@ export interface Contrat {
 
 /** Alias for backward compatibility */
 export type Contract = Contrat;
+
+/** Contract statistics for dashboard (matches ContratStatisticsDTO) */
+export interface ContractStatistics {
+  completedContracts: number;
+  activeContracts: number;
+  clientSpending: number;
+}

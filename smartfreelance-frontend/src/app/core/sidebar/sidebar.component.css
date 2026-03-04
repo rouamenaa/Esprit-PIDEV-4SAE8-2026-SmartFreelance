@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,700');
-@import url('//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css');
+/* Fonts loaded via index.html to avoid build-time inlining (SSL/certificate issues) */
 body {
   color: #5D5F63;
   background: #324e6a;

@@ -1,13 +1,96 @@
-<p *ngIf="loading" class="text-muted">Chargement...</p>
-<div *ngIf="!loading && list.length > 0" class="contracts-grid">
-  <article *ngFor="let c of list; trackBy: trackById" class="contract-card">
+<ng-container>
+<div class="contract-cards">
+  <!-- Overview statistics -->
+  
+
+  <header class="page-top-bar">
+    <h2 class="page-top-bar__title">Contracts</h2>
+    
+      <div class="filter-box__row">
+        <div class="filter-box__group">
+          <label for="contractSearch" class="filter-box__label">Search</label>
+          <input
+            type="text"
+            id="contractSearch"
+            class="filter-box__input"
+            placeholder="Title, description, ID..."
+            [(ngModel)]="searchText"
+          />
+        </div>
+        <div class="filter-box__group">
+          <label for="contractStatus" class="filter-box__label">Status</label>
+          <select id="contractStatus" class="filter-box__select" [(ngModel)]="filterStatus">
+            <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+        </div>
+        <div class="filter-box__group">
+          <label for="contractClientId" class="filter-box__label">Client ID</label>
+          <input
+            type="number"
+            id="contractClientId"
+            class="filter-box__input filter-box__input--number"
+            placeholder="—"
+            [(ngModel)]="filterClientId"
+            min="1"
+          />
+        </div>
+        <div class="filter-box__group">
+          <label for="contractFreelancerId" class="filter-box__label">Freelancer ID</label>
+          <input
+            type="number"
+            id="contractFreelancerId"
+            class="filter-box__input filter-box__input--number"
+            placeholder="—"
+            [(ngModel)]="filterFreelancerId"
+            min="1"
+          />
+        </div>
+        <button type="button" class="filter-box__btn-clear" (click)="clearFilters()">Clear filters</button>
+      </div>
+    
+    <div class="page-top-bar__actions">
+      <a routerLink="/contrats/add" class="btn-add-contract">
+        <span class="btn-add-contract__icon" aria-hidden="true">+</span>
+        Add contract
+      </a>
+    </div>
+  </header>
+
+  
+      
+      
+  <section class="page-section page-section--overview" aria-label="Contract overview">
+    <h2 class="page-section__title">Overview</h2>
+    <p *ngIf="statsLoading" class="page-section__loading">Loading statistics…</p>
+    <div *ngIf="!statsLoading && stats" class="stats-cards">
+      <div class="stats-card">
+        <span class="stats-card__label">Completed contracts</span>
+        <span class="stats-card__value">{{ stats.completedContracts }}</span>
+      </div>
+      <div class="stats-card">
+        <span class="stats-card__label">Active contracts</span>
+        <span class="stats-card__value">{{ stats.activeContracts }}</span>
+      </div>
+      <div class="stats-card">
+        <span class="stats-card__label">Client spending</span>
+        <span class="stats-card__value">{{ stats.clientSpending | number:'1.2-2' }}</span>
+      </div>
+    </div>
+  </section>
+     
+
+  <p *ngIf="loading" class="text-muted">Loading contracts…</p>
+  <ng-container *ngIf="!loading && list.length > 0">
+    <p class="filters-summary">Showing {{ filteredList.length }} of {{ list.length }} contract(s)</p>
+    <div class="cards-grid">
+      <article *ngFor="let c of filteredList; trackBy: trackById" class="contract-card">
     <header class="card-header">
       <span class="card-id">#{{ c.id }}</span>
       <span class="badge card-statut" [ngClass]="getStatutClass(c.statut)">{{ c.statut }}</span>
     </header>
     <div class="card-body">
       <div class="card-row">
-        <span class="card-label">Titre</span>
+        <span class="card-label">Title</span>
         <span class="card-value">{{ c.titre || '-' }}</span>
       </div>
       <div class="card-row">
@@ -19,23 +102,40 @@
         <span class="card-value">{{ c.freelancerId }}</span>
       </div>
       <div class="card-row">
-        <span class="card-label">Montant</span>
+        <span class="card-label">Amount</span>
         <span class="card-value">{{ c.montant != null ? (c.montant | number) : '-' }}</span>
       </div>
       <div class="card-row">
-        <span class="card-label">Début</span>
+        <span class="card-label">Start</span>
         <span class="card-value">{{ formatDate(c.dateDebut) }}</span>
       </div>
       <div class="card-row">
-        <span class="card-label">Fin</span>
+        <span class="card-label">End</span>
         <span class="card-value">{{ formatDate(c.dateFin) }}</span>
       </div>
     </div>
     <footer class="card-actions">
-      <a [routerLink]="['/contrats', c.id]" class="card-btn card-btn-details">Voir détails</a>
-      <a [routerLink]="['/contrats', c.id, 'edit']" class="card-btn card-btn-primary-outline">Modifier</a>
-      <button type="button" class="card-btn card-btn-danger-outline" (click)="delete(c)">Supprimer</button>
+      <a [routerLink]="['/contrats', c.id]" class="card-btn card-btn-details">View details</a>
+      <a [routerLink]="['/contrats', c.id, 'edit']" class="card-btn card-btn-primary-outline">Edit</a>
+      <button type="button" class="card-btn card-btn-danger-outline" (click)="delete(c)">Delete</button>
     </footer>
   </article>
+    </div>
+  </ng-container>
+  <p *ngIf="!loading && list.length === 0" class="text-muted">No contracts yet. Create one to get started.</p>
+  <p *ngIf="!loading && list.length > 0 && filteredList.length === 0" class="text-muted">No contracts match the current filters.</p>
 </div>
-<p *ngIf="!loading && list.length === 0" class="text-muted">Aucun contrat.</p>
+
+<!-- Delete contract modal – sibling of contract-cards (same as condidature) so overlay centers on viewport -->
+<div *ngIf="showDeleteModal && selectedContract" class="modal fade show delete-contract-modal" tabindex="-1" style="display: block;" aria-modal="true" role="dialog" (click)="onCloseDelete()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content modal-content--delete">
+      <app-contract-delete
+        [contractId]="selectedContract.id!"
+        (closeModal)="onCloseDelete()"
+        (deleted)="onDeleted()">
+      </app-contract-delete>
+    </div>
+  </div>
+</div>
+</ng-container>

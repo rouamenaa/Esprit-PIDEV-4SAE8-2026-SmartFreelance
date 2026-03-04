@@ -1,107 +1,117 @@
-/* Delete confirmation dialog */
-.delete-modal {
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+/* Delete contract dialog – same card styling as condidature (encapsulation: none) */
+app-contract-delete {
+  display: block;
+  width: 100%;
 }
 
-.delete-modal__header {
+app-contract-delete .delete-dialog {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  min-width: 380px;
+  max-width: 440px;
+}
+
+app-contract-delete .delete-dialog__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
   background: #dc2626;
-  border-bottom: 1px solid #b91c1c;
+  border-bottom: none;
 }
 
-.delete-modal__title {
+app-contract-delete .delete-dialog__title {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
+  flex: 1;
+  font-size: 1.125rem;
+  font-weight: 600;
   color: #fff;
   letter-spacing: -0.02em;
+  line-height: 1.3;
 }
 
-.delete-modal__close {
+app-contract-delete .delete-dialog__close {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   padding: 0;
-  font-size: 1.5rem;
-  line-height: 1;
-  color: #fff;
-  background: transparent;
   border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-
-.delete-modal__close:hover {
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
+  font-size: 1.35rem;
+  line-height: 1;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-.delete-modal__body {
-  padding: 1.5rem 1.5rem;
+app-contract-delete .delete-dialog__close:hover {
+  background: rgba(255, 255, 255, 0.35);
 }
 
-.delete-modal__message {
+app-contract-delete .delete-dialog__body {
+  padding: 1.375rem 1.25rem;
+}
+
+app-contract-delete .delete-dialog__message {
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: 0.9375rem;
+  line-height: 1.55;
   color: #374151;
-  font-weight: 500;
+  text-align: left;
 }
 
-.delete-modal__footer {
+app-contract-delete .delete-dialog__footer {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  align-items: center;
   justify-content: flex-end;
-  padding: 1rem 1.5rem 1.25rem;
-  background: #fafafa;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem 1.25rem;
+  background: #f9fafb;
   border-top: 1px solid #e5e7eb;
 }
 
-.delete-modal__btn {
+app-contract-delete .delete-dialog__btn {
+  min-width: 88px;
   padding: 0.5rem 1.25rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
   border-radius: 8px;
-  border: 1px solid transparent;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
-.delete-modal__btn--secondary {
+app-contract-delete .delete-dialog__btn--secondary {
   background: #fff;
-  color: #475569;
-  border-color: #e2e8f0;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
 }
 
-.delete-modal__btn--secondary:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-  color: #334155;
+app-contract-delete .delete-dialog__btn--secondary:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
 }
 
-.delete-modal__btn--danger {
+app-contract-delete .delete-dialog__btn--danger {
   background: #dc2626;
   color: #fff;
-  border-color: #dc2626;
-  box-shadow: 0 1px 2px rgba(220, 38, 38, 0.2);
+  border: 1px solid #dc2626;
 }
 
-.delete-modal__btn--danger:hover {
+app-contract-delete .delete-dialog__btn--danger:hover {
   background: #b91c1c;
   border-color: #b91c1c;
-  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35);
 }
 
-.delete-modal__btn--danger:active {
+app-contract-delete .delete-dialog__btn--danger:active {
   background: #991b1b;
 }

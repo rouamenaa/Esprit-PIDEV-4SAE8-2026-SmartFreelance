@@ -18,10 +18,6 @@ const routes: Routes = [
   { path: 'phases/:id', component: ProjectPhaseDetailsComponent },
  
 
-
-
- 
-
 ];
 
 @NgModule({

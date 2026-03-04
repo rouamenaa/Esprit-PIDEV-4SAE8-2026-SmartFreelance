@@ -2,6 +2,7 @@ package com.smartfreelance.condidature.service;
 
 import com.smartfreelance.condidature.dto.ContratRequest;
 import com.smartfreelance.condidature.dto.ContratResponse;
+import com.smartfreelance.condidature.dto.ContratStatisticsDTO;
 import com.smartfreelance.condidature.model.Contrat;
 import com.smartfreelance.condidature.exception.ContratNotFoundException;
 import com.smartfreelance.condidature.repository.ContratRepository;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -164,12 +166,61 @@ public class ContratService {
         return toResponse(contrat);
     }
 
+    /**
+     * Cancel client signature. Only the contract's client can cancel, and only if freelancer has not signed yet.
+     */
+    @Transactional
+    public ContratResponse cancelClientSign(Long id, Long clientId) {
+        Contrat contrat = contratRepository.findById(id)
+                .orElseThrow(() -> new ContratNotFoundException(id));
+        if (!contrat.getClientId().equals(clientId)) {
+            throw new IllegalArgumentException("Only the contract's client can cancel client signature.");
+        }
+        if (contrat.getFreelancerSignedAt() != null) {
+            throw new IllegalArgumentException("Cannot cancel client signature after freelancer has signed.");
+        }
+        contrat.setClientSignedAt(null);
+        contrat = contratRepository.save(contrat);
+        return toResponse(contrat);
+    }
+
+    /**
+     * Cancel freelancer signature. Only the contract's freelancer can cancel. Status reverts to EN_ATTENTE.
+     */
+    @Transactional
+    public ContratResponse cancelFreelancerSign(Long id, Long freelancerId) {
+        Contrat contrat = contratRepository.findById(id)
+                .orElseThrow(() -> new ContratNotFoundException(id));
+        if (!contrat.getFreelancerId().equals(freelancerId)) {
+            throw new IllegalArgumentException("Only the contract's freelancer can cancel freelancer signature.");
+        }
+        if (contrat.getFreelancerSignedAt() == null) {
+            throw new IllegalArgumentException("Freelancer has not signed yet.");
+        }
+        contrat.setFreelancerSignedAt(null);
+        contrat.setStatut(Contrat.StatutContrat.EN_ATTENTE);
+        contrat = contratRepository.save(contrat);
+        return toResponse(contrat);
+    }
+
     @Transactional
     public void delete(Long id) {
         if (!contratRepository.existsById(id)) {
             throw new ContratNotFoundException(id);
         }
         contratRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public ContratStatisticsDTO getStatistics() {
+        long completed = contratRepository.countByStatut(Contrat.StatutContrat.TERMINE);
+        long active = contratRepository.countByStatut(Contrat.StatutContrat.ACTIF);
+        BigDecimal spending = contratRepository.sumMontant() != null ? contratRepository.sumMontant() : BigDecimal.ZERO;
+        return ContratStatisticsDTO.builder()
+                .completedContracts(completed)
+                .activeContracts(active)
+                .clientSpending(spending)
+                .build();
     }
 
     private ContratResponse toResponse(Contrat contrat) {

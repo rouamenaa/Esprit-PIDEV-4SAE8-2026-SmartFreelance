@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings("null")
 public class CondidatureService {
 
     private final CondidatureRepository condidatureRepository;
@@ -200,9 +199,9 @@ public class CondidatureService {
         Long projectId = accepted.getProjectId();
         Long freelancerId = accepted.getFreelancerId();
 
-        // Reject other PENDING applications for the same project
+        // Reject all other applications for the same project (so only one is ACCEPTED per project)
         List<Condidature> othersSameProject = condidatureRepository.findByProjectId(projectId).stream()
-                .filter(c -> !c.getId().equals(id) && c.getStatus() == CondidatureStatus.PENDING)
+                .filter(c -> !c.getId().equals(id))
                 .collect(Collectors.toList());
         for (Condidature c : othersSameProject) {
             c.setStatus(CondidatureStatus.REJECTED);
@@ -337,18 +336,18 @@ public class CondidatureService {
     }
 
     private CondidatureDTO toDTO(Condidature entity) {
-        return CondidatureDTO.builder()
-                .id(entity.getId())
-                .projectId(entity.getProjectId())
-                .freelancerId(entity.getFreelancerId())
-                .coverLetter(entity.getCoverLetter())
-                .proposedPrice(entity.getProposedPrice())
-                .estimatedDeliveryDays(entity.getEstimatedDeliveryDays())
-                .freelancerRating(entity.getFreelancerRating())
-                .status(entity.getStatus())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .build();
+        CondidatureDTO dto = new CondidatureDTO();
+        dto.setId(entity.getId());
+        dto.setProjectId(entity.getProjectId());
+        dto.setFreelancerId(entity.getFreelancerId());
+        dto.setCoverLetter(entity.getCoverLetter());
+        dto.setProposedPrice(entity.getProposedPrice());
+        dto.setEstimatedDeliveryDays(entity.getEstimatedDeliveryDays());
+        dto.setFreelancerRating(entity.getFreelancerRating());
+        dto.setStatus(entity.getStatus());
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
+        return dto;
     }
 
     private Condidature toEntity(CondidatureRequestDTO dto) {

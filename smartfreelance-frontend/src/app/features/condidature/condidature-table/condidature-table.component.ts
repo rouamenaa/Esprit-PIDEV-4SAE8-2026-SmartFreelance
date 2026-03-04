@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Condidature } from '../../../models/Condidature';
+import { Condidature, CondidaturesByProject } from '../../../models/Condidature';
 import { CondidatureService } from '../../../services/condidature.service';
 import { CondidatureDeleteComponent } from '../condidature-delete/condidature-delete.component';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-condidature-table',
@@ -13,6 +14,8 @@ import { CondidatureDeleteComponent } from '../condidature-delete/condidature-de
   styleUrl: './condidature-table.component.css',
 })
 export class CondidatureTableComponent implements OnInit {
+  /** Applications grouped by project (for "by project" view). */
+  groupedByProject: CondidaturesByProject[] = [];
   list: Condidature[] = [];
   sortedList: Condidature[] = [];
   sortBy: string = 'default';
@@ -30,20 +33,67 @@ export class CondidatureTableComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    this.condidatureService.getAll({ ranked: true }).subscribe({
-      next: (data) => {
-        this.list = (data || []).map((item) => {
-          try {
-            return this.ensureRatingOnItem(item);
-          } catch {
-            return { ...item, freelancerRating: null };
-          }
-        });
+    this.condidatureService.getGroupedByProject(true).subscribe({
+      next: (groups) => {
+        this.groupedByProject = (groups || []).map((g) => ({
+          projectId: g.projectId,
+          condidatures: (g.condidatures || []).map((item) => {
+            try {
+              return this.ensureRatingOnItem(item);
+            } catch {
+              return { ...item, freelancerRating: null };
+            }
+          }),
+        }));
+        this.list = this.groupedByProject.flatMap((g) => g.condidatures);
         this.applySort();
         this.loading = false;
       },
       error: () => (this.loading = false),
     });
+  }
+
+  /** Sorted applications per project (for display by project). */
+  getSortedGrouped(): { projectId: number; condidatures: Condidature[] }[] {
+    return this.groupedByProject.map((g) => ({
+      projectId: g.projectId,
+      condidatures: this.sortList([...g.condidatures]),
+    }));
+  }
+
+  private sortList(list: Condidature[]): Condidature[] {
+    switch (this.sortBy) {
+      case 'rating':
+        list.sort((a, b) => (this.getRating(b) ?? 0) - (this.getRating(a) ?? 0));
+        break;
+      case 'ratingDesc':
+        list.sort((a, b) => (this.getRating(a) ?? 0) - (this.getRating(b) ?? 0));
+        break;
+      case 'id':
+        list.sort((a, b) => a.id - b.id);
+        break;
+      case 'idDesc':
+        list.sort((a, b) => b.id - a.id);
+        break;
+      case 'status':
+        list.sort((a, b) => (a.status ?? '').localeCompare(b.status ?? ''));
+        break;
+      case 'price':
+        list.sort((a, b) => (a.proposedPrice ?? 0) - (b.proposedPrice ?? 0));
+        break;
+      case 'priceDesc':
+        list.sort((a, b) => (b.proposedPrice ?? 0) - (a.proposedPrice ?? 0));
+        break;
+      case 'days':
+        list.sort((a, b) => (a.estimatedDeliveryDays ?? 0) - (b.estimatedDeliveryDays ?? 0));
+        break;
+      case 'daysDesc':
+        list.sort((a, b) => (b.estimatedDeliveryDays ?? 0) - (a.estimatedDeliveryDays ?? 0));
+        break;
+      default:
+        break;
+    }
+    return list;
   }
 
   openDelete(c: Condidature): void {
@@ -88,6 +138,13 @@ export class CondidatureTableComponent implements OnInit {
       next: () => {
         this.actionLoading = null;
         this.load();
+        Swal.fire({
+          title: 'Accepted',
+          text: 'Application accepted. Other applications for this project have been rejected.',
+          icon: 'success',
+          timer: 3000,
+          showConfirmButton: false,
+        });
       },
       error: () => (this.actionLoading = null),
     });
@@ -116,39 +173,6 @@ export class CondidatureTableComponent implements OnInit {
   }
 
   applySort(): void {
-    const list = [...this.list];
-    switch (this.sortBy) {
-      case 'rating':
-        list.sort((a, b) => (this.getRating(b) ?? 0) - (this.getRating(a) ?? 0));
-        break;
-      case 'ratingDesc':
-        list.sort((a, b) => (this.getRating(a) ?? 0) - (this.getRating(b) ?? 0));
-        break;
-      case 'id':
-        list.sort((a, b) => a.id - b.id);
-        break;
-      case 'idDesc':
-        list.sort((a, b) => b.id - a.id);
-        break;
-      case 'status':
-        list.sort((a, b) => (a.status ?? '').localeCompare(b.status ?? ''));
-        break;
-      case 'price':
-        list.sort((a, b) => (a.proposedPrice ?? 0) - (b.proposedPrice ?? 0));
-        break;
-      case 'priceDesc':
-        list.sort((a, b) => (b.proposedPrice ?? 0) - (a.proposedPrice ?? 0));
-        break;
-      case 'days':
-        list.sort((a, b) => (a.estimatedDeliveryDays ?? 0) - (b.estimatedDeliveryDays ?? 0));
-        break;
-      case 'daysDesc':
-        list.sort((a, b) => (b.estimatedDeliveryDays ?? 0) - (a.estimatedDeliveryDays ?? 0));
-        break;
-      default:
-        // Keep API order (ranked)
-        break;
-    }
-    this.sortedList = list;
+    this.sortedList = this.sortList([...this.list]);
   }
 }

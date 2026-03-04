@@ -1,0 +1,84 @@
+<div class="stats-page">
+  <div class="stats-page__toolbar">
+    <a routerLink="/condidatures" class="stats-page__back">
+      <span class="stats-page__back-icon" aria-hidden="true">&larr;</span>
+      Back to list
+    </a>
+  </div>
+
+  <h1 class="stats-page__title">Application statistics</h1>
+
+  <p *ngIf="loading" class="stats-page__loading">Loading...</p>
+  <p *ngIf="error" class="stats-page__error">{{ error }}</p>
+
+  <ng-container *ngIf="!loading && !error && stats">
+    <!-- Summary cards -->
+    <div class="stats-cards">
+      <div class="stats-card">
+        <span class="stats-card__label">Total applications</span>
+        <span class="stats-card__value">{{ stats.totalApplications }}</span>
+      </div>
+      <div class="stats-card">
+        <span class="stats-card__label">Acceptance rate</span>
+        <span class="stats-card__value">{{ stats.acceptanceRatePercent | number:'1.1-1' }}%</span>
+        <span class="stats-card__hint">Based on status (PENDING / REJECTED / WITHDRAWN / ACCEPTED)</span>
+      </div>
+      <div class="stats-card">
+        <span class="stats-card__label">Accepted applications</span>
+        <span class="stats-card__value">{{ stats.acceptedCount }}</span>
+      </div>
+    </div>
+
+    <!-- 1. Number of applications per project (by project_id) -->
+    <section class="stats-section">
+      <h2 class="stats-section__title">Number of applications per project</h2>
+      <p class="stats-section__desc">Total applications per project (by project ID in database).</p>
+      <div *ngIf="stats.applicationsPerProject.length === 0" class="stats-section__empty">No data.</div>
+      <div *ngIf="stats.applicationsPerProject.length > 0" class="stats-table-wrap">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>Project ID</th>
+              <th>Number of applications</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of stats.applicationsPerProject">
+              <td>{{ row.projectId }}</td>
+              <td>{{ row.count }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 2. Acceptance rate already in summary (from status) -->
+
+    <!-- 3. Freelancer success rate (from freelancer_rating) -->
+    <section class="stats-section">
+      <h2 class="stats-section__title">Freelancer success rate</h2>
+      <p class="stats-section__desc">Calculated from <code>freelancer_rating</code> data (average 0–5 converted to %).</p>
+      <div *ngIf="stats.freelancerSuccessRates.length === 0" class="stats-section__empty">No data.</div>
+      <div *ngIf="stats.freelancerSuccessRates.length > 0" class="stats-table-wrap">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>Freelancer ID</th>
+              <th>No. applications</th>
+              <th>Average rating (0–5)</th>
+              <th>Success rate (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of stats.freelancerSuccessRates">
+              <td>{{ row.freelancerId }}</td>
+              <td>{{ row.totalApplications }}</td>
+              <td>{{ row.averageRating | number:'1.2-2' }}</td>
+              <td>{{ row.successRatePercent | number:'1.1-1' }}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </ng-container>
+</div>

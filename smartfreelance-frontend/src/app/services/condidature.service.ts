@@ -25,10 +25,19 @@ function readRatingFromRaw(raw: Record<string, unknown>): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-/** Normalize API response: set freelancerRating from DB field (used by getAll, getById, etc.). */
+/** Normalize API response: set freelancerRating and signature fields (used by getAll, getById, etc.). */
 function normalizeCondidature(raw: Record<string, unknown>): Condidature {
   const freelancerRating = readRatingFromRaw(raw);
-  return { ...raw, freelancerRating } as unknown as Condidature;
+  const signedAt = raw['signedAt'] ?? raw['signed_at'] ?? null;
+  const signatureData = raw['signatureData'] ?? raw['signature_data'] ?? null;
+  const signedByClientId = raw['signedByClientId'] ?? raw['signed_by_client_id'] ?? null;
+  return {
+    ...raw,
+    freelancerRating,
+    signedAt: signedAt ?? undefined,
+    signatureData: signatureData ?? undefined,
+    signedByClientId: signedByClientId != null ? Number(signedByClientId) : undefined,
+  } as unknown as Condidature;
 }
 
 /** Normalize stats API response (handles camelCase or snake_case from backend). */
@@ -149,5 +158,7 @@ export class CondidatureService {
   getStatisticsForCondidature(id: number): Observable<CondidatureDetailStats> {
     return this.http.get<CondidatureDetailStats>(`${this.url}/condidatures/${id}/statistics`);
   }
+
+  /** Sign the application (records signedAt and client ID). */
 }
 
