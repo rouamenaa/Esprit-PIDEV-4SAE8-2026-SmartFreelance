@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 })
 export class AuthService {
 
-  private api = "http://localhost:8080/api/auth";
+  private api = "http://localhost:8085/auth";
 
   constructor(private http: HttpClient) {}
 
@@ -28,5 +28,19 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('token');
+  }
+   getRole(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role || null;
+    } catch {
+      return null;
+    }
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.getToken();
   }
 }

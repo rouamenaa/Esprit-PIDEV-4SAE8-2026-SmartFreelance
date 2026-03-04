@@ -1,37 +1,6 @@
 <h2>Gestion des utilisateurs</h2>
 
-<div>
-  <div style="display: inline-block; vertical-align: top;">
-    <input 
-      type="text" placeholder="Email" [(ngModel)]="user.email"
-      (blur)="validateEmail()" (input)="validateEmail()"
-      [style.border-color]="emailError ? 'red' : ''">
-    <small *ngIf="emailError" style="color:red; font-size:10px; display:block;">{{ emailError }}</small>
-  </div>
-
-  <div style="display: inline-block; vertical-align: top;">
-    <input 
-      type="text" placeholder="Name" [(ngModel)]="user.name"
-      (blur)="validateName()" (input)="validateName()"
-      [style.border-color]="nameError ? 'red' : ''">
-    <small *ngIf="nameError" style="color:red; font-size:10px; display:block;">⚠ {{ nameError }}</small>
-  </div>
-
-  <input type="password" placeholder="Password" [(ngModel)]="user.password">
-
-  <select [(ngModel)]="user.role">
-    <option value="">Select a role</option>
-    <option value="admin">Admin</option>
-    <option value="Client">Client</option>
-    <option value="freelancer">Freelancer</option>
-  </select>
-
-  <button (click)="addUser()">{{ isEditMode ? 'Update' : 'Add' }}</button>
-</div>
-
-<hr>
-
-<!-- ✅ Section Vérification IA -->
+<!-- ✅ Section Vérification IA EN PREMIER -->
 <div style="margin: 16px 0;">
   <h3>🔍 Vérification IA du document</h3>
 
@@ -44,7 +13,7 @@
     📄 <strong>{{ selectedFileName }}</strong>
   </div>
 
-  <button (click)="verifyDocument()" [disabled]="!selectedFile || isVerifying">
+  <button type="button" (click)="verifyDocument()" [disabled]="!selectedFile || isVerifying">
     {{ isVerifying ? '⏳ Analyse en cours...' : '🤖 Vérifier avec IA' }}
   </button>
 
@@ -62,6 +31,73 @@
 
 <hr>
 
+<!-- ✅ Formulaire ajout/edit -->
+<div>
+  <div style="display: inline-block; vertical-align: top;">
+    <input
+      type="text" placeholder="Email" [(ngModel)]="user.email"
+      (blur)="validateEmail()" (input)="validateEmail()"
+      [style.border-color]="emailError ? 'red' : ''">
+    <small *ngIf="emailError" style="color:red; font-size:10px; display:block;">{{ emailError }}</small>
+  </div>
+
+  <div style="display: inline-block; vertical-align: top;">
+    <input
+      type="text" placeholder="Name" [(ngModel)]="user.name"
+      (blur)="validateName()" (input)="validateName()"
+      [style.border-color]="nameError ? 'red' : ''">
+    <small *ngIf="nameError" style="color:red; font-size:10px; display:block;">⚠ {{ nameError }}</small>
+  </div>
+
+  <div style="display: inline-block; vertical-align: top;">
+    <input
+      type="password" placeholder="Password" [(ngModel)]="user.password"
+      [style.border-color]="passwordError ? 'red' : ''">
+    <small *ngIf="passwordError" style="color:red; font-size:10px; display:block;">⚠ {{ passwordError }}</small>
+  </div>
+
+  <div style="display: inline-block; vertical-align: top;">
+    <select [(ngModel)]="user.role" [style.border-color]="roleError ? 'red' : ''">
+      <option value="">Select a role</option>
+      <option value="ADMIN">Admin</option>
+      <option value="CLIENT">Client</option>
+      <option value="FREELANCER">Freelancer</option>
+    </select>
+    <small *ngIf="roleError" style="color:red; font-size:10px; display:block;">⚠ {{ roleError }}</small>
+  </div>
+
+  <br><br>
+
+  <!-- ✅ Statut document IA (seulement en mode ajout) -->
+  <div *ngIf="!isEditMode">
+    <div *ngIf="!verificationResult" style="color: orange; font-size: 12px; margin-bottom: 6px;">
+      ⚠️ Veuillez vérifier un document IA avant d'ajouter
+    </div>
+    <div *ngIf="verificationResult && !verificationResult.valid" style="color: red; font-size: 12px; margin-bottom: 6px;">
+      ❌ Document invalide — ajout bloqué
+    </div>
+    <div *ngIf="verificationResult && verificationResult.valid" style="color: green; font-size: 12px; margin-bottom: 6px;">
+      ✅ Document valide — vous pouvez ajouter
+    </div>
+  </div>
+
+  <div *ngIf="successMessage" style="color:green; font-size:13px; margin-bottom: 6px;">
+    ✅ {{ successMessage }}
+  </div>
+
+  <!-- ✅ Bouton désactivé si document non valide (seulement en mode ajout) -->
+  <button type="button" (click)="addUser()"
+    [disabled]="isLoading || (!isEditMode && (!verificationResult || !verificationResult.valid))">
+    {{ isLoading ? 'Chargement...' : (isEditMode ? 'Update' : 'Add') }}
+  </button>
+
+  <button type="button" *ngIf="isEditMode" (click)="resetForm()" style="margin-left: 8px;">
+    Annuler
+  </button>
+</div>
+
+<hr>
+
 <div>
   <h3>User list</h3>
   <table border="1" *ngIf="users.length > 0">
@@ -71,14 +107,14 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let user of users">
-        <td>{{ user.id }}</td>
-        <td>{{ user.name }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.role }}</td>
+      <tr *ngFor="let u of users">
+        <td>{{ u.id }}</td>
+        <td>{{ u.username }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.role }}</td>
         <td>
-          <button (click)="editUser(user)">Edit</button>
-          <button (click)="deleteUser(user.id)">Delete</button>
+          <button type="button" (click)="editUser(u)">Edit</button>
+          <button type="button" (click)="deleteUser(u.id)">Delete</button>
         </td>
       </tr>
     </tbody>

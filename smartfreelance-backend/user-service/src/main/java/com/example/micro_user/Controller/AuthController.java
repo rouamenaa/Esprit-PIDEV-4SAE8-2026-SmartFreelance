@@ -63,10 +63,17 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<UserDTO> authenticate(@RequestBody User user) {
 
+
+        User existingUser = userRepository.findByEmail(user.getEmail());
+
+        if (existingUser == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            user.getUsername(),
+                            existingUser.getUsername(), // ✅ utilise le username trouvé
                             user.getPassword()
                     )
             );
@@ -74,15 +81,13 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
-        String token = JwtUtils.generateToken(user.getUsername());
-
-        User existingUser = userRepository.findByUsername(user.getUsername());
+        String token = JwtUtils.generateToken(existingUser.getUsername());
 
         UserDTO dto = new UserDTO();
         dto.setId(existingUser.getId());
         dto.setUsername(existingUser.getUsername());
         dto.setEmail(existingUser.getEmail());
-        dto.setRole(existingUser.getRole()); // 🔥 enum
+        dto.setRole(existingUser.getRole());
         dto.setToken(token);
 
         return ResponseEntity.ok(dto);

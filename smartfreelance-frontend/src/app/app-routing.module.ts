@@ -100,6 +100,8 @@ export const routes: Routes = [
 
   // ===== ADMIN / AUTH =====
   { path: 'login', component: LoginComponent },
+  { path: 'freelancer', component: UtilisateurComponent, canActivate: [authGuard] }, 
+
   { path: 'utilisateur', component: UtilisateurComponent },
   { path: 'admin', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'unauthorized', component: UnauthorizedComponent },
