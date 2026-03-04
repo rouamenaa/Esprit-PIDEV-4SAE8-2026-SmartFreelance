@@ -4,10 +4,14 @@ import { LayoutComponent } from './core/layout/layout.component';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [LayoutComponent],
+  imports: [LayoutComponent], // 
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+  styleUrls: ['./app.component.css']
 })
+
+
+
 export class AppComponent {
   title = 'smartfreelance-frontend';
 }
+
