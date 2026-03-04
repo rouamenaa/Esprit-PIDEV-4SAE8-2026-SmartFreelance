@@ -40,11 +40,14 @@
               "@angular/material/prebuilt-themes/magenta-violet.css",
               "src/styles.css"
             ],
+
+
             "scripts": [],
             "server": "src/main.server.ts",
             
             "prerender": false,
             "ssr": false
+
           },
           "configurations": {
             "production": {
@@ -75,6 +78,9 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+    "proxyConfig": "proxy.conf.json"   
+  },
           "configurations": {
             "production": {
               "buildTarget": "smartfreelance-frontend:build:production"
@@ -91,6 +97,7 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
+            
             "polyfills": [
               "zone.js",
               "zone.js/testing"

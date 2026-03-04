@@ -1,0 +1,87 @@
+<h2>Gestion des utilisateurs</h2>
+
+<div>
+  <div style="display: inline-block; vertical-align: top;">
+    <input 
+      type="text" placeholder="Email" [(ngModel)]="user.email"
+      (blur)="validateEmail()" (input)="validateEmail()"
+      [style.border-color]="emailError ? 'red' : ''">
+    <small *ngIf="emailError" style="color:red; font-size:10px; display:block;">{{ emailError }}</small>
+  </div>
+
+  <div style="display: inline-block; vertical-align: top;">
+    <input 
+      type="text" placeholder="Name" [(ngModel)]="user.name"
+      (blur)="validateName()" (input)="validateName()"
+      [style.border-color]="nameError ? 'red' : ''">
+    <small *ngIf="nameError" style="color:red; font-size:10px; display:block;">⚠ {{ nameError }}</small>
+  </div>
+
+  <input type="password" placeholder="Password" [(ngModel)]="user.password">
+
+  <select [(ngModel)]="user.role">
+    <option value="">Select a role</option>
+    <option value="admin">Admin</option>
+    <option value="Client">Client</option>
+    <option value="freelancer">Freelancer</option>
+  </select>
+
+  <button (click)="addUser()">{{ isEditMode ? 'Update' : 'Add' }}</button>
+</div>
+
+<hr>
+
+<!-- ✅ Section Vérification IA -->
+<div style="margin: 16px 0;">
+  <h3>🔍 Vérification IA du document</h3>
+
+  <div style="margin-bottom: 8px;">
+    <label style="font-size: 13px;">Uploader un CV ou Diplôme (PDF) :</label><br>
+    <input type="file" accept="application/pdf" (change)="onFileSelected($event)" style="margin-top: 5px;">
+  </div>
+
+  <div *ngIf="selectedFileName" style="font-size: 12px; color: #555; margin-bottom: 8px;">
+    📄 <strong>{{ selectedFileName }}</strong>
+  </div>
+
+  <button (click)="verifyDocument()" [disabled]="!selectedFile || isVerifying">
+    {{ isVerifying ? '⏳ Analyse en cours...' : '🤖 Vérifier avec IA' }}
+  </button>
+
+  <div *ngIf="verificationResult"
+    [style.background]="verificationResult.valid ? '#e6f9e6' : '#fdecea'"
+    [style.border]="verificationResult.valid ? '1px solid green' : '1px solid red'"
+    style="padding: 12px; border-radius: 6px; margin-top: 10px; max-width: 400px;">
+    <strong>{{ verificationResult.valid ? '✅ Document valide' : '❌ Document invalide' }}</strong>
+    <p style="margin: 6px 0 0; font-size: 13px;">{{ verificationResult.message }}</p>
+    <p *ngIf="verificationResult.name" style="margin: 4px 0 0; font-size: 13px;">
+      👤 Nom détecté : <strong>{{ verificationResult.name }}</strong>
+    </p>
+  </div>
+</div>
+
+<hr>
+
+<div>
+  <h3>User list</h3>
+  <table border="1" *ngIf="users.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th><th>Name</th><th>Email</th><th>Rôle</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.id }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role }}</td>
+        <td>
+          <button (click)="editUser(user)">Edit</button>
+          <button (click)="deleteUser(user.id)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p *ngIf="users.length === 0">No users added</p>
+</div>

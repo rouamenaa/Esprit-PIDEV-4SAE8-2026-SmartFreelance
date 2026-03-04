@@ -1,0 +1,29 @@
+
+
+<section class="bg-dark text-white text-center p-5">
+  <div class="container">
+    <h1 class="display-4 fw-bold">Find the perfect Freelancer</h1>
+    <p class="lead">Work with the best talent worldwide</p>
+    <button class="btn btn-success btn-lg mt-3">Get Started</button>
+  </div>
+</section>
+
+
+<div class="container mt-5">
+  <h2 class="mb-4">Top Freelancers</h2>
+
+  <div class="row">
+    <div class="col-md-4" *ngFor="let freelancer of freelancers">
+      <div class="card shadow mb-4">
+        <div class="card-body">
+          <h5>{{freelancer.name}}</h5>
+          <p>{{freelancer.skill}}</p>
+          <span class="badge bg-success">{{freelancer.price}} $/h</span>
+          <button class="btn btn-outline-success mt-3 w-100">
+            Hire
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

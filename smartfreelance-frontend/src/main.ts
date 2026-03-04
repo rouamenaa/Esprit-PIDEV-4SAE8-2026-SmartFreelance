@@ -5,7 +5,6 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app-routing.module';
 
-// ⚠️ Appel direct, pas de export default
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
