@@ -1,12 +1,25 @@
 import { Component, Inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormationService } from '../../../services/formation.service';
 import { ParticipantRequestDTO, Participant } from '../../../models/participant.model';
 
 @Component({
   selector: 'app-registration-dialog',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule
+  ],
   templateUrl: './registration-dialog.component.html',
   styleUrls: ['./registration-dialog.component.css']
 })
@@ -14,7 +27,7 @@ export class RegistrationDialogComponent {
   form: FormGroup;
   loading = false;
   backendError = '';
-  registrationResult: Participant | null = null; // ← résultat après inscription
+  registrationResult: Participant | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -38,9 +51,8 @@ export class RegistrationDialogComponent {
     this.formationService.registerParticipant(this.data.formationId, participant).subscribe({
       next: (res) => {
         this.loading = false;
-        this.registrationResult = res; // ← afficher le résultat dans le dialog
+        this.registrationResult = res;
 
-        // Snackbar avec statut calendrier
         const syncOk = res.calendarSyncStatus === 'SYNC_OK';
         this.snackBar.open(
           syncOk

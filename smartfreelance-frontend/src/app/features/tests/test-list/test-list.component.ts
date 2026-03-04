@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { Test } from '../../../models/test.model';
 import { TestService } from '../../../services/test.service';
 import { ConfirmService } from '../../../shared/services/confirm.service';
 
 @Component({
   selector: 'app-test-list',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './test-list.component.html',
   styleUrls: ['./test-list.component.css']
 })
@@ -19,35 +22,33 @@ export class TestListComponent implements OnInit {
   constructor(
     private service: TestService,
     private route: ActivatedRoute,
-    public router: Router,  // ✅ public pour l'utiliser dans le template
+    public router: Router,
     private confirmService: ConfirmService
   ) {}
 
- ngOnInit(): void {
-  // ✅ Vérifier que le paramètre existe et n'est pas NaN
-  const idParam = this.route.snapshot.paramMap.get('formationId');
-  if (idParam && !isNaN(+idParam)) {
-    this.formationId = +idParam;
-  }
-  this.loadTests();
-}
-
-loadTests(): void {
-  this.loading = true;
-  // ✅ N'envoyer formationId que s'il est valide
-  const obs = this.formationId
-    ? this.service.getByFormation(this.formationId)
-    : this.service.getAll();
-
-  obs.subscribe({
-    next: (data) => { this.tests = data; this.loading = false; },
-    error: (err) => {
-      console.error(err);
-      this.error = `Erreur ${err.status}`;
-      this.loading = false;
+  ngOnInit(): void {
+    const idParam = this.route.snapshot.paramMap.get('formationId');
+    if (idParam && !isNaN(+idParam)) {
+      this.formationId = +idParam;
     }
-  });
-}
+    this.loadTests();
+  }
+
+  loadTests(): void {
+    this.loading = true;
+    const obs = this.formationId
+      ? this.service.getByFormation(this.formationId)
+      : this.service.getAll();
+
+    obs.subscribe({
+      next: (data) => { this.tests = data; this.loading = false; },
+      error: (err) => {
+        console.error(err);
+        this.error = `Erreur ${err.status}`;
+        this.loading = false;
+      }
+    });
+  }
 
   addTest(): void {
     this.router.navigate(['/tests/new'], {

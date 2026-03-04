@@ -1,0 +1,51 @@
+<div class="edit-form-wrap">
+  <form [formGroup]="form" (ngSubmit)="update()">
+    <div class="edit-form-body">
+      <div class="form-group">
+        <label for="edit-clientId" class="form-label">ID Client</label>
+        <input type="number" min="1" class="form-input" id="edit-clientId" formControlName="clientId" placeholder="Ex. 1">
+      </div>
+      <div class="form-group">
+        <label for="edit-freelancerId" class="form-label">ID Freelancer</label>
+        <input type="number" min="1" class="form-input" id="edit-freelancerId" formControlName="freelancerId" placeholder="Ex. 1">
+      </div>
+      <div class="form-group">
+        <label for="edit-titre" class="form-label">Titre</label>
+        <input type="text" class="form-input" id="edit-titre" formControlName="titre" placeholder="Titre du contrat">
+      </div>
+      <div class="form-group">
+        <label for="edit-description" class="form-label">Description</label>
+        <textarea class="form-input form-textarea" id="edit-description" formControlName="description" rows="3" placeholder="Description..."></textarea>
+      </div>
+      <div class="form-group">
+        <label for="edit-montant" class="form-label">Montant</label>
+        <input type="number" step="0.01" min="0.01" class="form-input" id="edit-montant" formControlName="montant" placeholder="0.00">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="edit-dateDebut" class="form-label">Date début</label>
+          <input type="date" class="form-input" id="edit-dateDebut" formControlName="dateDebut">
+        </div>
+        <div class="form-group">
+          <label for="edit-dateFin" class="form-label">Date fin</label>
+          <input type="date" class="form-input" id="edit-dateFin" formControlName="dateFin">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="edit-statut" class="form-label">Statut</label>
+        <select class="form-input form-select" id="edit-statut" formControlName="statut">
+          <option value="BROUILLON">Brouillon</option>
+          <option value="EN_ATTENTE">En attente</option>
+          <option value="ACTIF">Actif</option>
+          <option value="TERMINE">Terminé</option>
+          <option value="ANNULE">Annulé</option>
+        </select>
+      </div>
+      <p *ngIf="errorhandling" class="form-error">{{ errorhandling }}</p>
+    </div>
+    <div class="edit-form-actions">
+      <button type="button" class="btn btn-secondary" (click)="close()">Annuler</button>
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Modifier</button>
+    </div>
+  </form>
+</div>

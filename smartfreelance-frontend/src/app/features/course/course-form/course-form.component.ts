@@ -1,9 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { CourseService } from '../../../services/course.service';
 
 @Component({
   selector: 'app-course-form',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './course-form.component.html',
   styleUrls: ['./course-form.component.css']
 })
@@ -22,19 +26,16 @@ export class CourseFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // ✅ Récupérer formationId depuis l'URL /formations/:formationId/courses/new
     const fIdParam = this.route.snapshot.paramMap.get('formationId');
     if (fIdParam) {
       this.formationId = +fIdParam;
     }
 
-    // ✅ Fallback : récupérer depuis queryParams ?formationId=3
     if (!this.formationId) {
       const fIdQuery = this.route.snapshot.queryParamMap.get('formationId');
       if (fIdQuery) this.formationId = +fIdQuery;
     }
 
-    // Mode édition
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.isEditMode = true;
@@ -61,7 +62,6 @@ export class CourseFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    // ✅ Vérification avant envoi
     if (!this.formationId) {
       this.error = 'Formation introuvable. Veuillez revenir en arrière et réessayer.';
       return;

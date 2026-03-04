@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { CourseService } from '../../../services/course.service';
 import { Course } from '../../../models/course.model';
 import { ConfirmService } from '../../../shared/services/confirm.service';
 
 @Component({
   selector: 'app-course-detail',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './course-detail.component.html',
   styleUrls: ['./course-detail.component.css']
 })
@@ -47,7 +50,6 @@ export class CourseDetailComponent implements OnInit {
     this.courseService.getCourseById(id).subscribe({
       next: (data) => {
         this.course = data;
-        // ✅ récupérer formationId depuis la réponse backend si pas dans l'URL
         if (!this.formationId && data.formation?.id) {
           this.formationId = data.formation.id;
         }
@@ -72,10 +74,8 @@ export class CourseDetailComponent implements OnInit {
   edit(): void {
     if (!this.course) return;
     if (this.formationId) {
-      // ✅ format correct : /formations/:formationId/courses/:id/edit
       this.router.navigate(['/formations', this.formationId, 'courses', this.course.id, 'edit']);
     } else {
-      // ✅ format correct : /courses/:id/edit (pas /courses/edit/:id)
       this.router.navigate(['/courses', this.course.id, 'edit']);
     }
   }

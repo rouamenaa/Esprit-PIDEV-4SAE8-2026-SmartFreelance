@@ -1,0 +1,41 @@
+<p *ngIf="loading" class="text-muted">Chargement...</p>
+<div *ngIf="!loading && list.length > 0" class="contracts-grid">
+  <article *ngFor="let c of list; trackBy: trackById" class="contract-card">
+    <header class="card-header">
+      <span class="card-id">#{{ c.id }}</span>
+      <span class="badge card-statut" [ngClass]="getStatutClass(c.statut)">{{ c.statut }}</span>
+    </header>
+    <div class="card-body">
+      <div class="card-row">
+        <span class="card-label">Titre</span>
+        <span class="card-value">{{ c.titre || '-' }}</span>
+      </div>
+      <div class="card-row">
+        <span class="card-label">Client</span>
+        <span class="card-value">{{ c.clientId }}</span>
+      </div>
+      <div class="card-row">
+        <span class="card-label">Freelancer</span>
+        <span class="card-value">{{ c.freelancerId }}</span>
+      </div>
+      <div class="card-row">
+        <span class="card-label">Montant</span>
+        <span class="card-value">{{ c.montant != null ? (c.montant | number) : '-' }}</span>
+      </div>
+      <div class="card-row">
+        <span class="card-label">Début</span>
+        <span class="card-value">{{ formatDate(c.dateDebut) }}</span>
+      </div>
+      <div class="card-row">
+        <span class="card-label">Fin</span>
+        <span class="card-value">{{ formatDate(c.dateFin) }}</span>
+      </div>
+    </div>
+    <footer class="card-actions">
+      <a [routerLink]="['/contrats', c.id]" class="card-btn card-btn-details">Voir détails</a>
+      <a [routerLink]="['/contrats', c.id, 'edit']" class="card-btn card-btn-primary-outline">Modifier</a>
+      <button type="button" class="card-btn card-btn-danger-outline" (click)="delete(c)">Supprimer</button>
+    </footer>
+  </article>
+</div>
+<p *ngIf="!loading && list.length === 0" class="text-muted">Aucun contrat.</p>

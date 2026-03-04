@@ -1,13 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../../../services/project.service';
 import { Project } from '../../../models/project.model';
 
 @Component({
   selector: 'app-project-edit',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './project-edit.component.html',
-  styleUrls: ['./project-edit.component.css']
+  styleUrls: ['./project-edit.component.css'],
 })
 export class ProjectEditComponent implements OnInit {
 

@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { Reward } from '../../../models/reward.model';
 import { RewardService } from '../../../services/reward.service';
 import { ConfirmService } from '../../../shared/services/confirm.service';
 
-
 @Component({
   selector: 'app-reward-detail',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './reward-detail.component.html',
   styleUrls: ['./reward-detail.component.css']
 })

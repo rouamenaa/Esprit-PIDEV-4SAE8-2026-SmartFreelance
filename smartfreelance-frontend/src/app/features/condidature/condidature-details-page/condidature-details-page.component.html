@@ -1,0 +1,82 @@
+<div class="details-page">
+  <!-- Prominent toolbar: Back to list (left) + Modifier (right) -->
+  <div class="details-page__toolbar">
+    <a (click)="goBack()" class="details-page__back" role="button" tabindex="0">
+      <span class="details-page__back-icon" aria-hidden="true">&larr;</span>
+      Retour à la liste
+    </a>
+    <button *ngIf="condidature && !loading" type="button" class="details-page__btn-modifier" (click)="goToEdit()">
+      <span class="details-page__btn-modifier-text">Modifier</span>
+    </button>
+  </div>
+
+  <header class="details-page__header">
+    <h1 class="details-page__title">Candidature<span *ngIf="condidature"> #{{ condidature.id }}</span></h1>
+    <span *ngIf="condidature" class="details-page__badge" [ngClass]="{
+      'details-page__badge--accepted': condidature.status === 'ACCEPTED',
+      'details-page__badge--rejected': condidature.status === 'REJECTED',
+      'details-page__badge--pending': condidature.status === 'PENDING',
+      'details-page__badge--withdrawn': condidature.status === 'WITHDRAWN'
+    }">{{ condidature.status }}</span>
+  </header>
+
+  <p *ngIf="loading" class="details-page__loading">Chargement…</p>
+  <p *ngIf="error && !loading" class="details-page__error">{{ error }}</p>
+
+  <div *ngIf="!loading && condidature && !error" class="details-page__content">
+    <!-- Informations -->
+    <section class="details-page__section">
+      <h2 class="details-page__section-title">Informations</h2>
+      <dl class="details-list">
+        <div class="details-list__row">
+          <dt class="details-list__term">Projet</dt>
+          <dd class="details-list__value">{{ condidature.projectId }}</dd>
+        </div>
+        <div class="details-list__row">
+          <dt class="details-list__term">Freelancer</dt>
+          <dd class="details-list__value">{{ condidature.freelancerId }}</dd>
+        </div>
+        <div class="details-list__row">
+          <dt class="details-list__term">Note freelancer</dt>
+          <dd class="details-list__value">{{ getRatingDisplay(condidature) }}</dd>
+        </div>
+        <div class="details-list__row">
+          <dt class="details-list__term">Prix proposé</dt>
+          <dd class="details-list__value">{{ condidature.proposedPrice != null ? (condidature.proposedPrice | number) : '—' }}</dd>
+        </div>
+        <div class="details-list__row">
+          <dt class="details-list__term">Jours estimés</dt>
+          <dd class="details-list__value">{{ condidature.estimatedDeliveryDays ?? '—' }}</dd>
+        </div>
+        <div class="details-list__row" *ngIf="condidature.createdAt">
+          <dt class="details-list__term">Créé le</dt>
+          <dd class="details-list__value">{{ condidature.createdAt | date:'medium' }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Lettre de motivation -->
+    <section *ngIf="condidature.coverLetter" class="details-page__section">
+      <h2 class="details-page__section-title">Lettre de motivation</h2>
+      <div class="details-page__cover">{{ condidature.coverLetter }}</div>
+    </section>
+
+    <!-- Statistiques (après lettre de motivation) -->
+    <section class="details-page__section details-page__section--stats">
+      <h2 class="details-page__section-title">Statistiques</h2>
+      <div *ngIf="detailStats" class="stats-row">
+        <div class="stats-block">
+          <span class="stats-block__label">Projet #{{ condidature.projectId }}</span>
+          <span class="stats-block__value">{{ detailStats.projectApplicationsCount }} candidature(s)</span>
+          <span class="stats-block__meta">{{ detailStats.projectAcceptedCount }} acceptée(s) · Taux {{ detailStats.projectAcceptanceRatePercent | number:'1.1-1' }}%</span>
+        </div>
+        <div class="stats-block">
+          <span class="stats-block__label">Freelancer #{{ condidature.freelancerId }}</span>
+          <span class="stats-block__value">{{ detailStats.freelancerTotalApplications }} candidature(s)</span>
+          <span class="stats-block__meta">Note moy. {{ (detailStats.freelancerAverageRating ?? 0) | number:'1.1-1' }} / 5 · Taux de succès {{ detailStats.freelancerSuccessRatePercent | number:'1.1-1' }}% (basé sur freelancer_rating)</span>
+        </div>
+      </div>
+      <p *ngIf="!detailStats" class="details-page__stats-loading">Chargement des statistiques…</p>
+    </section>
+  </div>
+</div>

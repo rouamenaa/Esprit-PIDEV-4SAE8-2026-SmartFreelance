@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormationService } from '../../../services/formation.service';
 import { GlobalStatistics, FormationStatistics, MonthlyRegistration } from '../../../models/statistics.model';
 
 @Component({
   selector: 'app-formation-statistics',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './formation-statistics.component.html',
   styleUrls: ['./formation-statistics.component.css']
 })

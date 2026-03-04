@@ -1,0 +1,123 @@
+.details-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+
+.details-page-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.btn-back {
+  padding: 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2563eb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.btn-back:hover {
+  color: #1d4ed8;
+}
+
+.btn-modifier {
+  padding: 0.5rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-modifier:hover {
+  background: #1d4ed8;
+}
+
+.message,
+.error-message {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.error-message {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.details-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.details-id {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.details-statut {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.details-statut.statut-actif { background: #dcfce7; color: #166534; }
+.details-statut.statut-termine { background: #e0e7ff; color: #3730a3; }
+.details-statut.statut-en-attente { background: #fef3c7; color: #92400e; }
+.details-statut.statut-annule { background: #fee2e2; color: #991b1b; }
+.details-statut.statut-brouillon { background: #e2e8f0; color: #334155; }
+
+.details-body {
+  padding: 1.5rem;
+}
+
+.details-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9375rem;
+}
+
+.details-row:last-child {
+  margin-bottom: 0;
+}
+
+.details-label {
+  color: #475569;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.details-value {
+  color: #0f172a;
+  font-weight: 500;
+  text-align: right;
+  word-break: break-word;
+}

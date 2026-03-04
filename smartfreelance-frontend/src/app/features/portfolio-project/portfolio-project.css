@@ -1,0 +1,11 @@
+/* Styles for portfolio project component */
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+input, textarea {
+  padding: 0.4rem;
+}

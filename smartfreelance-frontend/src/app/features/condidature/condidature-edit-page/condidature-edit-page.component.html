@@ -1,0 +1,16 @@
+<div class="edit-page">
+  <div class="edit-page-header">
+    <a routerLink="/condidatures" class="back-link">&larr; Retour à la liste</a>
+    <h1 class="edit-page-title">Modifier la candidature</h1>
+  </div>
+  <p *ngIf="loading" class="edit-page-message">Chargement...</p>
+  <p *ngIf="error" class="edit-page-error">{{ error }}</p>
+  <div *ngIf="!loading && !error && id != null && condidature" class="edit-page-card">
+    <app-condidature-edit
+      [condidatureId]="id"
+      [condidatureData]="condidature"
+      layout="page"
+      (closeModal)="onClose()">
+    </app-condidature-edit>
+  </div>
+</div>

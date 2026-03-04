@@ -1,12 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { ProjectPhasesComponent } from '../project-phases/project-phases.component';
 import { Project } from '../../../models/project.model';
 import { ProjectService } from '../../../services/project.service';
 
 @Component({
   selector: 'app-project-detail',
+  standalone: true,
+  imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, ProjectPhasesComponent],
   templateUrl: './project-detail.component.html',
-  styleUrls: ['./project-detail.component.css']
+  styleUrls: ['./project-detail.component.css'],
 })
 export class ProjectDetailComponent implements OnInit {
 

@@ -1,0 +1,33 @@
+<h2>Freelancer Profile</h2>
+
+<div *ngIf="successMessage" class="success">{{ successMessage }}</div>
+<div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+<form #f="ngForm" (ngSubmit)="save()" novalidate>
+
+	<input type="text" [(ngModel)]="freelancer.firstName" name="firstName" placeholder="First Name" required>
+
+	<input type="text" [(ngModel)]="freelancer.lastName" name="lastName" placeholder="Last Name" required>
+
+	<input type="text" [(ngModel)]="freelancer.title" name="title" placeholder="Title" required>
+
+	<textarea [(ngModel)]="freelancer.overview" name="overview" placeholder="Overview"></textarea>
+
+	<input type="number" [(ngModel)]="freelancer.hourlyRate" name="hourlyRate" placeholder="Hourly Rate" required>
+
+	<select [(ngModel)]="freelancer.experienceLevel" name="experienceLevel">
+		<option>Beginner</option>
+		<option>Intermediate</option>
+		<option>Advanced</option>
+		<option>Expert</option>
+	</select>
+
+	<input type="text" [(ngModel)]="freelancer.availability" name="availability" placeholder="Availability">
+
+	<input type="text" [(ngModel)]="freelancer.country" name="country" placeholder="Country">
+
+	<button type="submit" [disabled]="f.invalid">
+		{{ isEditMode ? 'Update Profile' : 'Create Profile' }}
+	</button>
+
+</form>

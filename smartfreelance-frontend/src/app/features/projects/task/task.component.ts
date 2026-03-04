@@ -1,11 +1,20 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { TaskService } from '../../../services/task.service';
 import { Task } from '../../../models/task.model';
 
 @Component({
   selector: 'app-task',
+  standalone: true,
+  imports: [CommonModule, FormsModule, MatTableModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule],
   templateUrl: './task.component.html',
-  styleUrls: ['./task.component.css']
+  styleUrls: ['./task.component.css'],
 })
 export class TaskComponent implements OnChanges {
 
@@ -133,7 +142,7 @@ filteredTasks: Task[] = [];
       task.status === this.selectedStatus;
 
     const matchesPriority =
-      !this.selectedPriority ||
+    !this.selectedPriority ||
       task.priority === this.selectedPriority;
 
     return matchesSearch && matchesStatus && matchesPriority;

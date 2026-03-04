@@ -1,18 +1,26 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { Project } from '../../../models/project.model';
 import { ProjectService } from '../../../services/project.service';
 
 @Component({
   selector: 'app-project-list',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule, MatCardModule, MatButtonModule, MatIconModule],
   templateUrl: './project-list.component.html',
-  styleUrls: ['./project-list.component.css']
+  styleUrls: ['./project-list.component.css'],
 })
 export class ProjectListComponent implements OnInit {
 
   projects: Project[] = [];
 filteredProjects: Project[] = [];
 
-// 🔎 filtres
+
 searchTerm: string = '';
 selectedStatus: string = '';
 minBudget: number | null = null;
@@ -80,7 +88,7 @@ minBudget: number | null = null;
       }
     }
 
-    alert(msg);
+    if (typeof window !== 'undefined') alert(msg);
   }
   applyFilters(): void {
   this.filteredProjects = this.projects.filter(project => {

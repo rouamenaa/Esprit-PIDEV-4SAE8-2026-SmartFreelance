@@ -1,9 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { TestService } from '../../../services/test.service';
 
 @Component({
   selector: 'app-test-form',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './test-form.component.html',
   styleUrls: ['./test-form.component.css']
 })
@@ -26,7 +30,6 @@ export class TestFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Récupère formationId depuis ?formationId=3
     this.route.queryParamMap.subscribe(params => {
       const fId = params.get('formationId');
       if (fId) {
@@ -34,7 +37,6 @@ export class TestFormComponent implements OnInit {
       }
     });
 
-    // Mode édition
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.isEditMode = true;
@@ -64,7 +66,7 @@ export class TestFormComponent implements OnInit {
     const testData: any = {
       title: this.test.title,
       totalScore: this.test.totalScore,
-      formation: { id: this.formationId }  // ✅ format attendu par Spring Boot
+      formation: { id: this.formationId }
     };
 
     if (this.isEditMode) {
