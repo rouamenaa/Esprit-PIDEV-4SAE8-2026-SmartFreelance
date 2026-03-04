@@ -1,0 +1,13 @@
+.snack-success .mdc-snackbar__surface {
+  background: #276749 !important;
+  color: #fff !important;
+}
+
+.snack-warning .mdc-snackbar__surface {
+  background: #b7791f !important;
+  color: #fff !important;
+}
+.confirm-dialog-panel .mat-mdc-dialog-container {
+  border-radius: 16px !important;
+  overflow: hidden;
+}

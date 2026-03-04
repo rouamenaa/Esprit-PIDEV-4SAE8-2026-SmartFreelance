@@ -40,20 +40,30 @@
               "@angular/material/prebuilt-themes/magenta-violet.css",
               "src/styles.css"
             ],
-            "scripts": []
+
+
+            "scripts": [],
+            "server": "src/main.server.ts",
+            
+            "prerender": false,
+            "ssr": false
+
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "1MB",
-                  "maximumError": "2MB"
+
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
                 },
+                
                 {
                   "type": "anyComponentStyle",
                   "maximumWarning": "6kB",
                   "maximumError": "20kB"
+
                 }
               ],
               "outputHashing": "all"
@@ -110,6 +120,10 @@
     }
   },
   "cli": {
+
+    
+
     "analytics": false
+
   }
 }

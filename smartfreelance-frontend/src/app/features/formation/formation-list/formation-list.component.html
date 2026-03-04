@@ -1,0 +1,110 @@
+<!-- Header -->
+<div class="list-container">
+
+  <div class="list-header">
+    <div class="list-title-wrapper">
+      <span class="list-badge">Catalog</span>
+      <h2 class="list-title">Trainings</h2>
+      <span class="total-count" *ngIf="totalElements > 0">{{ totalElements }} trainings</span>
+    </div>
+    <button class="btn btn-add" (click)="addFormation()">✚ Add a training</button>
+  </div>
+
+  <!-- Search & Filters -->
+  <div class="search-bar">
+
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search by title..."
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+
+    <div class="filter-select-wrapper">
+      <span class="filter-icon">🎯</span>
+      <select class="filter-select" [(ngModel)]="selectedLevel" (change)="onLevelChange()">
+        <option value="">All levels</option>
+        <option *ngFor="let level of levels" [value]="level">{{ level }}</option>
+      </select>
+      <span class="select-arrow">▾</span>
+    </div>
+
+    <div class="search-actions">
+      <button class="btn btn-search" (click)="onSearch()">Search</button>
+      <button class="btn btn-reset" (click)="resetFilters()">✕ Reset</button>
+    </div>
+
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="formations.length === 0">
+    <div class="empty-icon">📭</div>
+    <h4>No trainings found</h4>
+    <p>Try adjusting your search criteria or add a new training.</p>
+    <button class="btn btn-add" (click)="addFormation()">✚ Add a training</button>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="cards-grid" *ngIf="formations.length > 0">
+    <div class="formation-card" *ngFor="let f of formations" (click)="viewDetails(f.id)">
+      <div class="card-accent"></div>
+      <div class="card-body">
+
+        <div class="card-top">
+          <h3 class="card-title">{{ f.title }}</h3>
+          <span class="level-badge level-{{ f.level | lowercase }}">{{ f.level }}</span>
+        </div>
+
+        <p class="card-preview">
+          {{ (f.description || '') | slice:0:110 }}{{ (f.description || '').length > 110 ? '...' : '' }}
+        </p>
+
+        <div class="card-footer-row">
+          <span class="duration-badge">⏱️ {{ f.duration }}h</span>
+          <span class="card-cta">View training →</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="formations.length > 0">
+
+    <span class="pagination-info">
+      Showing <strong>{{ formations.length }}</strong> of <strong>{{ totalElements }}</strong> trainings
+    </span>
+
+    <div class="pagination-controls">
+      <button
+        class="page-btn"
+        (click)="goToPage(currentPage - 1)"
+        [disabled]="currentPage === 0"
+      >← Previous</button>
+
+      <span class="page-indicator">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+
+      <button
+        class="page-btn"
+        (click)="goToPage(currentPage + 1)"
+        [disabled]="currentPage + 1 >= totalPages"
+      >Next →</button>
+    </div>
+
+    <div class="page-size-wrapper">
+      <span class="page-size-label">Show</span>
+      <select class="page-size-select" [(ngModel)]="pageSize" (change)="goToPage(0)">
+        <option [value]="6">6</option>
+        <option [value]="9">9</option>
+        <option [value]="12">12</option>
+      </select>
+      <span class="page-size-label">per page</span>
+    </div>
+
+  </div>
+
+</div>

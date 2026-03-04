@@ -1,0 +1,232 @@
+<!-- Loading -->
+<div class="loading-container" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading...</p>
+</div>
+
+<!-- Error -->
+<div class="detail-error-banner" *ngIf="error">
+  <span>⚠️</span> {{ error }}
+</div>
+
+<!-- Main -->
+<div class="detail-container" *ngIf="!loading && formation">
+  <div class="detail-card">
+
+    <!-- Header -->
+    <div class="detail-header">
+      <div class="detail-title-wrapper">
+        <span class="detail-badge">Training</span>
+        <h2 class="detail-title">{{ formation.title }}</h2>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-back" (click)="goBack()">← Back</button>
+        <button class="btn btn-edit" (click)="edit()">✏️ Edit</button>
+        <button class="btn btn-delete" (click)="delete()">🗑️ Delete</button>
+      </div>
+    </div>
+
+    <div class="detail-body">
+
+      <!-- Description -->
+      <div class="detail-section">
+        <div class="section-label">
+          <span class="section-icon">📄</span>
+          <strong>Description</strong>
+        </div>
+        <div class="section-content">{{ formation.description }}</div>
+      </div>
+
+      <!-- Meta -->
+      <div class="detail-meta-grid">
+        <div class="meta-card">
+          <div class="meta-icon">⏱️</div>
+          <div class="meta-info">
+            <span class="meta-label">Duration</span>
+            <span class="meta-value">{{ formation.duration }} hours</span>
+          </div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-icon">🎯</div>
+          <div class="meta-info">
+            <span class="meta-label">Level</span>
+            <span class="meta-value level-badge level-{{ formation.level | lowercase }}">
+              {{ formation.level }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions-section">
+        <h3 class="quick-title">Training Content</h3>
+        <div class="quick-actions">
+          <button class="quick-btn green" (click)="viewCourses()">
+            <span class="quick-icon">📚</span>
+            <span class="quick-label">View Courses</span>
+          </button>
+          <button class="quick-btn green" (click)="addCourse()">
+            <span class="quick-icon">➕</span>
+            <span class="quick-label">Add Course</span>
+          </button>
+          <button class="quick-btn blue" (click)="viewTests()">
+            <span class="quick-icon">📝</span>
+            <span class="quick-label">View Tests</span>
+          </button>
+          <button class="quick-btn blue" (click)="addTest()">
+            <span class="quick-icon">➕</span>
+            <span class="quick-label">Add Test</span>
+          </button>
+          <button class="quick-btn gold" (click)="viewRewards()">
+            <span class="quick-icon">🏆</span>
+            <span class="quick-label">Rewards</span>
+          </button>
+          <button class="quick-btn gold" (click)="addReward()">
+            <span class="quick-icon">➕</span>
+            <span class="quick-label">Add Reward</span>
+          </button>
+          <button class="quick-btn purple" (click)="shareOnFacebook()">
+            <span class="quick-icon">📤</span>
+            <span class="quick-label">Share</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Participants Section -->
+      <div class="participants-section">
+        <div class="section-header-row">
+          <h3 class="section-title">👥 Participants</h3>
+          <div class="section-btns">
+            <button class="btn btn-primary" (click)="loadParticipants()">🔄 Load</button>
+            <button class="btn btn-success" (click)="openRegistrationDialog()">➕ Register</button>
+          </div>
+        </div>
+
+        <div class="participants-table-wrapper" *ngIf="showParticipants">
+          <div class="empty-participants" *ngIf="participants.length === 0">
+            No participants registered.
+          </div>
+          <table class="participants-table" *ngIf="participants.length > 0">
+            <thead>
+              <tr>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Calendar</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of participants">
+                <td>{{ p.fullName }}</td>
+                <td>{{ p.email }}</td>
+                <td>{{ p.registrationDate | date:'dd/MM/yyyy' }}</td>
+                <td>
+                  <span class="status-badge" [class.status-registered]="p.status === 'REGISTERED'"
+                    [class.status-cancelled]="p.status === 'CANCELLED'">
+                    {{ p.status }}
+                  </span>
+                </td>
+                <td>
+                  <span class="sync-badge" [class.sync-ok]="p.calendarSyncStatus === 'SYNC_OK'"
+                    [class.sync-fail]="p.calendarSyncStatus === 'SYNC_FAILED'">
+                    {{ p.calendarSyncStatus }}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-danger-sm" (click)="cancelParticipant(p.id)" *ngIf="p.status === 'REGISTERED'">
+                    Cancel
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Statistics Section -->
+      <div class="stats-section">
+        <div class="section-header-row">
+          <h3 class="section-title">📊 Statistics</h3>
+          <button class="btn btn-info" (click)="loadStatistics()">🔄 Load</button>
+        </div>
+
+        <div class="stats-wrapper" *ngIf="showStats">
+
+          <!-- Global Stats -->
+          <div class="stats-grid" *ngIf="globalStats">
+            <div class="stat-card">
+              <span class="stat-icon">🏫</span>
+              <span class="stat-value">{{ globalStats.totalFormations }}</span>
+              <span class="stat-label">Trainings</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon">👥</span>
+              <span class="stat-value">{{ globalStats.totalParticipants }}</span>
+              <span class="stat-label">Participants</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon">💰</span>
+              <span class="stat-value">{{ globalStats.averagePrice | number:'1.0-0' }} €</span>
+              <span class="stat-label">Average Price</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon">🔥</span>
+              <span class="stat-value">{{ globalStats.mostPopularCategory }}</span>
+              <span class="stat-label">Popular Category</span>
+            </div>
+          </div>
+
+          <!-- Formation Stats -->
+          <div class="formation-stats" *ngIf="formationStats">
+            <h4 class="stats-subtitle">This Training</h4>
+            <div class="stats-grid">
+              <div class="stat-card blue">
+                <span class="stat-icon">✅</span>
+                <span class="stat-value">{{ formationStats.registeredCount }}</span>
+                <span class="stat-label">Registered</span>
+              </div>
+              <div class="stat-card red">
+                <span class="stat-icon">❌</span>
+                <span class="stat-value">{{ formationStats.cancelledCount }}</span>
+                <span class="stat-label">Cancelled</span>
+              </div>
+              <div class="stat-card green">
+                <span class="stat-icon">💺</span>
+                <span class="stat-value">{{ formationStats.remainingSeats }}</span>
+                <span class="stat-label">Remaining Seats</span>
+              </div>
+              <div class="stat-card gold">
+                <span class="stat-icon">📈</span>
+                <span class="stat-value">{{ formationStats.fillRate * 100 | number:'1.0-0' }}%</span>
+                <span class="stat-label">Fill Rate</span>
+              </div>
+            </div>
+            <div class="status-row">
+              <span class="status-badge" [class.status-upcoming]="formationStats.formationStatus === 'UPCOMING'"
+                [class.status-ongoing]="formationStats.formationStatus === 'ONGOING'"
+                [class.status-finished]="formationStats.formationStatus === 'FINISHED'">
+                {{ formationStats.formationStatus }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Monthly Registrations -->
+          <div class="monthly-section" *ngIf="monthlyRegistrations.length > 0">
+            <h4 class="stats-subtitle">Monthly Registrations</h4>
+            <div class="monthly-grid">
+              <div class="monthly-card" *ngFor="let m of monthlyRegistrations">
+                <span class="monthly-month">{{ m.month }}</span>
+                <span class="monthly-count">{{ m.count }}</span>
+                <span class="monthly-label">registrations</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

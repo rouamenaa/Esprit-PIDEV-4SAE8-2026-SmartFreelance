@@ -1,0 +1,62 @@
+<div class="loading-container" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading...</p>
+</div>
+
+<div class="error-container" *ngIf="error">
+  <div class="alert-danger">
+    <span class="alert-icon">⚠️</span>
+    {{ error }}
+  </div>
+</div>
+
+<div class="course-container" *ngIf="!loading && course">
+  <div class="course-card">
+
+    <!-- Header -->
+    <div class="course-header">
+      <div class="course-title-wrapper">
+        <span class="course-badge">Course</span>
+        <h2 class="course-title">{{ course.title }}</h2>
+      </div>
+      <div class="course-actions">
+        <button class="btn btn-back" (click)="goBack()">
+          <span>←</span> Back
+        </button>
+        <button class="btn btn-edit" (click)="edit()">
+          <span>✏️</span> Edit
+        </button>
+        <button class="btn btn-delete" (click)="delete()">
+          <span>🗑️</span> Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="course-body">
+
+      <div class="course-section">
+        <div class="section-label">
+          <span class="section-icon">📄</span>
+          <strong>Content</strong>
+        </div>
+        <div class="section-content">
+          {{ course.content }}
+        </div>
+      </div>
+
+      <div class="course-section" *ngIf="course.videoUrl">
+        <div class="section-label">
+          <span class="section-icon">🎬</span>
+          <strong>Video</strong>
+        </div>
+        <div class="section-content">
+          <a [href]="course.videoUrl" target="_blank" class="video-link">
+            <span>▶</span> Watch the video
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
