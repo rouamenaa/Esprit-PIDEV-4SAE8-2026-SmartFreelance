@@ -2,11 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-utilisateur',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './utilisateur.component.html',
   styleUrls: ['./utilisateur.component.css']
 })
@@ -20,6 +22,7 @@ export class UtilisateurComponent implements OnInit {
   roleError: string = '';
   successMessage: string = '';
   isLoading: boolean = false;
+  hoveredIndex: number | null = null; 
 
   selectedFile: File | null = null;
   selectedFileName: string = '';
@@ -30,10 +33,14 @@ export class UtilisateurComponent implements OnInit {
   private usersUrl = 'http://localhost:8085/auth/all';
   private usersUrl1 = 'http://localhost:8085/auth/user';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit() {
     this.loadUsers();
+  } 
+
+  goHome() {
+    this.router.navigate(['/home']);
   }
 
   private getHeaders(): HttpHeaders {
@@ -82,10 +89,6 @@ export class UtilisateurComponent implements OnInit {
   }
 
   addUser() {
-    console.log('🔴 addUser appelé');
-    console.log('Valeurs:', this.user);
-
-    // ✅ Bloquer si document IA non vérifié ou invalide (seulement en mode ajout)
     if (!this.isEditMode) {
       if (!this.verificationResult) {
         alert('⚠️ Veuillez d\'abord vérifier un document IA avant d\'ajouter un utilisateur.');
@@ -112,15 +115,12 @@ export class UtilisateurComponent implements OnInit {
       role: this.user.role
     };
 
-    console.log('📦 Payload envoyé:', payload);
-
     if (this.isEditMode) {
       this.http.put(`${this.usersUrl1}/${this.user.id}`, payload, {
         headers: this.getHeaders(),
         responseType: 'text'
       }).subscribe({
         next: (res) => {
-          console.log('✅ Modification réussie:', res);
           this.successMessage = 'Utilisateur modifié avec succès !';
           this.loadUsers();
           this.resetForm();
@@ -128,7 +128,6 @@ export class UtilisateurComponent implements OnInit {
         },
         error: (err) => {
           this.isLoading = false;
-          console.error('❌ Erreur modification:', err.status, err.error);
           if (err.status === 409) this.emailError = 'Cet email existe déjà';
           else this.emailError = `Erreur ${err.status}: ${err.error}`;
         }
@@ -139,7 +138,6 @@ export class UtilisateurComponent implements OnInit {
         responseType: 'text'
       }).subscribe({
         next: (res) => {
-          console.log('✅ Ajout réussi:', res);
           this.successMessage = 'Utilisateur ajouté avec succès !';
           this.loadUsers();
           this.resetForm();
@@ -147,8 +145,6 @@ export class UtilisateurComponent implements OnInit {
         },
         error: (err) => {
           this.isLoading = false;
-          console.error('❌ Erreur status:', err.status);
-          console.error('❌ Erreur body:', err.error);
           if (err.status === 409) this.emailError = 'Cet email existe déjà';
           else this.emailError = `Erreur ${err.status}: ${err.error}`;
         }
@@ -186,19 +182,17 @@ export class UtilisateurComponent implements OnInit {
     this.passwordError = '';
     this.roleError = '';
     this.successMessage = '';
-    // ✅ Reset aussi la vérification IA après ajout réussi
     this.verificationResult = null;
     this.selectedFile = null;
     this.selectedFileName = '';
   }
 
-  // ✅ Méthodes IA
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
       this.selectedFile = file;
       this.selectedFileName = file.name;
-      this.verificationResult = null; // reset résultat à chaque nouveau fichier
+      this.verificationResult = null;
     } else {
       alert('Veuillez sélectionner un fichier PDF uniquement.');
     }
@@ -225,7 +219,7 @@ export class UtilisateurComponent implements OnInit {
           messages: [{
             role: 'user',
             content: `Voici le contenu d'un document (CV ou diplôme) :
-          
+
 ${text}
 
 Réponds UNIQUEMENT en JSON sans markdown :

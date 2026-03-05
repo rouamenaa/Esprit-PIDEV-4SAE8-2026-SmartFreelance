@@ -98,26 +98,3 @@
 
 <hr>
 
-<div>
-  <h3>User list</h3>
-  <table border="1" *ngIf="users.length > 0">
-    <thead>
-      <tr>
-        <th>ID</th><th>Name</th><th>Email</th><th>Rôle</th><th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let u of users">
-        <td>{{ u.id }}</td>
-        <td>{{ u.username }}</td>
-        <td>{{ u.email }}</td>
-        <td>{{ u.role }}</td>
-        <td>
-          <button type="button" (click)="editUser(u)">Edit</button>
-          <button type="button" (click)="deleteUser(u.id)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <p *ngIf="users.length === 0">No users added</p>
-</div>

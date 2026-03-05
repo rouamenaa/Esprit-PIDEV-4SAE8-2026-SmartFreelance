@@ -34,14 +34,14 @@ export const routes: Routes = [
   { path: 'login',        component: LoginComponent },
   { path: 'home',         component: HomeComponent },
   { path: 'unauthorized', component: UnauthorizedComponent },
-
+{ path: 'utilisateur', component: UtilisateurComponent },
+      { path: 'admin',       component: DashboardComponent, canActivate: [authGuard] },
   // ===== APP — avec navbar/sidebar =====
   {
     path: '',
     component: LayoutComponent,
     children: [
-      { path: 'utilisateur', component: UtilisateurComponent },
-      { path: 'admin',       component: DashboardComponent, canActivate: [authGuard] },
+      
 
       // Formations
       { path: 'formations',                    component: FormationListComponent },
