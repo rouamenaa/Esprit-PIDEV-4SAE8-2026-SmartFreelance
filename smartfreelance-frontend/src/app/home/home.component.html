@@ -1,29 +1,149 @@
-
-
-<section class="bg-dark text-white text-center p-5">
-  <div class="container">
-    <h1 class="display-4 fw-bold">Find the perfect Freelancer</h1>
-    <p class="lead">Work with the best talent worldwide</p>
-    <button class="btn btn-success btn-lg mt-3">Get Started</button>
+<<<<<<< HEAD
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+  <div class="nav-logo">
+    <img src="/logo.png" alt="Logo" class="logo-img"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+    <div class="logo-fallback">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </div>
+    <span class="nav-brand">SmartFreelance</span>
   </div>
-</section>
+  <div class="nav-btns">
+    <button class="btn-signin" (click)="goTo('/login')">Sign in</button>
+    <button class="btn-signup" (click)="goTo('/role-select')">Sign up</button>
+  </div>
+</nav>
 
-
-<div class="container mt-5">
-  <h2 class="mb-4">Top Freelancers</h2>
-
-  <div class="row">
-    <div class="col-md-4" *ngFor="let freelancer of freelancers">
-      <div class="card shadow mb-4">
-        <div class="card-body">
-          <h5>{{freelancer.name}}</h5>
-          <p>{{freelancer.skill}}</p>
-          <span class="badge bg-success">{{freelancer.price}} $/h</span>
-          <button class="btn btn-outline-success mt-3 w-100">
-            Hire
-          </button>
-        </div>
-      </div>
+<!-- ===== HERO ANIMÉ ===== -->
+<div class="hero-wrap">
+  <canvas #heroCanvas class="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="hero-dot"></span>
+      1,200+ freelancers available now
+    </div>
+    <h1 class="hero-title">
+      Find the perfect<br>
+      <span class="hero-accent">freelancer</span> for your project
+    </h1>
+    <p class="hero-sub">
+      Connect with top-rated talent worldwide. Post your project and receive proposals within hours.
+    </p>
+    <div class="hero-btns">
+      <button class="btn-hero-primary" (click)="goTo('/role-select')">Get started free</button>
+      <button class="btn-hero-ghost">Browse talent</button>
     </div>
   </div>
 </div>
+
+<!-- ===== STATS ===== -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-val">12k+</div>
+    <div class="stat-lbl">Freelancers</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-val">98%</div>
+    <div class="stat-lbl">Satisfaction rate</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-val">48h</div>
+    <div class="stat-lbl">Avg. response time</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-val">$2M+</div>
+    <div class="stat-lbl">Paid out</div>
+  </div>
+</div>
+
+<!-- ===== FREELANCERS ===== -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <h2 class="section-title">Top freelancers</h2>
+      <p class="section-sub">Hand-picked talent across every discipline</p>
+    </div>
+    <span class="view-all">View all →</span>
+  </div>
+
+  <div class="freelancers-grid">
+    <div class="f-card" *ngFor="let f of freelancers">
+      <div class="f-card-top">
+        <div class="f-avatar" [ngClass]="f.avatarClass">
+          {{ f.name | slice:0:2 | uppercase }}
+        </div>
+        <div>
+          <div class="f-name">{{ f.name }}</div>
+          <div class="f-skill">{{ f.skill }}</div>
+        </div>
+      </div>
+      <div class="f-stars">
+        <svg *ngFor="let s of [1,2,3,4,5]" class="star" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+        </svg>
+        <span class="f-rating">{{ f.rating }} ({{ f.reviews }} reviews)</span>
+      </div>
+      <div class="f-tags">
+        <span class="f-tag" *ngFor="let tag of f.tags">{{ tag }}</span>
+      </div>
+      <div class="f-footer">
+        <div class="f-price">${{ f.price }} <span>/ hour</span></div>
+        <button class="btn-hire">Hire</button>
+      </div>
+    </div>
+  </div>
+</section>
+=======
+<!-- Navbar -->
+<nav style="display:flex; justify-content:space-between; align-items:center; 
+            background:#212529; padding:12px 24px;">
+  <span style="color:white; font-weight:700; font-size:1.2rem;">FreelanceHub</span>
+  <div style="display:flex; gap:10px;">
+    <button (click)="goTo('/login')"
+      style="background:transparent; color:white; border:1px solid white; 
+             padding:7px 18px; border-radius:6px; cursor:pointer; font-size:0.9rem;">
+      Sign In
+    </button>
+    <button (click)="goTo('/utilisateur')"
+      style="background:#198754; color:white; border:none; 
+             padding:7px 18px; border-radius:6px; cursor:pointer; font-size:0.9rem;">
+      Sign Up
+    </button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section style="background:#212529; color:white; text-align:center; padding:60px 20px;">
+  <h1 style="font-size:2.8rem; font-weight:700;">Find the perfect Freelancer</h1>
+  <p style="font-size:1.1rem; color:#adb5bd; margin-top:10px;">Work with the best talent worldwide</p>
+  <button style="background:#198754; color:white; border:none; padding:12px 30px; 
+                 border-radius:8px; font-size:1rem; cursor:pointer; margin-top:20px;">
+    Get Started
+  </button>
+</section>
+
+<!-- Freelancers -->
+<div style="padding:40px 60px;">
+  <h2 style="margin-bottom:30px;">Top Freelancers</h2>
+  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:24px;">
+    <div *ngFor="let freelancer of freelancers"
+      style="border:1px solid #dee2e6; border-radius:12px; padding:24px; 
+             box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+      <h5 style="font-weight:700;">{{freelancer.name}}</h5>
+      <p style="color:#6c757d;">{{freelancer.skill}}</p>
+      <span style="background:#198754; color:white; padding:4px 12px; 
+                   border-radius:20px; font-size:0.85rem;">
+        {{freelancer.price}} $/h
+      </span>
+      <button style="display:block; width:100%; margin-top:16px; padding:10px;
+                     border:1px solid #198754; color:#198754; background:transparent;
+                     border-radius:8px; cursor:pointer; font-size:0.9rem;">
+        Hire
+      </button>
+    </div>
+  </div>
+</div>
+>>>>>>> a084d154fb5e9c0f17cf6e3e48ec9b63dbf3dd50

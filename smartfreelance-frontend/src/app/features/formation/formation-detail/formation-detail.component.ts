@@ -5,17 +5,20 @@ import { Meta, Title } from '@angular/platform-browser';
 import { PLATFORM_ID } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormationService } from '../../../services/formation.service';
+import { CalendarService, CalendarSyncResult } from '../../../services/calendar.service';
 import { Formation } from '../../../models/formation.model';
 import { Participant } from '../../../models/participant.model';
 import { GlobalStatistics, FormationStatistics, MonthlyRegistration } from '../../../models/statistics.model';
 import { ConfirmService } from '../../../shared/services/confirm.service';
 import { RegistrationDialogComponent } from '../registration-dialog/registration-dialog.component';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-formation-detail',
   standalone: true,
-  imports: [CommonModule, MatDialogModule],
+  imports: [CommonModule, MatDialogModule, MatSnackBarModule],
   templateUrl: './formation-detail.component.html',
   styleUrls: ['./formation-detail.component.css']
 })
@@ -33,14 +36,20 @@ export class FormationDetailComponent implements OnInit {
   monthlyRegistrations: MonthlyRegistration[] = [];
   showStats = false;
 
+  // Calendar sync properties
+  calendarSyncLoading = false;
+  calendarSyncResult: CalendarSyncResult | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private formationService: FormationService,
+    private calendarService: CalendarService,
     private meta: Meta,
     private title: Title,
     private dialog: MatDialog,
     private confirmService: ConfirmService,
+    private snackBar: MatSnackBar,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
@@ -155,5 +164,77 @@ export class FormationDetailComponent implements OnInit {
     this.formationService.getGlobalStatistics().subscribe(data => this.globalStats = data);
     this.formationService.getFormationStatistics(this.formation.id).subscribe(data => this.formationStats = data);
     this.formationService.getMonthlyRegistrations().subscribe(data => this.monthlyRegistrations = data);
+  }
+
+  /**
+   * Test Calendar API sync for the current formation.
+   * Uses a test email to verify if the Calendar API is working.
+   */
+  testCalendarSync(): void {
+    if (!this.formation) return;
+
+    this.calendarSyncLoading = true;
+    this.calendarSyncResult = null;
+
+    const testEmail = 'test@example.com';
+
+    this.calendarService.testSync({
+      formationId: this.formation.id,
+      participantEmail: testEmail
+    }).pipe(
+      catchError(error => {
+        this.calendarSyncLoading = false;
+        const errorMessage = error.error?.message || 'Calendar API connection failed';
+        this.snackBar.open(`❌ Calendar sync error: ${errorMessage}`, 'Close', {
+          duration: 5000,
+          panelClass: ['snack-error']
+        });
+        return of(null);
+      })
+    ).subscribe(result => {
+      this.calendarSyncLoading = false;
+
+      if (result) {
+        this.calendarSyncResult = result;
+
+        if (result.syncStatus === 'SYNC_OK') {
+          this.snackBar.open('✅ Calendar sync successful! API is working.', 'Close', {
+            duration: 4000,
+            panelClass: ['snack-success']
+          });
+        } else {
+          this.snackBar.open('⚠️ Calendar sync failed. API may be unavailable.', 'Close', {
+            duration: 5000,
+            panelClass: ['snack-warning']
+          });
+        }
+      }
+    });
+  }
+
+  /**
+   * Check Calendar API health status.
+   */
+  checkCalendarHealth(): void {
+    this.calendarService.checkHealth().pipe(
+      catchError(error => {
+        this.snackBar.open('❌ Calendar API health check failed', 'Close', {
+          duration: 4000,
+          panelClass: ['snack-error']
+        });
+        return of(null);
+      })
+    ).subscribe(status => {
+      if (status) {
+        const message = status.available
+          ? `✅ Calendar API is UP (${status.status})`
+          : `⚠️ Calendar API is ${status.status}: ${status.message}`;
+
+        this.snackBar.open(message, 'Close', {
+          duration: 5000,
+          panelClass: status.available ? ['snack-success'] : ['snack-warning']
+        });
+      }
+    });
   }
 }

@@ -1,3 +1,242 @@
+<<<<<<< HEAD
+<!-- ========== USER MANAGEMENT ========== -->
+<div class="page-wrapper">
+
+  <!-- ===== ÉCRAN CHECK YOUR EMAIL ===== -->
+  <div *ngIf="registrationDone" class="email-confirm-page">
+    <div class="email-confirm-card">
+      <div class="email-icon-wrap">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </div>
+      <h2 class="email-confirm-title">Check your email</h2>
+      <p class="email-confirm-sub">
+        We sent a confirmation link to
+      </p>
+      <div class="email-confirm-address">{{ registeredEmail }}</div>
+      <p class="email-confirm-hint">
+        Click the link in the email to activate your account. The link expires in 24 hours.
+      </p>
+      <div class="email-confirm-actions">
+<button class="btn btn--primary" (click)="goToLogin()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10 17 15 12 10 7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+          Go to Sign in
+        </button>
+        <button class="btn btn--ghost" (click)="registrationDone = false">
+          Back to form
+        </button>
+      </div>
+      <p class="email-confirm-spam">
+        Didn't receive it? Check your spam folder.
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== FORMULAIRE PRINCIPAL ===== -->
+  <div *ngIf="!registrationDone">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <div class="header-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="page-title">User Management</h1>
+          <p class="page-subtitle">Add, edit and verify user accounts</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+
+      <!-- ===== AI VERIFICATION CARD ===== -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon card-icon--purple">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">AI Verification</h2>
+            <p class="card-desc">Analyze a CV or diploma before adding</p>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="upload-zone" [class.upload-zone--active]="selectedFileName">
+            <input type="file" accept="application/pdf" (change)="onFileSelected($event)" id="fileUpload" class="file-input">
+            <label for="fileUpload" class="upload-label">
+              <div class="upload-icon-wrap">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <span *ngIf="!selectedFileName" class="upload-text">
+                <strong>Click to upload</strong> a PDF
+              </span>
+              <span *ngIf="selectedFileName" class="upload-text upload-text--file">
+                📄 {{ selectedFileName }}
+              </span>
+            </label>
+          </div>
+
+          <button type="button" class="btn btn--ai" (click)="verifyDocument()" [disabled]="!selectedFile || isVerifying">
+            <span *ngIf="isVerifying" class="btn-spinner"></span>
+            <svg *ngIf="!isVerifying" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            {{ isVerifying ? 'Analyzing...' : 'Verify with AI' }}
+          </button>
+
+          <div *ngIf="verificationResult" class="verification-result"
+            [class.verification-result--valid]="verificationResult.valid"
+            [class.verification-result--invalid]="!verificationResult.valid">
+            <div class="verification-badge">
+              <span class="v-dot" [class.v-dot--valid]="verificationResult.valid" [class.v-dot--invalid]="!verificationResult.valid"></span>
+              <strong>{{ verificationResult.valid ? 'Valid document' : 'Invalid document' }}</strong>
+            </div>
+            <p class="verification-msg">{{ verificationResult.message }}</p>
+            <p *ngIf="verificationResult.name" class="verification-name">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              Detected name : <strong>{{ verificationResult.name }}</strong>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== FORM CARD ===== -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" [class.card-icon--blue]="!isEditMode" [class.card-icon--amber]="isEditMode">
+            <svg *ngIf="!isEditMode" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <svg *ngIf="isEditMode" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">{{ isEditMode ? 'Edit user' : 'New user' }}</h2>
+            <p class="card-desc">{{ isEditMode ? 'Update user information' : 'Fill in the fields below' }}</p>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="form-grid">
+
+            <!-- Email -->
+            <div class="form-group">
+              <label class="form-label">Email address</label>
+              <div class="input-wrapper" [class.input-wrapper--error]="emailError">
+                <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+                <input type="text" placeholder="you@example.com" [(ngModel)]="user.email"
+                  (blur)="validateEmail()" (input)="validateEmail()" class="form-input">
+              </div>
+              <span *ngIf="emailError" class="form-error">{{ emailError }}</span>
+            </div>
+
+            <!-- Full name -->
+            <div class="form-group">
+              <label class="form-label">Full name</label>
+              <div class="input-wrapper" [class.input-wrapper--error]="nameError">
+                <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <input type="text" placeholder="First Last" [(ngModel)]="user.name"
+                  (blur)="validateName()" (input)="validateName()" class="form-input">
+              </div>
+              <span *ngIf="nameError" class="form-error">{{ nameError }}</span>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <div class="input-wrapper" [class.input-wrapper--error]="passwordError">
+                <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <input type="password" placeholder="••••••••" [(ngModel)]="user.password"
+                  (blur)="validatePassword()" class="form-input">
+              </div>
+              <span *ngIf="passwordError" class="form-error">{{ passwordError }}</span>
+            </div>
+
+          </div>
+
+          <!-- AI document status -->
+          <div *ngIf="!isEditMode" class="doc-status"
+            [class.doc-status--waiting]="!verificationResult"
+            [class.doc-status--invalid]="verificationResult && !verificationResult.valid"
+            [class.doc-status--valid]="verificationResult && verificationResult.valid">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span *ngIf="!verificationResult">Please verify an AI document before adding</span>
+            <span *ngIf="verificationResult && !verificationResult.valid">Invalid document — adding blocked</span>
+            <span *ngIf="verificationResult && verificationResult.valid">Valid document — you can add</span>
+          </div>
+
+          <!-- Success message -->
+          <div *ngIf="successMessage" class="success-banner">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            {{ successMessage }}
+          </div>
+
+          <!-- Actions -->
+          <div class="form-actions">
+            <button type="button" class="btn btn--primary"
+              [class.btn--amber]="isEditMode"
+              (click)="addUser()"
+              [disabled]="isLoading || (!isEditMode && (!verificationResult || !verificationResult.valid))">
+              <span *ngIf="isLoading" class="btn-spinner"></span>
+              <svg *ngIf="!isLoading && !isEditMode" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              <svg *ngIf="!isLoading && isEditMode" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              {{ isLoading ? 'Loading...' : (isEditMode ? 'Update' : 'Add user') }}
+            </button>
+
+            <button type="button" *ngIf="isEditMode" (click)="resetForm()" class="btn btn--ghost">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+=======
 <h2>Gestion des utilisateurs</h2>
 
 <!-- ✅ Section Vérification IA EN PREMIER -->
@@ -98,26 +337,4 @@
 
 <hr>
 
-<div>
-  <h3>User list</h3>
-  <table border="1" *ngIf="users.length > 0">
-    <thead>
-      <tr>
-        <th>ID</th><th>Name</th><th>Email</th><th>Rôle</th><th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let u of users">
-        <td>{{ u.id }}</td>
-        <td>{{ u.username }}</td>
-        <td>{{ u.email }}</td>
-        <td>{{ u.role }}</td>
-        <td>
-          <button type="button" (click)="editUser(u)">Edit</button>
-          <button type="button" (click)="deleteUser(u.id)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <p *ngIf="users.length === 0">No users added</p>
-</div>
+>>>>>>> a084d154fb5e9c0f17cf6e3e48ec9b63dbf3dd50

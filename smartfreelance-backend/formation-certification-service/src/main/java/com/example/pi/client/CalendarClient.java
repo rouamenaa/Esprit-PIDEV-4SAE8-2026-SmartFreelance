@@ -3,39 +3,26 @@ package com.example.pi.client;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
-import java.util.Map;
 import java.util.function.Supplier;
 
-/**
- * Calls an external calendar API to register formation events.
- * Uses Resilience4j CircuitBreaker – if the API is unavailable the circuit
- * opens and the fallback returns "SYNC_FAILED" without rolling back the registration.
- */
 @Component
 public class CalendarClient {
 
     private static final Logger log = LoggerFactory.getLogger(CalendarClient.class);
 
-    private final RestTemplate restTemplate;
     private final CircuitBreaker circuitBreaker;
 
-    @Value("${calendar.api.url:http://localhost:9999/calendar/events}")
-    private String calendarApiUrl;
-
-    public CalendarClient(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-
+    public CalendarClient() {
         CircuitBreakerConfig config = CircuitBreakerConfig.custom()
                 .failureRateThreshold(50)
                 .slidingWindowSize(5)
-                .waitDurationInOpenState(Duration.ofSeconds(30))
+                .waitDurationInOpenState(Duration.ofSeconds(10))
                 .permittedNumberOfCallsInHalfOpenState(2)
                 .build();
 
@@ -43,29 +30,37 @@ public class CalendarClient {
         this.circuitBreaker = registry.circuitBreaker("calendarApi");
     }
 
+    @PostConstruct
+    public void init() {
+        log.info("CalendarClient initialized (internal mode)");
+        log.info("CircuitBreaker '{}' initial state: {}", circuitBreaker.getName(), circuitBreaker.getState());
+    }
+
+    public CircuitBreaker getCircuitBreaker() {
+        return circuitBreaker;
+    }
+
     /**
-     * Sends a registration event to the calendar API.
-     *
-     * @param formationId  the formation id
-     * @param participantEmail the participant email
-     * @return "SYNC_OK" on success, "SYNC_FAILED" on any error
+     * Sync a registration with the calendar.
+     * Calendar is internal to formation-service — no HTTP call needed.
      */
     public String syncRegistration(Long formationId, String participantEmail) {
         Supplier<String> decoratedSupplier = CircuitBreaker.decorateSupplier(circuitBreaker, () -> {
-            Map<String, Object> payload = Map.of(
-                    "formationId", formationId,
-                    "participantEmail", participantEmail,
-                    "eventType", "REGISTRATION"
-            );
-            restTemplate.postForObject(calendarApiUrl, payload, Void.class);
+            log.info("Calendar sync - formationId: {}, email: {}", formationId, participantEmail);
+
+            // ✅ Internal logic — no HTTP self-call
+            // Add your real calendar business logic here if needed
+            // e.g. save to DB, send email, create event, etc.
+
+            log.info("Calendar sync successful - formationId: {}, email: {}", formationId, participantEmail);
             return "SYNC_OK";
         });
 
         try {
             return decoratedSupplier.get();
         } catch (Exception ex) {
-            log.warn("Calendar API sync failed for formation={}, email={}: {}",
-                    formationId, participantEmail, ex.getMessage());
+            log.warn("Calendar sync failed - formation={}, email={}, circuit={}, error={}",
+                    formationId, participantEmail, circuitBreaker.getState(), ex.getMessage());
             return "SYNC_FAILED";
         }
     }

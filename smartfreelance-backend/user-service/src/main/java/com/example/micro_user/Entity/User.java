@@ -19,15 +19,30 @@ public class User {
     private Long id;
 
     private String username;
+<<<<<<< HEAD
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
+=======
     @Column(unique = true, nullable = false) // Empêche les doublons d'email
 
     private String email;
+>>>>>>> a084d154fb5e9c0f17cf6e3e48ec9b63dbf3dd50
     private String nom;
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
+<<<<<<< HEAD
+    @Column(nullable = false)
+    private boolean enabled = false;
+
+    @Column
+    private String confirmationToken;
+}
+=======
 
 
 
@@ -45,3 +60,4 @@ public class User {
 
 
 // Exemple : "USER" ou "ADMIN"
+>>>>>>> a084d154fb5e9c0f17cf6e3e48ec9b63dbf3dd50

@@ -1,49 +1,169 @@
-<div class="skill-card">
-  <h2>{{ isEditMode ? 'Edit Skill' : 'Add Skill' }}</h2>
+<div class="skills-wrapper">
 
-  <form #f="ngForm" (ngSubmit)="save()" novalidate>
-
-    <input type="text" name="name" [(ngModel)]="skill.name" required minlength="2" placeholder="Skill Name">
-
-    <select name="level" [(ngModel)]="skill.level" required>
-      <option value="">Select Level</option>
-      <option>Beginner</option>
-      <option>Intermediate</option>
-      <option>Advanced</option>
-      <option>Expert</option>
-    </select>
-
-    <div class="actions">
-      <button type="submit" [disabled]="f.invalid">
-        {{ isEditMode ? 'Update Skill' : 'Add Skill' }}
+  <!-- HEADER -->
+  <div class="skills-header">
+    <div class="header-left">
+      <button mat-stroked-button (click)="goBackToProfile()" matTooltip="Back to Profile">
+        <mat-icon>arrow_back</mat-icon>
+        Back
       </button>
-      <button type="button" *ngIf="isEditMode" (click)="resetForm()">
-        Cancel
+      <h2>Skills</h2>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="showAddForm()" matTooltip="New Skill">
+        <mat-icon>add</mat-icon>
+        Add Skill
       </button>
     </div>
+  </div>
 
-  </form>
+  <!-- FORM CARD -->
+  <mat-card class="form-card" *ngIf="showForm">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>{{ isEditMode ? 'edit' : 'add_circle' }}</mat-icon>
+        {{ isEditMode ? 'Edit Skill' : 'Add Skill' }}
+      </mat-card-title>
+    </mat-card-header>
 
-  <hr>
+    <mat-card-content>
+      <form [formGroup]="skillForm" (ngSubmit)="save()" class="skill-form">
 
-  <h3>My Skills</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Skill</th>
-        <th>Level</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let s of skills">
-        <td>{{ s.name }}</td>
-        <td>{{ s.level }}</td>
-        <td>
-          <button (click)="editSkill(s)">Edit</button>
-          <button (click)="deleteSkill(s.id)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+        <!-- Skill Name -->
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Skill Name</mat-label>
+          <input matInput formControlName="name" required>
+          <mat-icon matSuffix>psychology</mat-icon>
+          <button mat-icon-button matSuffix (click)="resetField('name')" matTooltip="Reset Skill Name" type="button">
+            <mat-icon>clear</mat-icon>
+          </button>
+          <mat-error *ngIf="skillForm.get('name')?.errors?.['required']">
+            Le nom de la compétence est obligatoire
+          </mat-error>
+          <mat-error *ngIf="skillForm.get('name')?.errors?.['minlength']">
+            Le nom doit faire au moins 2 caractères
+          </mat-error>
+          <mat-error *ngIf="skillForm.get('name')?.errors?.['maxlength']">
+            Le nom ne peut pas dépasser 50 caractères
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Skill Level -->
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Skill Level</mat-label>
+          <mat-select formControlName="level" required>
+            <mat-option value="">Select Level</mat-option>
+            <mat-option value="Beginner">Beginner</mat-option>
+            <mat-option value="Intermediate">Intermediate</mat-option>
+            <mat-option value="Advanced">Advanced</mat-option>
+            <mat-option value="Expert">Expert</mat-option>
+          </mat-select>
+          <mat-icon matSuffix>trending_up</mat-icon>
+          <button mat-icon-button matSuffix (click)="resetField('level')" matTooltip="Reset Level" type="button">
+            <mat-icon>clear</mat-icon>
+          </button>
+          <mat-error *ngIf="skillForm.get('level')?.errors?.['required']">
+            Le niveau est obligatoire
+          </mat-error>
+          <mat-error *ngIf="skillForm.get('level')?.errors?.['pattern']">
+            Niveau invalide : Beginner, Intermediate, Advanced ou Expert
+          </mat-error>
+        </mat-form-field>
+
+        <!-- FORM ACTIONS -->
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="skillForm.invalid">
+            <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+            {{ isEditMode ? 'Update Skill' : 'Add Skill' }}
+          </button>
+          
+          <button mat-stroked-button type="button" (click)="hideForm()">
+            <mat-icon>close</mat-icon>
+            Cancel
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- SKILLS GRID -->
+  <div class="skills-section" *ngIf="showSkillsList">
+    <h3>My Skills</h3>
+    
+    <div class="skills-grid" *ngIf="skills.length > 0; else noSkills">
+      
+      <mat-card class="skill-card" *ngFor="let s of skills" [ngClass]="getSkillLevelClass(s.level)">
+        <!-- CARD TOP -->
+        <div class="card-top">
+          <h3>{{ s.name }}</h3>
+          <div class="skill-badge" [ngClass]="getSkillBadgeClass(s.level)">
+            <mat-icon>stars</mat-icon>
+            {{ s.level }}
+          </div>
+        </div>
+
+        <!-- CARD CONTENT -->
+        <div class="card-content">
+          
+          <div class="skill-description">
+            <div class="info-row">
+              <mat-icon>psychology</mat-icon>
+              <span>{{ s.name }}</span>
+            </div>
+
+            <div class="info-row">
+              <mat-icon>trending_up</mat-icon>
+              <span class="skill-level">{{ s.level }}</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CARD ACTIONS -->
+        <div class="card-actions">
+
+          <!-- Edit -->
+          <button mat-icon-button (click)="editSkill(s)" matTooltip="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+
+          <!-- Delete -->
+          <ng-container *ngIf="confirmDeleteId !== s.id">
+            <button mat-icon-button (click)="confirmDelete(s.id)" matTooltip="Delete">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-container>
+
+          <!-- Confirm Delete -->
+          <ng-container *ngIf="confirmDeleteId === s.id">
+            <div class="confirm-delete">
+              <span class="delete-text">Delete?</span>
+              <button mat-icon-button (click)="deleteSkill(s.id)" matTooltip="Confirm Delete">
+                <mat-icon>check</mat-icon>
+              </button>
+              <button mat-icon-button (click)="cancelDelete()" matTooltip="Cancel">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </ng-container>
+
+        </div>
+      </mat-card>
+
+    </div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <ng-template #noSkills>
+    <div class="no-skills">
+      <mat-icon class="empty-icon">psychology</mat-icon>
+      <p>No skills added yet.</p>
+      <button mat-raised-button color="primary" (click)="showAddForm()">
+        <mat-icon>add</mat-icon>
+        Add Your First Skill
+      </button>
+    </div>
+  </ng-template>
+
 </div>

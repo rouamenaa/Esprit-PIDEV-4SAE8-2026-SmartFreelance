@@ -92,6 +92,49 @@
         </div>
       </div>
 
+      <!-- Calendar API Test Section -->
+      <div class="calendar-test-section">
+        <div class="section-header-row">
+          <h3 class="section-title">📅 Calendar API Test</h3>
+        </div>
+        <div class="calendar-test-content">
+          <p class="calendar-test-desc">
+            Test if the Calendar API is working correctly. This will simulate a registration sync.
+          </p>
+          <div class="calendar-test-actions">
+            <button
+              class="btn btn-calendar"
+              (click)="testCalendarSync()"
+              [disabled]="calendarSyncLoading">
+              <span *ngIf="!calendarSyncLoading">🔄 Synchronize with Calendar</span>
+              <span *ngIf="calendarSyncLoading" class="btn-loading">
+                <span class="spinner-small"></span> Testing...
+              </span>
+            </button>
+          </div>
+
+          <!-- Calendar Sync Result -->
+          <div class="calendar-result" *ngIf="calendarSyncResult">
+            <div class="result-card"
+              [class.result-success]="calendarSyncResult.syncStatus === 'SYNC_OK'"
+              [class.result-failed]="calendarSyncResult.syncStatus === 'SYNC_FAILED'">
+              <div class="result-header">
+                <span class="result-icon">
+                  {{ calendarSyncResult.syncStatus === 'SYNC_OK' ? '✅' : '❌' }}
+                </span>
+                <span class="result-status">{{ calendarSyncResult.syncStatus }}</span>
+              </div>
+              <div class="result-message">{{ calendarSyncResult.message }}</div>
+              <div class="result-details">
+                <small>Formation ID: {{ calendarSyncResult.formationId }}</small>
+                <small>Test Email: {{ calendarSyncResult.participantEmail }}</small>
+                <small>Time: {{ calendarSyncResult.syncedAt | date:'dd/MM/yyyy HH:mm:ss' }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Participants Section -->
       <div class="participants-section">
         <div class="section-header-row">
@@ -113,7 +156,6 @@
                 <th>Email</th>
                 <th>Date</th>
                 <th>Status</th>
-                <th>Calendar</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -123,15 +165,10 @@
                 <td>{{ p.email }}</td>
                 <td>{{ p.registrationDate | date:'dd/MM/yyyy' }}</td>
                 <td>
-                  <span class="status-badge" [class.status-registered]="p.status === 'REGISTERED'"
+                  <span class="status-badge"
+                    [class.status-registered]="p.status === 'REGISTERED'"
                     [class.status-cancelled]="p.status === 'CANCELLED'">
                     {{ p.status }}
-                  </span>
-                </td>
-                <td>
-                  <span class="sync-badge" [class.sync-ok]="p.calendarSyncStatus === 'SYNC_OK'"
-                    [class.sync-fail]="p.calendarSyncStatus === 'SYNC_FAILED'">
-                    {{ p.calendarSyncStatus }}
                   </span>
                 </td>
                 <td>
@@ -204,7 +241,8 @@
               </div>
             </div>
             <div class="status-row">
-              <span class="status-badge" [class.status-upcoming]="formationStats.formationStatus === 'UPCOMING'"
+              <span class="status-badge"
+                [class.status-upcoming]="formationStats.formationStatus === 'UPCOMING'"
                 [class.status-ongoing]="formationStats.formationStatus === 'ONGOING'"
                 [class.status-finished]="formationStats.formationStatus === 'FINISHED'">
                 {{ formationStats.formationStatus }}

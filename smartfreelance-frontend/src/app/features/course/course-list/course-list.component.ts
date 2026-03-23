@@ -25,7 +25,11 @@ export class CourseListComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
+    // ✅ Lit 'formationId' en priorité (route: /formations/:formationId/courses)
+    // puis 'id' en fallback (route: /courses/:id)
+    const idParam = this.route.snapshot.paramMap.get('formationId')
+                 || this.route.snapshot.paramMap.get('id');
+
     if (idParam) {
       this.formationId = +idParam;
     }
@@ -76,7 +80,7 @@ export class CourseListComponent implements OnInit {
     if (this.formationId) {
       this.router.navigate(['/formations', this.formationId]);
     } else {
-      this.router.navigate(['/']);
+      this.router.navigate(['/formations']);
     }
   }
 }
