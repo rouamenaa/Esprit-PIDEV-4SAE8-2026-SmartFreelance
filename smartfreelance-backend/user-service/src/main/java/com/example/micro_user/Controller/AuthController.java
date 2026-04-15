@@ -52,6 +52,7 @@ public class AuthController {
     }
 
     // ================= REGISTER =================
+
     @PostMapping("/register")
     @Transactional
     public ResponseEntity<Map<String, String>> register(@RequestBody User user) {

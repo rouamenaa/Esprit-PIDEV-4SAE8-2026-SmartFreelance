@@ -13,6 +13,8 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./utilisateur.component.css']
 })
 export class UtilisateurComponent implements OnInit {
+  // Disable external AI verification calls (no API key needed).
+  
   user: any = { id: null, email: '', name: '', password: '', role: '' };
   users: any[] = [];
   isEditMode: boolean = false;
@@ -126,7 +128,7 @@ goToLogin() {
 
   addUser() {
     this.submitError = '';
-    if (!this.isEditMode) {
+    if (!this.isEditMode ) {
       if (!this.verificationResult) {
         alert('⚠️ Please verify an AI document before adding a user.');
         return;
@@ -268,6 +270,7 @@ goToLogin() {
 
   async verifyDocument() {
     if (!this.selectedFile) return;
+    
     this.isVerifying = true;
     this.verificationResult = null;
 

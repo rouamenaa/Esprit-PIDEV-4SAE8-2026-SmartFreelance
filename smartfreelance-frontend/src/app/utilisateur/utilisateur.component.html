@@ -196,7 +196,8 @@
               <line x1="12" y1="8" x2="12" y2="12"/>
               <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
-            <span *ngIf="!verificationResult">Please verify an AI document before adding</span>
+            <span *ngIf="!aiVerificationEnabled">AI verification is disabled for this environment.</span>
+            <span *ngIf="aiVerificationEnabled && !verificationResult">Please verify an AI document before adding</span>
             <span *ngIf="verificationResult && !verificationResult.valid">Invalid document — adding blocked</span>
             <span *ngIf="verificationResult && verificationResult.valid">Valid document — you can add</span>
           </div>
@@ -218,7 +219,7 @@
             <button type="button" class="btn btn--primary"
               [class.btn--amber]="isEditMode"
               (click)="addUser()"
-              [disabled]="isLoading || (!isEditMode && (!verificationResult || !verificationResult.valid))">
+              [disabled]="isLoading || (aiVerificationEnabled && !isEditMode && (!verificationResult || !verificationResult.valid))">
               <span *ngIf="isLoading" class="btn-spinner"></span>
               <svg *ngIf="!isLoading && !isEditMode" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>

@@ -1,5 +1,7 @@
 package com.smartfreelance.projectservice.service;
 
+import com.smartfreelance.projectservice.client.ApplicationContractClient;
+import com.smartfreelance.projectservice.client.UserServiceClient;
 import com.smartfreelance.projectservice.entity.Project;
 import com.smartfreelance.projectservice.enums.ProjectStatus;
 import com.smartfreelance.projectservice.repository.ProjectRepository;
@@ -15,6 +17,8 @@ import static org.mockito.Mockito.*;
 class ProjectServiceImplTest {
 
     private ProjectRepository projectRepository;
+    private ApplicationContractClient applicationContractClient;
+    private UserServiceClient userServiceClient;
     private ProjectServiceImpl service;
 
     @BeforeEach
