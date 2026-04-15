@@ -1,0 +1,58 @@
+<section class="admin-dashboard">
+  <header class="admin-dashboard__header">
+    <h1>Dashboard</h1>
+    <p *ngIf="!isFreelancer && !isClient">Bienvenue. Utilisez les rubriques ci-dessous pour gerer la plateforme.</p>
+    <p *ngIf="isFreelancer">Welcome! Discover projects and connect with clients.</p>
+    <p *ngIf="isClient">Welcome! Find the perfect freelancer for your projects.</p>
+  </header>
+
+  <div class="admin-dashboard__grid">
+    <!-- Talent Pool / Users - For Freelancers & Clients -->
+    <a class="admin-card talent-pool" *ngIf="isFreelancer || isClient" routerLink="/users">
+      <div class="card-icon">👥</div>
+      <h3>Talent Pool</h3>
+      <p *ngIf="isFreelancer">Connect with clients and explore opportunities.</p>
+      <p *ngIf="isClient">Find and review talented freelancers.</p>
+    </a>
+
+    <a class="admin-card user-management" *ngIf="isAdmin" routerLink="/users">
+      <div class="card-icon">🛠️</div>
+      <h3>Manage Users</h3>
+      <p>Ban, suspend, and activate users from one place.</p>
+    </a>
+
+    <!-- Admin/Standard Cards -->
+    <a class="admin-card" routerLink="/projects">
+      <div class="card-icon">📋</div>
+      <h3>Projects</h3>
+      <p>Consulter et piloter les projets.</p>
+    </a>
+
+    <a class="admin-card" routerLink="/condidatures">
+<<<<<<< HEAD
+      <div class="card-icon">📝</div>
+=======
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
+      <h3>Candidatures</h3>
+      <p>Accepter, refuser et suivre les candidatures.</p>
+    </a>
+
+    <a class="admin-card" routerLink="/contrats">
+<<<<<<< HEAD
+      <div class="card-icon">📜</div>
+=======
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
+      <h3>Contrats</h3>
+      <p>Verifier les contrats et leur avancement.</p>
+    </a>
+
+    <a class="admin-card" routerLink="/formations">
+<<<<<<< HEAD
+      <div class="card-icon">🎓</div>
+=======
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
+      <h3>Formations</h3>
+      <p>Gerer le contenu de formation.</p>
+    </a>
+  </div>
+</section>

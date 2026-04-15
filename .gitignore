@@ -1,0 +1,28 @@
+# -----------------
+# Angular / Frontend
+# -----------------
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.vscode/
+frontend/*.log
+
+# -----------------
+# Spring / Backend
+# -----------------
+backend/target/
+backend/.idea/
+backend/*.log
+backend/*.iml
+
+# -----------------
+# Général / IDE / OS
+# -----------------
+.idea/
+.vscode/
+*.iml
+*.DS_Store
+*.class
+*.jar
+*.war
+*.log

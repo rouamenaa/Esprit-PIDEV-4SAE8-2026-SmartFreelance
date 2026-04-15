@@ -1,0 +1,9 @@
+{
+  "/api": {
+    "target": "https://api.anthropic.com",
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api": ""
+    }
+  }
+}

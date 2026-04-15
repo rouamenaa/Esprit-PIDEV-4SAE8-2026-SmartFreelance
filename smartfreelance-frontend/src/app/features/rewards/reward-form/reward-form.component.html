@@ -1,0 +1,97 @@
+<!-- Loading -->
+<div class="loading-container" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading...</p>
+</div>
+
+<!-- Error -->
+<div class="form-error-banner" *ngIf="error">
+  <span>⚠️</span> {{ error }}
+</div>
+
+<!-- Form Card -->
+<div class="form-container" *ngIf="!loading">
+  <div class="form-card">
+
+    <div class="form-card-header">
+      <div class="form-title-wrapper">
+        <span class="form-badge">{{ isEditMode ? 'Edit' : 'New' }}</span>
+        <h2 class="form-title">{{ isEditMode ? 'Edit Reward' : 'Add a Reward' }}</h2>
+      </div>
+    </div>
+
+    <div class="form-card-body">
+      <form (ngSubmit)="onSubmit()" #rewardForm="ngForm">
+
+        <!-- Formation ID readonly -->
+        <div class="field-group" *ngIf="formationId">
+          <label class="field-label">
+            <span class="field-icon">📚</span> Linked Formation
+          </label>
+          <input
+            type="text"
+            class="field-input"
+            [value]="'Formation #' + formationId"
+            readonly
+            disabled
+          />
+        </div>
+
+        <!-- Name -->
+        <div class="field-group">
+          <label for="name" class="field-label">
+            <span class="field-icon">🏅</span> Name <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            class="field-input"
+            id="name"
+            name="name"
+            placeholder="Enter reward name..."
+            [(ngModel)]="reward.name"
+            required
+            #name="ngModel"
+            [class.input-error]="name.invalid && name.touched"
+          />
+          <div class="field-error" *ngIf="name.invalid && name.touched">
+            ⚠ Name is required.
+          </div>
+        </div>
+
+        <!-- Type -->
+        <div class="field-group">
+          <label for="type" class="field-label">
+            <span class="field-icon">🎖️</span> Type <span class="required">*</span>
+          </label>
+          <select
+            class="field-input"
+            id="type"
+            name="type"
+            [(ngModel)]="reward.type"
+            required
+            #type="ngModel"
+            [class.input-error]="type.invalid && type.touched"
+          >
+            <option value="" disabled>Select a type...</option>
+            <option *ngFor="let t of rewardTypes" [value]="t">{{ t }}</option>
+          </select>
+          <div class="field-error" *ngIf="type.invalid && type.touched">
+            ⚠ Type is required.
+          </div>
+        </div>
+
+        <!-- Hidden formation -->
+        <input type="hidden" name="formation" [ngModel]="formationId" />
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" (click)="cancel()">← Cancel</button>
+          <button type="submit" class="btn btn-submit" [disabled]="rewardForm.invalid">
+            {{ isEditMode ? '✏️ Update' : '✚ Create Reward' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

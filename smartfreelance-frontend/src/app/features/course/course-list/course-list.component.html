@@ -1,0 +1,77 @@
+<!-- Loading -->
+<div class="loading-container" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading...</p>
+</div>
+
+<!-- Error -->
+<div class="list-error-banner" *ngIf="error">
+  <span>⚠️</span> {{ error }}
+</div>
+
+<!-- Main Container -->
+<div class="list-container" *ngIf="!loading">
+
+  <!-- Header -->
+  <div class="list-header">
+    <div class="list-title-wrapper">
+      <span class="list-badge">{{ formationId ? 'Formation' : 'Catalogue' }}</span>
+      <h2 class="list-title">
+        {{ formationId ? 'Formation Courses' : 'All Courses' }}
+      </h2>
+      <span class="course-count" *ngIf="courses.length > 0">
+        {{ courses.length }} courses
+      </span>
+    </div>
+    <div class="list-actions">
+      <button class="btn btn-back" (click)="goBack()">
+        ← {{ formationId ? 'Back to Formation' : 'Back to Home' }}
+      </button>
+      <button class="btn btn-add" (click)="addCourse()">
+        ✚ Add a Course
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="courses.length === 0">
+    <div class="empty-icon">📭</div>
+    <h4>No courses available</h4>
+    <p>{{ formationId ? 'This formation does not contain any courses yet.' : 'No courses have been created yet.' }}</p>
+    <button class="btn btn-add" (click)="addCourse()">✚ Create the first course</button>
+  </div>
+
+  <!-- Courses Grid -->
+  <div class="courses-grid" *ngIf="courses.length > 0">
+    <div
+      class="course-card"
+      *ngFor="let course of courses"
+      (click)="goToDetail(course.id)"
+    >
+      <!-- Card Top Accent -->
+      <div class="card-accent"></div>
+
+      <div class="card-body">
+        <!-- Title -->
+        <h5 class="card-title">{{ course.title }}</h5>
+
+        <!-- Content Preview -->
+        <p class="card-preview">
+          {{ (course.content || '') | slice:0:110 }}{{ (course.content || '').length > 110 ? '...' : '' }}
+        </p>
+
+        <!-- Video Badge -->
+        <div class="card-footer-row">
+          <span class="video-badge" *ngIf="course.videoUrl">
+            ▶ Video available
+          </span>
+          <span class="no-video-badge" *ngIf="!course.videoUrl">
+            No video
+          </span>
+          <span class="card-cta">View course →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

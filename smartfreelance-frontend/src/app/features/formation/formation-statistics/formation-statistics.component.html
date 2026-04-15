@@ -1,0 +1,59 @@
+<div class="stats-container">
+
+  <div class="stats-page-header">
+    <div class="stats-title-wrapper">
+      <span class="stats-badge">Statistiques</span>
+      <h2 class="stats-title">Dashboard des formations</h2>
+    </div>
+    <button class="btn btn-back" routerLink="/formations">← Retour</button>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <div class="error-banner" *ngIf="error">⚠️ {{ error }}</div>
+
+  <div *ngIf="!loading && globalStats">
+
+    <!-- Global Cards -->
+    <div class="global-grid">
+      <div class="global-card blue">
+        <span class="global-icon">🏫</span>
+        <span class="global-value">{{ globalStats.totalFormations }}</span>
+        <span class="global-label">Formations</span>
+      </div>
+      <div class="global-card green">
+        <span class="global-icon">👥</span>
+        <span class="global-value">{{ globalStats.totalParticipants }}</span>
+        <span class="global-label">Participants</span>
+      </div>
+      <div class="global-card gold">
+        <span class="global-icon">💰</span>
+        <span class="global-value">{{ globalStats.averagePrice | number:'1.0-0' }} €</span>
+        <span class="global-label">Prix moyen</span>
+      </div>
+      <div class="global-card purple">
+        <span class="global-icon">🔥</span>
+        <span class="global-value">{{ globalStats.mostPopularCategory }}</span>
+        <span class="global-label">Catégorie populaire</span>
+      </div>
+    </div>
+
+    <!-- Monthly Registrations -->
+    <div class="section-card" *ngIf="monthlyRegistrations.length > 0">
+      <h3 class="section-card-title">📅 Inscriptions mensuelles</h3>
+      <div class="monthly-bars">
+        <div class="monthly-bar-item" *ngFor="let m of monthlyRegistrations">
+          <div class="bar-label">{{ m.month }}</div>
+          <div class="bar-wrapper">
+            <div class="bar-fill" [style.width.%]="(m.count / 20) * 100"></div>
+          </div>
+          <div class="bar-count">{{ m.count }}</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

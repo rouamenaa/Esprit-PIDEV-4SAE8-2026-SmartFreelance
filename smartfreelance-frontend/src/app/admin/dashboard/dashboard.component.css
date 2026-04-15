@@ -1,0 +1,134 @@
+.admin-dashboard {
+  padding: 24px;
+}
+
+.admin-dashboard__header h1 {
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+<<<<<<< HEAD
+  color: #0f172a;
+=======
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
+}
+
+.admin-dashboard__header p {
+  margin: 0;
+  color: #64748b;
+<<<<<<< HEAD
+  font-size: 14px;
+=======
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
+}
+
+.admin-dashboard__grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.admin-card {
+  display: block;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  text-decoration: none;
+  background: #fff;
+<<<<<<< HEAD
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  border-color: #cbd5e1;
+}
+
+.admin-card:hover::before {
+  left: 100%;
+}
+
+.admin-card .card-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+  display: block;
+=======
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
+}
+
+.admin-card h3 {
+  margin: 0 0 6px;
+  color: #0f172a;
+<<<<<<< HEAD
+  font-size: 15px;
+  font-weight: 600;
+=======
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
+}
+
+.admin-card p {
+  margin: 0;
+  color: #475569;
+<<<<<<< HEAD
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.admin-card.talent-pool {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+  border: 2px solid #6366f1;
+  position: relative;
+}
+
+.admin-card.talent-pool::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+.admin-card.talent-pool h3 {
+  color: #6366f1;
+  font-weight: 700;
+}
+
+.admin-card.talent-pool p {
+  color: #4f46e5;
+=======
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
+}

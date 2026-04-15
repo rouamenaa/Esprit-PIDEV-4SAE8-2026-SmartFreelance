@@ -1,0 +1,102 @@
+<div class="role-page">
+
+  <div class="role-card">
+
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <span class="brand-name">SmartFreelance</span>
+    </div>
+
+    <div class="role-header">
+      <h1 class="role-title">Join as a...</h1>
+      <p class="role-subtitle">Choose the role that best describes you</p>
+    </div>
+
+    <div class="role-options">
+
+      <!-- Freelancer -->
+      <div class="role-option" [class.role-option--selected]="selectedRole === 'FREELANCER'"
+           (click)="selectRole('FREELANCER')">
+        <div class="role-icon role-icon--purple">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+        </div>
+        <div class="role-content">
+          <h3 class="role-name">Freelancer</h3>
+          <p class="role-desc">Offer your skills and find projects that match your expertise</p>
+          <ul class="role-perks">
+            <li>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Create your profile & portfolio
+            </li>
+            <li>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Apply to projects worldwide
+            </li>
+            <li>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Get paid securely
+            </li>
+          </ul>
+        </div>
+        <div class="role-check" *ngIf="selectedRole === 'FREELANCER'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+
+      <!-- Client -->
+      <div class="role-option" [class.role-option--selected]="selectedRole === 'CLIENT'"
+           (click)="selectRole('CLIENT')">
+        <div class="role-icon role-icon--blue">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="role-content">
+          <h3 class="role-name">Client</h3>
+          <p class="role-desc">Post projects and hire the best talent for your business needs</p>
+          <ul class="role-perks">
+            <li>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Post unlimited projects
+            </li>
+            <li>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Browse top-rated freelancers
+            </li>
+            <li>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Manage contracts easily
+            </li>
+          </ul>
+        </div>
+        <div class="role-check" *ngIf="selectedRole === 'CLIENT'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="btn-continue" [disabled]="!selectedRole" (click)="continue()">
+      Continue as {{ selectedRole === 'FREELANCER' ? 'Freelancer' : selectedRole === 'CLIENT' ? 'Client' : '...' }}
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="5" y1="12" x2="19" y2="12"/>
+        <polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </button>
+
+    <p class="login-link">
+      Already have an account? <a routerLink="/login">Sign in</a>
+    </p>
+
+  </div>
+</div>

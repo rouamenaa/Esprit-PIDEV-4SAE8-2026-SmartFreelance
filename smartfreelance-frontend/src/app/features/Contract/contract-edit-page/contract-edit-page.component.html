@@ -1,0 +1,15 @@
+<div class="edit-page">
+  <div class="edit-page-header">
+    <a routerLink="/contrats" class="back-link">&larr; Back to list</a>
+    <h1 class="edit-page-title">Edit contract</h1>
+  </div>
+  <p *ngIf="loading" class="edit-page-message">Loading...</p>
+  <p *ngIf="error" class="edit-page-error">{{ error }}</p>
+  <div *ngIf="!loading && !error && id != null && contrat" class="edit-page-card">
+    <app-contract-edit
+      [contratId]="id"
+      [contratData]="contrat"
+      (closeModal)="onClose()">
+    </app-contract-edit>
+  </div>
+</div>

@@ -1,0 +1,90 @@
+<div *ngIf="phase" class="phase-card">
+
+  <button class="btn-back" (click)="goBack()">
+    ← Back
+  </button>
+  
+  <!-- HEADER -->
+  <div class="phase-header">
+    <div class="phase-header-left">
+      <div class="phase-icon-wrapper">
+        <span>⚡</span>
+      </div>
+      <div>
+        <h2 class="phase-title">{{ phase.name }}</h2>
+        <p class="phase-subtitle">Phase Details & Task Overview</p>
+      </div>
+    </div>
+    <span class="phase-status-badge" [ngClass]="phase.status.toLowerCase()">
+      {{ phase.status | titlecase }}
+    </span>
+  </div>
+
+  <hr class="phase-divider">
+
+  <!-- KPI INFO CARDS -->
+  <div class="phase-kpi-row">
+
+    <div class="phase-kpi-card">
+      <div class="kpi-icon-wrap" style="background:#eff6ff">
+        <span>📅</span>
+      </div>
+      <div>
+        <span class="kpi-label">Start Date</span>
+        <span class="kpi-value">{{ phase.startDate | date:'mediumDate' }}</span>
+      </div>
+    </div>
+
+    <div class="phase-kpi-card">
+      <div class="kpi-icon-wrap" style="background:#f0fdf4">
+        <span>🏁</span>
+      </div>
+      <div>
+        <span class="kpi-label">End Date</span>
+        <span class="kpi-value">{{ phase.endDate | date:'mediumDate' }}</span>
+      </div>
+    </div>
+
+    <div class="phase-kpi-card">
+      <div class="kpi-icon-wrap" style="background:#faf5ff">
+        <span>⏱️</span>
+      </div>
+      <div>
+        <span class="kpi-label">Duration</span>
+        <span class="kpi-value">{{ getDuration() }} days</span>
+      </div>
+    </div>
+
+    <div class="phase-kpi-card">
+      <div class="kpi-icon-wrap" style="background:#fff7ed">
+        <span>ℹ️</span>
+      </div>
+      <div>
+        <span class="kpi-label">Status</span>
+        <span class="kpi-value status-text" [ngClass]="phase.status.toLowerCase()">
+          {{ phase.status | titlecase }}
+        </span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TASKS TOGGLE -->
+  <div class="tasks-section">
+    <button class="btn-tasks-toggle" (click)="showTaskForm = !showTaskForm">
+      <span>{{ showTaskForm ? '🔼' : '🔽' }}</span>
+      {{ showTaskForm ? 'Hide Tasks' : 'Show Tasks' }}
+    </button>
+  </div>
+
+  <!-- TASK LIST -->
+  <div *ngIf="showTaskForm && phase.id" class="task-list">
+    <app-task [phaseId]="phase.id"></app-task>
+  </div>
+
+</div>
+
+<div *ngIf="!phase" class="empty-state">
+  <span>📂</span>
+  <p>Phase not found.</p>
+</div>

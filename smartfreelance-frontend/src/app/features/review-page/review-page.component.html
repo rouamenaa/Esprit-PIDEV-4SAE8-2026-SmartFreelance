@@ -1,0 +1,157 @@
+<div class="review-container">
+  <!-- Back Button -->
+  <button class="btn-back" (click)="goBack()">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12.5 17.5L5 10L12.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back to Users
+  </button>
+
+  <!-- Header Card -->
+  <div class="review-header">
+    <div class="header-content">
+      <div class="user-badge" [style.background]="'linear-gradient(135deg, #6366f1, #8b5cf6)'">
+        <span>{{ targetUserRole.charAt(0) }}</span>
+      </div>
+      <div>
+        <h1 class="page-title">Reviews</h1>
+        <p class="page-subtitle">User ID: {{ targetUserId }} • {{ targetUserRole }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="showSuccessMessage" class="success-message">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17 8l-9 9-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>Your review has been posted successfully!</span>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="showErrorMessage" class="error-message">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="2"/>
+      <path d="M7 7l6 6M13 7l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <div class="review-grid">
+    <!-- Reviews Section -->
+    <div class="reviews-section">
+      <!-- Rating Summary -->
+      <div *ngIf="reviews && reviews.length > 0" class="rating-summary">
+        <div class="rating-overview">
+          <div class="average-rating">
+            <span class="rating-number">{{ averageRating.toFixed(1) }}</span>
+            <div class="rating-stars">
+              <span *ngFor="let i of [1,2,3,4,5]" class="star" [class.filled]="i <= averageRating">★</span>
+            </div>
+            <span class="rating-text">{{ getRatingText(averageRating) }}</span>
+          </div>
+          <div class="rating-stats">
+            <p>{{ reviews.length }} review{{ reviews.length !== 1 ? 's' : '' }}</p>
+          </div>
+        </div>
+
+        <!-- Rating Distribution -->
+        <div class="rating-distribution">
+          <div *ngFor="let star of [5,4,3,2,1]" class="distribution-row">
+            <span class="star-label">{{ star }}★</span>
+            <div class="progress-bar">
+              <div class="progress-fill"
+                   [style.width.%]="(getRatingDistribution()[star] / reviews.length) * 100"></div>
+            </div>
+            <span class="count">{{ getRatingDistribution()[star] }}</span>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="section-title">All Reviews ({{ reviews.length }})</h2>
+
+      <div *ngIf="reviews && reviews.length > 0; else noReviews" class="reviews-list">
+        <div *ngFor="let review of reviews" class="review-item">
+          <!-- Review Header -->
+          <div class="review-header-row">
+            <div class="review-rating">
+              <span class="stars">
+                <span *ngFor="let i of [1,2,3,4,5]" class="star" [class.filled]="i <= review.rating">★</span>
+              </span>
+              <span class="rating-text">{{ getRatingText(review.rating) }}</span>
+            </div>
+            <span class="review-date">{{ review.createdAt | date: 'short' }}</span>
+          </div>
+
+          <!-- Review Comment -->
+          <p class="review-comment">{{ review.comment }}</p>
+        </div>
+      </div>
+
+      <ng-template #noReviews>
+        <div class="empty-reviews">
+          <p class="empty-icon">✨</p>
+          <p class="empty-text">No reviews yet. Be the first to review!</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Review Form Section -->
+    <div class="form-section">
+      <div class="form-card">
+        <h2 class="section-title">Leave a Review</h2>
+
+        <!-- Cannot Review Message -->
+        <div *ngIf="!canReview" class="cannot-review-message">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <p *ngIf="currentUserId === targetUserId">You cannot review yourself</p>
+          <p *ngIf="!currentUserId">You must be logged in to leave a review</p>
+        </div>
+
+        <!-- Rating Picker -->
+        <div class="rating-picker" *ngIf="canReview">
+          <label class="rating-label">Your Rating</label>
+          <div class="stars-interactive">
+            <button *ngFor="let i of [1,2,3,4,5]"
+                    type="button"
+                    class="star-btn"
+                    [class.selected]="i <= rating"
+                    (click)="rating = i"
+                    [title]="getRatingText(i)"
+                    [disabled]="isSubmitting">
+              ★
+            </button>
+          </div>
+          <p class="rating-description">{{ getRatingText(rating) }}</p>
+        </div>
+
+        <!-- Comment Field -->
+        <div class="form-group" *ngIf="canReview">
+          <label for="comment" class="form-label">Your feedback</label>
+          <textarea [(ngModel)]="comment"
+                    id="comment"
+                    placeholder="Share your experience with this user..."
+                    rows="6"
+                    class="form-textarea"
+                    [disabled]="isSubmitting"
+                    maxlength="500">
+          </textarea>
+          <p class="char-count">{{ comment.length }} / 500</p>
+        </div>
+
+        <!-- Submit Button -->
+        <button *ngIf="canReview"
+                type="button"
+                (click)="submit()"
+                [disabled]="isButtonDisabled"
+                class="btn-submit">
+          <span *ngIf="!isSubmitting">Submit Review</span>
+          <span *ngIf="isSubmitting">Submitting...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,114 @@
+<div class="audit-wrapper">
+
+  <!-- HEADER -->
+  <div class="audit-header">
+    <div class="audit-header-left">
+      <div class="audit-icon">🔍</div>
+      <div>
+        <h2>Project Audits</h2>
+        <p class="audit-subtitle">{{ audits.length }} audit(s) found</p>
+      </div>
+    </div>
+    <button class="btn-create" (click)="showCreateForm = !showCreateForm">
+      ➕ New Audit
+    </button>
+  </div>
+
+  <!-- CREATE FORM -->
+  <div class="create-form-card" *ngIf="showCreateForm">
+    <h4>🆕 Create Audit</h4>
+    <div class="cf-row">
+      <div class="cf-group">
+        <label>Audit Type</label>
+       <select [(ngModel)]="newAudit.auditType" class="cf-input">
+  <option value="QUALITY">Quality</option>
+  <option value="DEADLINE">Deadline</option>
+  <option value="FINANCIAL">Financial</option>
+  <option value="PERFORMANCE">Performance</option>
+</select>
+      </div>
+      <div class="cf-group cf-full">
+        <label>Objective</label>
+        <input type="text" [(ngModel)]="newAudit.objective"
+               placeholder="e.g. Verify project quality and deadlines"
+               class="cf-input">
+      </div>
+    </div>
+    <div class="cf-error" *ngIf="errorMsg">⚠ {{ errorMsg }}</div>
+    <div class="cf-actions">
+      <button class="btn-cancel" (click)="showCreateForm = false">Cancel</button>
+      <button class="btn-submit" (click)="create()">✅ Create</button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="audit-loading" *ngIf="loading">Loading audits...</div>
+
+  <!-- LIST -->
+  <div class="audit-list" *ngIf="!loading && audits.length > 0">
+    <div class="audit-card" *ngFor="let audit of audits">
+
+      <div class="ac-top">
+        <div class="ac-left">
+          <span class="audit-type-badge">{{ audit.auditType }}</span>
+          <span class="audit-status-badge" [ngClass]="audit.status?.toLowerCase()">
+            {{ audit.status }}
+          </span>
+        </div>
+        <div class="ac-actions">
+          <button class="ac-btn ac-start"
+                  *ngIf="audit.status === 'PENDING'"
+                  (click)="start(audit.id!)">
+            ▶ Start
+          </button>
+          <button class="ac-btn ac-view"
+                  [routerLink]="['/audits', audit.id]">
+            🔎 View
+          </button>
+          <button class="ac-btn ac-close"
+                  *ngIf="audit.status === 'REPORTED'"
+                  (click)="close(audit.id!)">
+            ✅ Close
+          </button>
+          <button class="ac-btn ac-delete"
+                  *ngIf="audit.status !== 'IN_PROGRESS'"
+                  (click)="confirmDeletePrompt(audit)">
+            🗑️
+          </button>
+        </div>
+      </div>
+
+      <p class="ac-objective" *ngIf="audit.objective">{{ audit.objective }}</p>
+
+      <div class="ac-footer">
+        <span *ngIf="audit.createdAt">📅 Created: {{ audit.createdAt | date:'mediumDate' }}</span>
+        <span *ngIf="audit.startedAt">🚀 Started: {{ audit.startedAt | date:'mediumDate' }}</span>
+        <span *ngIf="audit.closedAt">✅ Closed: {{ audit.closedAt | date:'mediumDate' }}</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EMPTY -->
+  <div class="audit-empty" *ngIf="!loading && audits.length === 0">
+    <span>📭</span>
+    <p>No audits yet. Create one to inspect this project.</p>
+  </div>
+
+  <!-- DELETE MODAL -->
+  <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-icon">🗑️</div>
+      <h4 class="modal-title">Delete Audit</h4>
+      <p class="modal-message">
+        Are you sure you want to delete <strong>{{ auditToDeleteName }}</strong>?
+        <br><span class="modal-warning">This action cannot be undone.</span>
+      </p>
+      <div class="modal-actions">
+        <button class="modal-btn-cancel" (click)="closeModal()">Cancel</button>
+        <button class="modal-btn-confirm" (click)="confirmDelete()">🗑️ Delete</button>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,89 @@
+<div class="project-detail-container" *ngIf="!loading">
+  <button class="back-btn" (click)="goBack()">← Back</button>
+
+  <h2 class="project-header">Application Details</h2>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="!error && condidature" class="project-card">
+    <section class="section-card">
+      <div class="section-head">
+        <h3>Application Information</h3>
+        <div class="section-head-right">
+          <span class="status-chip" [ngClass]="{
+            'chip-accepted': condidature.status === 'ACCEPTED',
+            'chip-rejected': condidature.status === 'REJECTED',
+            'chip-pending': condidature.status === 'PENDING',
+            'chip-withdrawn': condidature.status === 'WITHDRAWN'
+          }">{{ condidature.status }}</span>
+          <button type="button" class="edit-btn" (click)="goToEdit()">Edit</button>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="detail-row">
+          <mat-icon class="detail-icon">folder</mat-icon>
+          <div>
+            <span class="detail-label">Project</span>
+            <span class="detail-value">#{{ condidature.projectId }}</span>
+          </div>
+        </div>
+        <div class="detail-row">
+          <mat-icon class="detail-icon">person</mat-icon>
+          <div>
+            <span class="detail-label">Freelancer</span>
+            <span class="detail-value">#{{ condidature.freelancerId }}</span>
+          </div>
+        </div>
+        <div class="detail-row">
+          <mat-icon class="detail-icon">star</mat-icon>
+          <div>
+            <span class="detail-label">Freelancer rating</span>
+            <span class="detail-value">{{ getRatingDisplay(condidature) }}</span>
+          </div>
+        </div>
+        <div class="detail-row">
+          <mat-icon class="detail-icon">attach_money</mat-icon>
+          <div>
+            <span class="detail-label">Proposed price</span>
+            <span class="detail-value">{{ condidature.proposedPrice != null ? (condidature.proposedPrice | number) : '—' }}</span>
+          </div>
+        </div>
+        <div class="detail-row">
+          <mat-icon class="detail-icon">schedule</mat-icon>
+          <div>
+            <span class="detail-label">Estimated days</span>
+            <span class="detail-value">{{ condidature.estimatedDeliveryDays ?? '—' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="condidature.createdAt" class="created-line">
+        Created on {{ condidature.createdAt | date:'medium' }}
+      </div>
+    </section>
+
+    <section *ngIf="condidature.coverLetter" class="section-card">
+      <h3>Cover letter</h3>
+      <p class="cover-text">{{ condidature.coverLetter }}</p>
+    </section>
+
+    <section class="section-card">
+      <h3>Statistics</h3>
+      <div *ngIf="detailStats" class="stats-grid">
+        <div class="stats-box">
+          <span class="stats-label">Project #{{ condidature.projectId }}</span>
+          <span class="stats-value">{{ detailStats.projectApplicationsCount }} application(s)</span>
+          <span class="stats-meta">{{ detailStats.projectAcceptedCount }} accepted · Rate {{ detailStats.projectAcceptanceRatePercent | number:'1.1-1' }}%</span>
+        </div>
+        <div class="stats-box">
+          <span class="stats-label">Freelancer #{{ condidature.freelancerId }}</span>
+          <span class="stats-value">{{ detailStats.freelancerTotalApplications }} application(s)</span>
+          <span class="stats-meta">Avg. rating {{ (detailStats.freelancerAverageRating ?? 0) | number:'1.1-1' }} / 5 · Success rate {{ detailStats.freelancerSuccessRatePercent | number:'1.1-1' }}%</span>
+        </div>
+      </div>
+      <p *ngIf="!detailStats" class="stats-loading">Loading statistics…</p>
+    </section>
+  </div>
+</div>
+
+<div *ngIf="loading" class="loading">Loading application details...</div>

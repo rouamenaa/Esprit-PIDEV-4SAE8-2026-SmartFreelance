@@ -1,0 +1,49 @@
+.edit-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+
+.edit-page-header {
+  margin-bottom: 1.75rem;
+}
+
+.back-link {
+  display: inline-flex;
+  color: #2563eb;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 0.75rem;
+}
+
+.back-link:hover {
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+.edit-page-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.edit-page-message,
+.edit-page-error {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+}
+
+.edit-page-error {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.edit-page-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}

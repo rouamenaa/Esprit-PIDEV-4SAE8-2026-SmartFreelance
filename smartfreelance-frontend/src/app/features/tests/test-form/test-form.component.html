@@ -1,0 +1,100 @@
+<!-- Loading -->
+<div class="loading-container" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading...</p>
+</div>
+
+<!-- Error -->
+<div class="form-error-banner" *ngIf="error">
+  <span>⚠️</span> {{ error }}
+</div>
+
+<!-- Form Card -->
+<div class="form-container" *ngIf="!loading">
+  <div class="form-card">
+
+    <div class="form-card-header">
+      <div class="form-title-wrapper">
+        <span class="form-badge">{{ isEditMode ? 'Edit' : 'New' }}</span>
+        <h2 class="form-title">{{ isEditMode ? 'Edit Test' : 'Add a Test' }}</h2>
+      </div>
+    </div>
+
+    <div class="form-card-body">
+      <form (ngSubmit)="onSubmit()" #testForm="ngForm">
+
+        <!-- Formation ID readonly -->
+        <div class="field-group" *ngIf="formationId">
+          <label class="field-label">
+            <span class="field-icon">📚</span> Linked Formation
+          </label>
+          <input
+            type="text"
+            class="field-input"
+            [value]="'Formation #' + formationId"
+            readonly
+            disabled
+          />
+        </div>
+
+        <!-- Title -->
+        <div class="field-group">
+          <label for="title" class="field-label">
+            <span class="field-icon">📝</span> Title <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            class="field-input"
+            id="title"
+            name="title"
+            placeholder="Test title..."
+            [(ngModel)]="test.title"
+            required
+            #title="ngModel"
+            [class.input-error]="title.invalid && title.touched"
+          />
+          <div class="field-error" *ngIf="title.invalid && title.touched">
+            ⚠ Title is required.
+          </div>
+        </div>
+
+        <!-- Total Score -->
+        <div class="field-group">
+          <label for="totalScore" class="field-label">
+            <span class="field-icon">⭐</span> Total Score <span class="required">*</span>
+          </label>
+          <div class="input-prefix-wrapper">
+            <span class="input-prefix">pts</span>
+            <input
+              type="number"
+              class="field-input with-prefix"
+              id="totalScore"
+              name="totalScore"
+              placeholder="Ex: 100"
+              [(ngModel)]="test.totalScore"
+              required
+              min="1"
+              #totalScore="ngModel"
+              [class.input-error]="totalScore.invalid && totalScore.touched"
+            />
+          </div>
+          <div class="field-error" *ngIf="totalScore.invalid && totalScore.touched">
+            ⚠ Total score is required (min. 1).
+          </div>
+        </div>
+
+        <!-- Hidden formation -->
+        <input type="hidden" name="formation" [ngModel]="formationId" />
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" (click)="cancel()">← Cancel</button>
+          <button type="submit" class="btn btn-submit" [disabled]="testForm.invalid">
+            {{ isEditMode ? '✏️ Update' : '✚ Create Test' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

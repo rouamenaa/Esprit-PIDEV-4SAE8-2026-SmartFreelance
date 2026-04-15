@@ -1,0 +1,54 @@
+<div class="loading-container" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading...</p>
+</div>
+
+<div class="detail-error-banner" *ngIf="error">
+  <span>⚠️</span> {{ error }}
+</div>
+
+<div class="detail-container" *ngIf="!loading && reward">
+  <div class="detail-card">
+
+    <div class="detail-header">
+      <div class="detail-title-wrapper">
+        <span class="detail-badge">Reward</span>
+        <h2 class="detail-title">{{ reward.name }}</h2>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-back" (click)="goBack()">← Back</button>
+        <button class="btn btn-edit" (click)="edit()">✏️ Edit</button>
+        <button class="btn btn-delete" (click)="delete()">🗑️ Delete</button>
+      </div>
+    </div>
+
+    <div class="detail-body">
+      <div class="reward-visual">
+        <div class="reward-icon">🏆</div>
+        <div class="reward-glow"></div>
+      </div>
+
+      <div class="detail-meta-grid">
+
+        <div class="meta-card">
+          <div class="meta-icon">🎁</div>
+          <div class="meta-info">
+            <span class="meta-label">Type</span>
+            <span class="meta-value">{{ reward.type }}</span>
+          </div>
+        </div>
+
+        <!-- ✅ formation?.id au lieu de formationId -->
+        <div class="meta-card" *ngIf="reward.formation?.id">
+          <div class="meta-icon">📚</div>
+          <div class="meta-info">
+            <span class="meta-label">Linked Formation</span>
+            <span class="meta-value"># {{ reward.formation?.id }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

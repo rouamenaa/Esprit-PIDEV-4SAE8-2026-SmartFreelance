@@ -1,0 +1,58 @@
+<div class="form-container">
+  <h2>Edit Project</h2>
+
+  <form [formGroup]="projectForm" (ngSubmit)="submit()">
+
+    <!-- TITLE -->
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input id="title" type="text" formControlName="title" placeholder="Enter project title">
+      <span class="error" *ngIf="projectForm.get('title')?.hasError('required')">
+        Title is required
+      </span>
+      <span class="error" *ngIf="projectForm.get('title')?.hasError('minlength')">
+        Title must be at least 3 characters
+      </span>
+    </div>
+
+    <!-- DESCRIPTION -->
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" rows="4" formControlName="description" placeholder="Enter project description"></textarea>
+      <span class="error" *ngIf="projectForm.get('description')?.hasError('maxlength')">
+        Description cannot exceed 500 characters
+      </span>
+    </div>
+
+    <!-- BUDGET -->
+    <div class="form-group">
+      <label for="budget">Budget</label>
+      <input id="budget" type="number" formControlName="budget" placeholder="Enter budget">
+      <span class="error" *ngIf="projectForm.get('budget')?.hasError('required')">
+        Budget is required
+      </span>
+      <span class="error" *ngIf="projectForm.get('budget')?.hasError('min')">
+        Budget must be positive
+      </span>
+    </div>
+
+    <!-- DEADLINE -->
+    <div class="form-group">
+      <label for="deadline">Deadline</label>
+      <input id="deadline" type="date" formControlName="deadline">
+      <span class="error" *ngIf="projectForm.get('deadline')?.hasError('required')">
+        Deadline is required
+      </span>
+      <span class="error" *ngIf="projectForm.get('deadline')?.hasError('futureDate')">
+        Deadline must be a future date
+      </span>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="form-actions">
+      <button type="submit" [disabled]="loading">{{ loading ? 'Updating...' : 'Update Project' }}</button>
+      <button type="button" routerLink="/">Cancel</button>
+    </div>
+
+  </form>
+</div>

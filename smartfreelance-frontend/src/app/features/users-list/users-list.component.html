@@ -1,0 +1,154 @@
+<div class="users-container">
+  <!-- Header -->
+  <div class="users-header">
+    <div>
+      <h1 class="page-title">{{ isAdmin ? 'User Management' : 'Talent Pool' }}</h1>
+      <p class="page-subtitle">{{ isAdmin ? 'Manage user accounts and permissions' : 'Discover and review talented freelancers and clients' }}</p>
+    </div>
+    <div class="header-stats">
+      <div class="stat-card">
+        <span class="stat-number">{{ users.length }}</span>
+        <span class="stat-label">Total Users</span>
+      </div>
+      <div class="stat-card" *ngIf="!isAdmin">
+        <span class="stat-number">{{ totalProjects }}</span>
+        <span class="stat-label">Projects</span>
+      </div>
+      <div class="stat-card" *ngIf="isAdmin">
+        <span class="stat-number">{{ getActiveUsersCount() }}</span>
+        <span class="stat-label">Active Users</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Controls -->
+  <div class="filters-section">
+    <!-- Search Bar -->
+    <div class="search-box">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 1C11.866 1 15 4.134 15 8s-3.134 7-7 7-7-3.134-7-7 3.134-7 7-7m0-1C3.582 0 0 3.582 0 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" fill="#64748b"/>
+        <path d="M17.707 16.293l-4.02-4.02" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input [(ngModel)]="searchQuery"
+             (ngModelChange)="onSearchChange()"
+             type="text"
+             [placeholder]="isAdmin ? 'Search by name, email, or role...' : 'Search by name, email, or skills...'"
+             class="search-input">
+    </div>
+
+    <!-- Filter Controls -->
+    <div class="filter-controls">
+      <div class="filter-group">
+        <label>Role</label>
+        <select [(ngModel)]="selectedRole" (change)="onRoleChange()" class="filter-select">
+          <option value="">All Roles</option>
+          <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group" *ngIf="!isAdmin">
+        <label>Sort By</label>
+        <select [(ngModel)]="sortBy" (change)="onSortChange()" class="filter-select">
+          <option value="username">Name (A-Z)</option>
+          <option value="recent">Most Recent</option>
+          <option value="rating">Highest Rating</option>
+          <option value="projects">Most Projects</option>
+        </select>
+      </div>
+
+      <div class="filter-group" *ngIf="isAdmin">
+        <label>Status</label>
+        <select [(ngModel)]="selectedStatus" (change)="onStatusChange()" class="filter-select">
+          <option value="">All Status</option>
+          <option value="ACTIVE">Active</option>
+          <option value="SUSPENDED">Suspended</option>
+          <option value="BANNED">Banned</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading users...</p>
+  </div>
+
+  <!-- Users Grid -->
+  <div *ngIf="!isLoading && filteredUsers && filteredUsers.length > 0" class="users-grid">
+    <div *ngFor="let user of filteredUsers" class="user-card" [class]="isAdmin ? 'admin-card' : ''" [class.admin-card]="isAdmin">
+      <!-- Avatar Placeholder -->
+      <div class="user-avatar" [style.background]="user.profilePicture ? 'url(' + user.profilePicture + ')' : 'linear-gradient(135deg, #6366f1, #8b5cf6)'">
+        <span *ngIf="!user.profilePicture" class="avatar-initial">{{ user.username.charAt(0).toUpperCase() }}</span>
+      </div>
+
+      <!-- Online Badge -->
+      <span class="online-badge" [class.online]="user.online" [class.offline]="!user.online"></span>
+
+      <!-- User Info -->
+      <div class="user-info">
+        <h3 class="user-name">{{ user.username }}</h3>
+        <p class="user-email">{{ user.email }}</p>
+
+        <!-- Role Badge -->
+        <div class="badge-container">
+          <span [ngClass]="'badge ' + getRoleClass(user.role)">{{ user.role }}</span>
+          <span *ngIf="user.profileCompletion && !isAdmin" class="badge badge-success"
+            title="Profile Completion">{{ user.profileCompletion }}%</span>
+        </div>
+      </div>
+
+      <!-- Bio (only for non-admin view) -->
+      <p *ngIf="user.bio && !isAdmin" class="user-bio">{{ user.bio }}</p>
+
+      <!-- Stats Row (only for non-admin view) -->
+      <div class="user-stats" *ngIf="!isAdmin">
+        <div class="stat">
+          <span class="stat-icon">⭐</span>
+          <span>{{ user.averageRating?.toFixed(1) || '0' }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">📝</span>
+          <span>{{ user.totalReviews || 0 }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">🎯</span>
+          <span>{{ user.totalProjects || 0 }}</span>
+        </div>
+      </div>
+
+      <!-- Profile Progress (for freelancers, non-admin view) -->
+      <div *ngIf="user.role === 'FREELANCER' && user.profileCompletion && !isAdmin" class="progress-bar">
+        <div class="progress-fill" [style.width.%]="getProfilePercentage(user)"></div>
+      </div>
+
+      <div class="user-status-row">
+        <span class="status-label">Status:</span>
+        <span class="status-badge" [ngClass]="{
+            'status-active': getUserStatus(user) === 'ACTIVE',
+            'status-suspended': getUserStatus(user) === 'SUSPENDED',
+            'status-banned': getUserStatus(user) === 'BANNED'
+          }">{{ getUserStatus(user) }}</span>
+      </div>
+
+      <div class="action-buttons" *ngIf="isAdmin">
+        <button class="btn-action btn-ban" (click)="banUser(user); $event.stopPropagation()" [disabled]="actionLoading[user.id]">Ban</button>
+        <button class="btn-action btn-suspend" (click)="suspendUser(user); $event.stopPropagation()" [disabled]="actionLoading[user.id]">Suspend</button>
+        <button class="btn-action btn-activate" (click)="activateUser(user); $event.stopPropagation()" [disabled]="actionLoading[user.id]">Activate</button>
+      </div>
+
+      <!-- Review Button (only for non-admin) -->
+      <button *ngIf="!isAdmin" class="btn-review" (click)="goToReview(user); $event.stopPropagation()">
+        View Profile
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && (!filteredUsers || filteredUsers.length === 0)" class="empty-state">
+    <div class="empty-icon">{{ isAdmin ? '🛠️' : '👥' }}</div>
+    <h3>{{ isAdmin ? 'No users found' : 'No users found' }}</h3>
+    <p *ngIf="searchQuery || selectedRole || selectedStatus" class="empty-subtitle">Try adjusting your filters or search terms</p>
+    <p *ngIf="!searchQuery && !selectedRole && !selectedStatus" class="empty-subtitle">{{ isAdmin ? 'All users are managed from here' : 'Start exploring our talent pool' }}</p>
+  </div>
+</div>
