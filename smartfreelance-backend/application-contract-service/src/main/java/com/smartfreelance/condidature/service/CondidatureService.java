@@ -1,6 +1,8 @@
 package com.smartfreelance.condidature.service;
 
+import com.smartfreelance.condidature.client.ProjectServiceClient;
 import com.smartfreelance.condidature.dto.ApplicationsPerProjectDTO;
+import com.smartfreelance.condidature.dto.AssignFreelancerRequestDTO;
 import com.smartfreelance.condidature.dto.CondidatureDetailStatsDTO;
 import com.smartfreelance.condidature.dto.CondidatureDTO;
 import com.smartfreelance.condidature.dto.CondidatureRequestDTO;
@@ -9,6 +11,7 @@ import com.smartfreelance.condidature.dto.FreelancerSuccessRateDTO;
 import com.smartfreelance.condidature.model.Condidature;
 import com.smartfreelance.condidature.model.Condidature.CondidatureStatus;
 import com.smartfreelance.condidature.repository.CondidatureRepository;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 public class CondidatureService {
 
     private final CondidatureRepository condidatureRepository;
+    private final ProjectServiceClient projectServiceClient;
 
     public List<CondidatureDTO> findAll() {
         return condidatureRepository.findAll().stream()
@@ -131,8 +135,20 @@ public class CondidatureService {
     @Transactional
     public CondidatureDTO create(CondidatureRequestDTO dto) {
         Objects.requireNonNull(dto, "dto");
-        if (condidatureRepository.existsByProjectIdAndFreelancerId(dto.getProjectId(), dto.getFreelancerId())) {
-            throw new IllegalArgumentException("A condidature already exists for this project and freelancer.");
+        Condidature existing = condidatureRepository.findByProjectIdAndFreelancerId(dto.getProjectId(), dto.getFreelancerId())
+                .orElse(null);
+        if (existing != null) {
+            if (existing.getStatus() == CondidatureStatus.PENDING || existing.getStatus() == CondidatureStatus.ACCEPTED) {
+                throw new IllegalArgumentException("A condidature already exists for this project and freelancer.");
+            }
+
+            // Allow re-apply after REJECTED/WITHDRAWN by reusing the same row.
+            existing.setCoverLetter(dto.getCoverLetter());
+            existing.setProposedPrice(dto.getProposedPrice());
+            existing.setEstimatedDeliveryDays(dto.getEstimatedDeliveryDays());
+            existing.setFreelancerRating(dto.getFreelancerRating());
+            existing.setStatus(dto.getStatus() != null ? dto.getStatus() : CondidatureStatus.PENDING);
+            return toDTO(condidatureRepository.save(existing));
         }
         Condidature entity = toEntity(dto);
         if (dto.getStatus() == null) {
@@ -181,6 +197,25 @@ public class CondidatureService {
         condidatureRepository.save(accepted);
 
         Long projectId = accepted.getProjectId();
+        Long freelancerId = accepted.getFreelancerId();
+        if (freelancerId == null || freelancerId <= 0) {
+            throw new IllegalArgumentException("freelancerId invalide pour cette candidature. Veuillez mettre a jour la candidature avant acceptation.");
+        }
+
+        try {
+            projectServiceClient.assignFreelancer(
+                    projectId,
+                    AssignFreelancerRequestDTO.builder().freelancerId(freelancerId).build()
+            );
+        } catch (FeignException ex) {
+            String details = ex.contentUTF8();
+            String message = (details != null && !details.isBlank()) ? details : ex.getMessage();
+            throw new IllegalStateException(
+                    "Unable to synchronize accepted candidature with project-service: " + message,
+                    ex
+            );
+        }
+
         List<Condidature> others = condidatureRepository.findByProjectId(projectId).stream()
                 .filter(c -> !c.getId().equals(id) && c.getStatus() == CondidatureStatus.PENDING)
                 .collect(Collectors.toList());

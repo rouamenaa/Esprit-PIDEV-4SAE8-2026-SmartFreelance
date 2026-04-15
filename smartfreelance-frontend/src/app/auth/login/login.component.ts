@@ -23,19 +23,26 @@ export class LoginComponent {
   this.authService.login({ email: this.email, password: this.password }).subscribe({
     next: (res: any) => {
       this.authService.saveToken(res.token);
-      this.authService.saveRole(res.role);
+      const resolvedRole = this.authService.extractRoleFromLoginResponse(res);
+      if (resolvedRole) {
+        this.authService.saveRole(resolvedRole);
+      }
+      const resolvedUserId = this.authService.extractUserIdFromLoginResponse(res);
+      if (resolvedUserId) {
+        this.authService.saveUserId(resolvedUserId);
+      }
 
       // 🔍 Debug — vérifiez ce que contient le token
       console.log('res.role:', res.role);
       console.log('role from token:', this.authService.getRole());
 
-      const role = res.role;
+      const role = resolvedRole ?? this.authService.getRole();
         if (role === 'ADMIN') {
-          this.router.navigate(['/profil-freelancer']);
+          this.router.navigate(['/admin']);
         } else if (role === 'CLIENT') {
           this.router.navigate(['/projects']);
         } else if (role === 'FREELANCER') {
-          this.router.navigate(['/profil-freelancer']);
+          this.router.navigate(['/projects']);
         } else {
           this.router.navigate(['']);
 

@@ -9,4 +9,5 @@ public interface ProjectPhaseRepository extends JpaRepository<ProjectPhase, Long
 
     // IMPORTANT : project_Id et pas projectId
     List<ProjectPhase> findByProject_Id(Long projectId);
+    List<ProjectPhase> findByNameContaining(String name);
 }

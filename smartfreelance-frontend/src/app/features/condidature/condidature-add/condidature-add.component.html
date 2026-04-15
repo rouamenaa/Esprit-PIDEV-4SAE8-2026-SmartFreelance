@@ -3,9 +3,9 @@
     <div class="add-form-body">
       <div class="form-group">
         <label for="projectId" class="form-label">ID Projet</label>
-        <input type="number" min="1" class="form-input" id="projectId" formControlName="projectId" placeholder="Ex. 1">
+        <input type="number" min="1" class="form-input" id="projectId" formControlName="projectId" placeholder="Ex. 1" [readonly]="projectLocked">
       </div>
-      <div class="form-group">
+      <div class="form-group" *ngIf="!isFreelancer">
         <label for="freelancerId" class="form-label">ID Freelancer</label>
         <input type="number" min="1" class="form-input" id="freelancerId" formControlName="freelancerId" placeholder="Ex. 1">
       </div>
@@ -23,7 +23,7 @@
           <input type="number" min="1" class="form-input" id="estimatedDeliveryDays" formControlName="estimatedDeliveryDays" placeholder="Ex. 10">
         </div>
       </div>
-      <div class="form-group">
+      <div class="form-group" *ngIf="!isFreelancer">
         <label for="status" class="form-label">Statut</label>
         <select class="form-input form-select" id="status" formControlName="status">
           <option value="PENDING">En attente</option>
@@ -35,7 +35,7 @@
     </div>
     <div class="add-form-actions">
       <button type="button" class="btn btn-secondary" (click)="close()">Annuler</button>
-      <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Ajouter la candidature</button>
+      <button type="submit" class="btn btn-primary">Ajouter la candidature</button>
     </div>
   </form>
 </div>

@@ -94,11 +94,13 @@ public class Project {
 
     private LocalDate deadline;
 
+    private Long clientId;
+
+    private Long freelancerId;
+
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;
 
-    @OneToMany(mappedBy = "project",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectPhase> phases;
 }

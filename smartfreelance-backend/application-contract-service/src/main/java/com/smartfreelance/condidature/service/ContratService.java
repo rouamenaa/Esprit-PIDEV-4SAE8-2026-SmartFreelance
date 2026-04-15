@@ -53,6 +53,24 @@ public class ContratService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<ContratResponse> findByClientIdAndFreelancerId(Long clientId, Long freelancerId) {
+        return contratRepository.findByClientIdAndFreelancerId(clientId, freelancerId).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ContratResponse> findActiveByClientIdAndFreelancerId(Long clientId, Long freelancerId) {
+        List<Contrat.StatutContrat> activeStatuts = List.of(
+                Contrat.StatutContrat.EN_ATTENTE,
+                Contrat.StatutContrat.ACTIF
+        );
+        return contratRepository.findByClientIdAndFreelancerIdAndStatutIn(clientId, freelancerId, activeStatuts).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public ContratResponse create(ContratRequest request) {
         Contrat contrat = Contrat.builder()

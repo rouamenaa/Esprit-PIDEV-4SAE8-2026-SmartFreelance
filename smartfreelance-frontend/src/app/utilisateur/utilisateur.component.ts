@@ -20,6 +20,7 @@ export class UtilisateurComponent implements OnInit {
   nameError: string = '';
   passwordError: string = '';
   roleError: string = '';
+  submitError: string = '';
   successMessage: string = '';
   isLoading: boolean = false;
   hoveredIndex: number | null = null;
@@ -124,6 +125,7 @@ goToLogin() {
   }
 
   addUser() {
+    this.submitError = '';
     if (!this.isEditMode) {
       if (!this.verificationResult) {
         alert('⚠️ Please verify an AI document before adding a user.');
@@ -146,6 +148,7 @@ goToLogin() {
 
     const payload = {
       username: this.user.name,
+      nom: this.user.name,
       email: this.user.email,
       password: this.user.password,
       role: this.user.role
@@ -166,7 +169,7 @@ goToLogin() {
         error: (err) => {
           this.isLoading = false;
           if (err.status === 409) this.emailError = 'This email already exists';
-          else this.emailError = `Error ${err.status}: ${err.error}`;
+          else this.submitError = this.toFriendlyError(err, 'update');
         }
       });
     } else {
@@ -174,7 +177,6 @@ goToLogin() {
 
       this.http.post(this.registerUrl, payload, {
         headers: this.getHeaders(),
-        responseType: 'text'
       }).subscribe({
         next: () => {
           this.isLoading = false;
@@ -184,7 +186,8 @@ goToLogin() {
         error: (err) => {
           this.isLoading = false;
           if (err.status === 409) this.emailError = 'This email already exists';
-          else this.emailError = `Error ${err.status}: ${err.error}`;
+          else if (err.status === 403) this.roleError = 'ADMIN ne peut pas etre cree via ce formulaire.';
+          else this.submitError = this.toFriendlyError(err, 'register');
 
         }
       });
@@ -222,11 +225,33 @@ goToLogin() {
     this.passwordError = '';
     this.roleError = '';
     this.successMessage = '';
+    this.submitError = '';
     this.verificationResult = null;
     this.selectedFile = null;
     this.selectedFileName = '';
     this.registrationDone = false;
     this.registeredEmail = '';
+  }
+
+  private toFriendlyError(err: any, action: 'register' | 'update'): string {
+    const raw = (typeof err?.error === 'string'
+      ? err.error
+      : (err?.error?.message || err?.message || '')
+    ).toLowerCase();
+
+    if (raw.includes('email already exists')) {
+      return 'Cet email existe deja.';
+    }
+    if (raw.includes('nom') || raw.includes('not-null property references a null or transient value')) {
+      return 'Le nom est obligatoire. Verifiez le champ Full name puis reessayez.';
+    }
+    if (raw.includes('forbidden') || err?.status === 403) {
+      return action === 'register'
+        ? "Creation refusee par le serveur. Verifiez le role choisi."
+        : "Modification refusee par le serveur.";
+    }
+
+    return `Echec de ${action === 'register' ? "l'ajout" : 'la modification'} utilisateur (HTTP ${err?.status ?? 'N/A'}).`;
   }
 
   onFileSelected(event: any) {

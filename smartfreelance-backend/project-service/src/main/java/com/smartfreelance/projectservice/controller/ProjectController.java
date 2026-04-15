@@ -10,12 +10,15 @@ import java.util.Map;
 
 @RestController
 
-//@CrossOrigin(origins = "http://localhost:4200")
+// @CrossOrigin(origins = "http://localhost:4200")
 
-//@CrossOrigin(origins = "http://localhost:4200")
+// @CrossOrigin(origins = "http://localhost:4200")
 
 @RequestMapping("/api/projects")
 public class ProjectController {
+
+    public record AssignFreelancerRequest(Long freelancerId) {
+    }
 
     private final ProjectService projectService;
 
@@ -23,20 +26,10 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-
-        @GetMapping("/hello")
-        public String hello() {
-            return "Hello Gateway works!";
-        }
-
-
-
-
-
-
-
-
-
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello Gateway works!";
+    }
 
     // ================= CREATE =================
 
@@ -87,6 +80,16 @@ public class ProjectController {
         return projectService.getAllProjects();
     }
 
+    @GetMapping("/freelancers/{freelancerId}")
+    public List<Project> getProjectsByFreelancerId(@PathVariable Long freelancerId) {
+        return projectService.getProjectsByFreelancerId(freelancerId);
+    }
+
+    @GetMapping("/clients/{clientId}")
+    public List<Project> getProjectsByClientId(@PathVariable Long clientId) {
+        return projectService.getProjectsByClientId(clientId);
+    }
+
     // ================= GET BY ID =================
 
     @GetMapping("/{id}")
@@ -94,11 +97,17 @@ public class ProjectController {
         return projectService.getProjectById(id);
     }
 
+    @PutMapping("/{id}/assign-freelancer")
+    public Project assignFreelancer(@PathVariable Long id,
+            @RequestBody AssignFreelancerRequest request) {
+        return projectService.assignFreelancer(id, request.freelancerId());
+    }
+
     // ================= UPDATE =================
 
     @PutMapping("/{id}")
     public Project updateProject(@PathVariable Long id,
-                                 @RequestBody Project updatedProject) {
+            @RequestBody Project updatedProject) {
         return projectService.updateProject(id, updatedProject);
     }
 
@@ -129,6 +138,7 @@ public class ProjectController {
     public String getProjectPerformanceLevel(@PathVariable Long id) {
         return projectService.classifyProjectPerformance(id);
     }
+
     @GetMapping("/{id}/progress-details")
     public ResponseEntity<Map<String, Object>> getProgressDetails(@PathVariable Long id) {
         return ResponseEntity.ok(projectService.getProjectProgressDetails(id));

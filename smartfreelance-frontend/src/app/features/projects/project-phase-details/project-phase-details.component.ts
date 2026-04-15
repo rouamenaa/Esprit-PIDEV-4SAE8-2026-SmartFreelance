@@ -27,6 +27,7 @@ export class ProjectPhaseDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.phaseId = Number(this.route.snapshot.paramMap.get('id'));
+    this.showTaskForm = this.route.snapshot.queryParamMap.get('openTasks') === '1';
     this.loadPhase();
   }
 

@@ -209,6 +209,10 @@
             {{ successMessage }}
           </div>
 
+          <div *ngIf="submitError" class="error-banner">
+            {{ submitError }}
+          </div>
+
           <!-- Actions -->
           <div class="form-actions">
             <button type="button" class="btn btn--primary"

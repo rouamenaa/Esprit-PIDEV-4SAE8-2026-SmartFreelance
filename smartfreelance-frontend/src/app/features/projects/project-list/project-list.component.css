@@ -36,6 +36,26 @@ body {
   border-radius: 6px;
   border: 1px solid #ddd;
 }
+
+.action-feedback {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.action-feedback.success {
+  background: #ecfdf5;
+  border: 1px solid #86efac;
+  color: #166534;
+}
+
+.action-feedback.error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+}
 /* ===== BOUTON VIEW SUR LES CARTES ===== */
 .card-actions button[matTooltip="View"] {
   border-color: #2563eb !important;  /* bleu bordure */
@@ -112,6 +132,34 @@ body {
 .info-row mat-icon {
   color: #2563eb;   
   font-size: 20px;
+}
+
+.project-insights {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+.insight-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.insight-line:last-child {
+  margin-bottom: 0;
+}
+
+.insight-line mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #0ea5e9;
 }
 
 /* ===== ACTIONS ===== */

@@ -5,6 +5,7 @@ export interface Task {
   status: 'TODO' | 'IN_PROGRESS' | 'DONE';
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
   assignedTo?: number;
+  duedate?: string;
 
   // clé essentielle pour lier la tâche à une phase
   phase?: { id: number };

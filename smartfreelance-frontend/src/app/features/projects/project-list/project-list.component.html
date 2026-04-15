@@ -2,11 +2,19 @@
 
   <!-- HEADER -->
   <div class="projects-header">
-    <h2>Projects</h2>
-    <button mat-raised-button color="primary" routerLink="/create">
+    <h2>{{ isFreelancerView() ? 'Projects' : 'Projects' }}</h2>
+    <button *ngIf="isClientView() || isAdminView()" mat-raised-button color="primary" routerLink="/create">
       <mat-icon>add</mat-icon>
       Create Project
     </button>
+  </div>
+
+  <div *ngIf="isFreelancerView()" class="alert alert-info">
+    Candidater sur un projet puis accedez a ses details apres acceptation.
+  </div>
+
+  <div *ngIf="actionMessage" class="action-feedback" [ngClass]="actionMessageType">
+    {{ actionMessage }}
   </div>
 
   <!-- FILTERS -->
@@ -50,26 +58,65 @@
           <mat-icon>event</mat-icon>
           <span>{{ project.deadline | date:'mediumDate' }}</span>
         </div>
+        <div class="project-insights" *ngIf="hasProjectInsight(project.id)">
+          <div class="insight-line">
+            <mat-icon>groups</mat-icon>
+            <span>{{ getProjectInsight(project.id).total }} candidatures</span>
+          </div>
+          <div class="insight-line">
+            <mat-icon>check_circle</mat-icon>
+            <span>{{ getProjectInsight(project.id).accepted }} acceptee(s)</span>
+          </div>
+          <div class="insight-line">
+            <mat-icon>hourglass_top</mat-icon>
+            <span>{{ getProjectInsight(project.id).pending }} en attente</span>
+          </div>
+        </div>
       </div>
 
       <!-- ACTIONS -->
       <div class="card-actions">
-        <button mat-icon-button [routerLink]="['/edit', project.id]" matTooltip="Edit">
+        <button *ngIf="canManageProject(project)" mat-icon-button [routerLink]="['/edit', project.id]" matTooltip="Edit">
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button (click)="approve(project.id)" matTooltip="Approve">
+        <button *ngIf="canManageProject(project)" mat-icon-button (click)="approve(project.id)" matTooltip="Approve">
           <mat-icon>check_circle</mat-icon>
         </button>
-        <button mat-icon-button (click)="start(project.id)" matTooltip="Start">
+        <button *ngIf="canManageProject(project)" mat-icon-button (click)="start(project.id)" matTooltip="Start">
           <mat-icon>play_arrow</mat-icon>
         </button>
-        <button mat-icon-button (click)="delete(project.id)" matTooltip="Delete">
+        <button *ngIf="canManageProject(project)" mat-icon-button (click)="delete(project.id)" matTooltip="Delete">
           <mat-icon>delete</mat-icon>
         </button>
-        <button mat-stroked-button [routerLink]="['/projects', project.id]" matTooltip="View">
+        <button *ngIf="canManageProject(project)" mat-stroked-button [routerLink]="['/projects', project.id]" matTooltip="View">
           <mat-icon>visibility</mat-icon>
           View
         </button>
+        <a *ngIf="isFreelancerView() && canApply(project)"
+           mat-raised-button
+           color="primary"
+           [routerLink]="['/condidatures/add']"
+           [queryParams]="{ projectId: project.id }">
+          Candidater
+        </a>
+        <button *ngIf="isFreelancerView() && canViewProjectDetails(project)"
+                mat-stroked-button
+                [routerLink]="['/projects', project.id]">
+          <mat-icon>visibility</mat-icon>
+          Voir details
+        </button>
+        <button *ngIf="isFreelancerView() && getMyCandidatureStatus(project.id) === 'PENDING'"
+                mat-stroked-button
+                disabled>
+          Candidature en attente
+        </button>
+        <a *ngIf="isFreelancerView() && (getMyCandidatureStatus(project.id) === 'REJECTED' || getMyCandidatureStatus(project.id) === 'WITHDRAWN') && canApply(project)"
+           mat-stroked-button
+           color="accent"
+           [routerLink]="['/condidatures/add']"
+           [queryParams]="{ projectId: project.id }">
+          Re-candidater
+        </a>
       </div>
 
     </mat-card>
@@ -79,8 +126,8 @@
   <!-- NO PROJECTS -->
   <ng-template #noProjects>
     <div class="no-projects">
-      <p>No projects found.</p>
-      <button mat-raised-button color="primary" routerLink="/create">
+      <p>{{ isFreelancerView() ? 'Aucun projet disponible.' : 'No projects found.' }}</p>
+      <button *ngIf="isClientView() || isAdminView()" mat-raised-button color="primary" routerLink="/create">
         Create Project
       </button>
     </div>

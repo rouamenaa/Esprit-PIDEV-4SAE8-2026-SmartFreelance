@@ -4,6 +4,9 @@ import { RouterModule } from '@angular/router';
 import { Condidature } from '../../../models/Condidature';
 import { CondidatureService } from '../../../services/condidature.service';
 import { CondidatureDeleteComponent } from '../condidature-delete/condidature-delete.component';
+import { AuthService } from '../../../core/serviceslogin/auth.service';
+import { ProjectService } from '../../../services/project.service';
+import { forkJoin, of } from 'rxjs';
 
 @Component({
   selector: 'app-condidature-table',
@@ -21,15 +24,35 @@ export class CondidatureTableComponent implements OnInit {
   showAddModal = false;
   selected: Condidature | null = null;
   actionLoading: number | null = null;
+  role: string | null = null;
+  normalizedRole: string | null = null;
+  userId: number | null = null;
 
-  constructor(private condidatureService: CondidatureService) {}
+  constructor(
+    private condidatureService: CondidatureService,
+    private authService: AuthService,
+    private projectService: ProjectService
+  ) {}
 
   ngOnInit(): void {
+    this.role = this.authService.getRole();
+    this.normalizedRole = this.normalizeRole(this.role);
+    this.userId = this.authService.getUserId();
     this.load();
   }
 
   load(): void {
     this.loading = true;
+    if (this.role === 'FREELANCER' && this.userId) {
+      this.loadFreelancerCandidatures(this.userId);
+      return;
+    }
+
+    if (this.role === 'CLIENT' && this.userId) {
+      this.loadClientCandidatures(this.userId);
+      return;
+    }
+
     this.condidatureService.getAll({ ranked: true }).subscribe({
       next: (data) => {
         this.list = (data || []).map((item) => {
@@ -41,6 +64,44 @@ export class CondidatureTableComponent implements OnInit {
         });
         this.applySort();
         this.loading = false;
+      },
+      error: () => (this.loading = false),
+    });
+  }
+
+  private loadFreelancerCandidatures(freelancerId: number): void {
+    this.condidatureService.getAll({ freelancerId }).subscribe({
+      next: (data) => {
+        this.list = (data || []).map((item) => this.ensureRatingOnItem(item));
+        this.applySort();
+        this.loading = false;
+      },
+      error: () => (this.loading = false),
+    });
+  }
+
+  private loadClientCandidatures(clientId: number): void {
+    this.projectService.getByClientId(clientId).subscribe({
+      next: (projects) => {
+        const projectIds = [...new Set((projects || []).map((p) => p.id).filter((id) => id > 0))];
+        if (projectIds.length === 0) {
+          this.list = [];
+          this.sortedList = [];
+          this.loading = false;
+          return;
+        }
+
+        const requests = projectIds.map((projectId) => this.condidatureService.getAll({ projectId, ranked: true }));
+        forkJoin(requests.length ? requests : [of([])]).subscribe({
+          next: (groups) => {
+            this.list = groups
+              .flat()
+              .map((item) => this.ensureRatingOnItem(item));
+            this.applySort();
+            this.loading = false;
+          },
+          error: () => (this.loading = false),
+        });
       },
       error: () => (this.loading = false),
     });
@@ -107,6 +168,27 @@ export class CondidatureTableComponent implements OnInit {
 
   trackById(_index: number, c: Condidature): number {
     return c.id;
+  }
+
+  canManageCandidatures(): boolean {
+    return this.normalizedRole === 'ADMIN' || this.normalizedRole === 'CLIENT';
+  }
+
+  canAddCandidature(): boolean {
+    return this.normalizedRole === 'FREELANCER';
+  }
+
+  isPending(c: Condidature): boolean {
+    return this.normalizeStatus(c.status) === 'PENDING';
+  }
+
+  private normalizeRole(role: string | null | undefined): string | null {
+    if (!role) return null;
+    return role.replace(/^ROLE_/i, '').trim().toUpperCase();
+  }
+
+  private normalizeStatus(status: string | null | undefined): string {
+    return (status ?? '').trim().toUpperCase();
   }
 
   onSortChange(event: Event): void {

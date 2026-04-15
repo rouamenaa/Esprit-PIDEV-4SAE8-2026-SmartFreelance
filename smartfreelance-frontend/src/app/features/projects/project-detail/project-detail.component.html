@@ -6,6 +6,25 @@
   <!-- HEADER -->
   <h2 class="project-header">Project Details</h2>
 
+  <div *ngIf="project && canManageCurrentProject()" class="detail-actions">
+    <button mat-stroked-button color="primary" (click)="editCurrentProject()">
+      <mat-icon>edit</mat-icon>
+      Modifier
+    </button>
+    <button mat-stroked-button color="accent" (click)="approveCurrentProject()">
+      <mat-icon>check_circle</mat-icon>
+      Approuver
+    </button>
+    <button mat-stroked-button color="warn" (click)="deleteCurrentProject()">
+      <mat-icon>delete</mat-icon>
+      Supprimer
+    </button>
+  </div>
+
+  <div *ngIf="actionMessage" class="detail-feedback" [ngClass]="actionMessageType">
+    {{ actionMessage }}
+  </div>
+
   <!-- ERROR -->
   <div *ngIf="error" class="error">{{ error }}</div>
 
@@ -51,8 +70,21 @@
             <span class="detail-value">{{ project.deadline | date:'mediumDate' }}</span>
           </div>
         </div>
+        <div class="detail-row">
+          <mat-icon class="detail-icon">groups</mat-icon>
+          <div>
+            <span class="detail-label">Candidatures</span>
+            <span class="detail-value">
+              {{ projectCandidatureInsight.total }} total, {{ projectCandidatureInsight.accepted }} acceptee(s), {{ projectCandidatureInsight.pending }} en attente
+            </span>
+          </div>
+        </div>
       </div>
     </section>
+    <button mat-stroked-button [routerLink]="['/projects', project.id, 'audits']">
+  <mat-icon>fact_check</mat-icon>
+  Audits
+</button>
 
     <!-- 2️⃣ AI Suggestions -->
     <section class="ai-suggestions" *ngIf="aiSummary">

@@ -7,11 +7,13 @@ import com.example.micro_user.Repository.UserRepository;
 import com.example.micro_user.Service.auth.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -51,6 +53,7 @@ public class AuthController {
 
     // ================= REGISTER =================
     @PostMapping("/register")
+    @Transactional
     public ResponseEntity<Map<String, String>> register(@RequestBody User user) {
         if (user.getRole() == Role.ADMIN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -68,10 +71,19 @@ public class AuthController {
         user.setConfirmationToken(token);
         user.setEnabled(false);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setNom(user.getUsername());
         userRepository.save(user);
 
-        // Envoyer l'email de confirmation
-        emailService.sendConfirmationEmail(user.getEmail(), token);
+        try {
+            // Envoyer l'email de confirmation
+            emailService.sendConfirmationEmail(user.getEmail(), token);
+        } catch (MailException ex) {
+            // Transactional rollback: user is not persisted if email fails.
+            throw new IllegalStateException(
+                    "Unable to send confirmation email. Please verify SMTP configuration.",
+                    ex
+            );
+        }
 
         return ResponseEntity.ok(Map.of("message",
                 "Registration successful! Please check your email to confirm your account."));

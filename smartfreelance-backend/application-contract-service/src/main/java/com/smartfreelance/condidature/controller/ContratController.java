@@ -45,6 +45,22 @@ public class ContratController {
         return ResponseEntity.ok(contratService.findByStatut(statut));
     }
 
+    @GetMapping("/client/{clientId}/freelancer/{freelancerId}")
+    public ResponseEntity<List<ContratResponse>> findByClientAndFreelancer(
+            @PathVariable Long clientId,
+            @PathVariable Long freelancerId
+    ) {
+        return ResponseEntity.ok(contratService.findByClientIdAndFreelancerId(clientId, freelancerId));
+    }
+
+    @GetMapping("/client/{clientId}/freelancer/{freelancerId}/active")
+    public ResponseEntity<List<ContratResponse>> findActiveByClientAndFreelancer(
+            @PathVariable Long clientId,
+            @PathVariable Long freelancerId
+    ) {
+        return ResponseEntity.ok(contratService.findActiveByClientIdAndFreelancerId(clientId, freelancerId));
+    }
+
     @PostMapping
     public ResponseEntity<ContratResponse> create(@Valid @RequestBody ContratRequest request) {
         ContratResponse response = contratService.create(request);

@@ -44,18 +44,17 @@ export const routes: Routes = [
   { path: 'confirm',     component: ConfirmEmailComponent }, // ✅ Ajouté
 
   // ===== Routes protégées par rôle =====
-  {
-    path: 'admin',
-    component: DashboardComponent,
-    canActivate: [authGuard, roleGuard(['ADMIN'])]
-  },
-
   // ===== APP — avec navbar/sidebar =====
   {
     path: '',
     component: LayoutComponent,
     canActivate: [authGuard],
     children: [
+      {
+        path: 'admin',
+        component: DashboardComponent,
+        canActivate: [roleGuard(['ADMIN'])]
+      },
 
       // Formations
       { path: 'formations',            component: FormationListComponent },
@@ -95,8 +94,16 @@ export const routes: Routes = [
       { path: 'formations/:formationId/rewards/:id',      component: RewardDetailComponent },
 
       // Lazy loaded
-      { path: 'condidatures', loadChildren: () => import('./features/condidature/condidature.module').then(m => m.CondidatureModule) },
-      { path: 'contrats',     loadChildren: () => import('./features/Contract/contract.module').then(m => m.ContractModule) },
+      {
+        path: 'condidatures',
+        loadChildren: () => import('./features/condidature/condidature.module').then(m => m.CondidatureModule),
+        canActivate: [roleGuard(['ADMIN', 'CLIENT', 'FREELANCER'])]
+      },
+      {
+        path: 'contrats',
+        loadChildren: () => import('./features/Contract/contract.module').then(m => m.ContractModule),
+        canActivate: [roleGuard(['ADMIN', 'CLIENT'])]
+      },
       {
         path: 'profil-freelancer',
         loadComponent: () => import('./features/freelancer-profile/freelancer-profile').then(m => m.FreelancerProfileComponent),

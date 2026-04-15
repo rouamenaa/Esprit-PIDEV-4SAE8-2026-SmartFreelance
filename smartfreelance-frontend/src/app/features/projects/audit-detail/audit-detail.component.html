@@ -1,0 +1,690 @@
+<div class="detail-wrapper">
+
+  <!-- BACK -->
+  <a class="back-link" [routerLink]="['/projects', audit?.projectId, 'audits']">
+    ← Back to Audits
+  </a>
+
+  <!-- AUDIT HEADER CARD -->
+  <div class="audit-hero" *ngIf="audit">
+    <div class="hero-left">
+      <div class="hero-icon">🔍</div>
+      <div>
+        <div class="hero-badges">
+          <span class="type-badge">{{ audit.auditType }}</span>
+          <span class="status-badge" [ngClass]="audit.status?.toLowerCase()">
+            {{ audit.status }}
+          </span>
+        </div>
+        <p class="hero-objective" *ngIf="audit.objective">{{ audit.objective }}</p>
+        <div class="hero-dates">
+          <span *ngIf="audit.createdAt">📅 Created: {{ audit.createdAt | date:'mediumDate' }}</span>
+          <span *ngIf="audit.startedAt">🚀 Started: {{ audit.startedAt | date:'mediumDate' }}</span>
+          <span *ngIf="audit.closedAt">✅ Closed: {{ audit.closedAt | date:'mediumDate' }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <button class="hbtn hbtn-start"
+              *ngIf="audit.status === 'PENDING'"
+              (click)="startAudit()">
+        ▶ Start Audit
+      </button>
+      <button class="hbtn hbtn-report"
+              *ngIf="audit.status === 'IN_PROGRESS'"
+              (click)="generateReport()"
+              [disabled]="generatingReport">
+        <span *ngIf="!generatingReport">📊 Generate Report</span>
+        <span *ngIf="generatingReport">⏳ Generating...</span>
+      </button>
+      <button class="hbtn hbtn-close"
+              *ngIf="audit.status === 'REPORTED'"
+              (click)="closeAudit()">
+        ✅ Close Audit
+      </button>
+    </div>
+  </div>
+<!-- ── SCORING ENGINE SECTION ── -->
+<div class="section scoring-section">
+  <div class="section-header">
+    <h3>🏆 Audit Scoring Engine</h3>
+    <div class="scoring-header-right">
+      <button class="hbtn hbtn-score"
+              (click)="computeScore()"
+              [disabled]="computingScore">
+        <span *ngIf="!computingScore">
+          {{ auditScore ? '🔄 Recompute Score' : '⚡ Compute Score' }}
+        </span>
+        <span *ngIf="computingScore">⏳ Computing...</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="score-error" *ngIf="scoreError">⚠ {{ scoreError }}</div>
+
+  <!-- EMPTY -->
+  <div class="ai-empty" *ngIf="!auditScore && !computingScore">
+    <span>🏆</span>
+    <p>Click "Compute Score" to run the full audit scoring analysis.</p>
+  </div>
+
+  <!-- SCORE RESULT -->
+  <div class="score-result" *ngIf="auditScore">
+
+    <!-- VERDICT BANNER -->
+    <div class="verdict-banner"
+         [style.background]="getVerdictConfig().bg"
+         [style.border-color]="getVerdictConfig().color">
+      <div class="verdict-icon">{{ getVerdictConfig().icon }}</div>
+      <div class="verdict-body">
+        <div class="verdict-title" [style.color]="getVerdictConfig().color">
+          {{ auditScore.verdict }}
+        </div>
+        <div class="verdict-statement">{{ auditScore.verdictStatement }}</div>
+      </div>
+      <div class="verdict-score" [style.color]="getVerdictConfig().color">
+        {{ auditScore.compositeScore }}
+        <span class="verdict-score-unit">/100</span>
+      </div>
+    </div>
+
+    <!-- METRICS ROW -->
+    <div class="metrics-row">
+
+      <!-- COMPOSITE SCORE -->
+      <div class="metric-card composite">
+        <div class="metric-label">Composite Score</div>
+        <div class="metric-big" [style.color]="getVerdictConfig().color">
+          {{ auditScore.compositeScore }}
+        </div>
+        <div class="metric-sub">out of 100</div>
+      </div>
+
+      <!-- TREND -->
+      <div class="metric-card">
+        <div class="metric-label">Trend</div>
+        <div class="metric-big" [style.color]="getTrendConfig().color">
+          {{ getTrendConfig().icon }}
+        </div>
+        <div class="metric-sub" [style.color]="getTrendConfig().color">
+          {{ getTrendConfig().label }}
+        </div>
+      </div>
+
+      <!-- DELTA -->
+      <div class="metric-card">
+        <div class="metric-label">vs Previous Audit</div>
+        <div class="metric-big" [style.color]="getDeltaColor()">
+          {{ auditScore.deltaFromPrevious > 0 ? '+' : '' }}{{ auditScore.deltaFromPrevious }}
+        </div>
+        <div class="metric-sub">points</div>
+      </div>
+
+      <!-- CONFIDENCE -->
+      <div class="metric-card">
+        <div class="metric-label">Confidence</div>
+        <div class="metric-big" style="color: #7c3aed">
+          {{ auditScore.confidenceLevel }}%
+        </div>
+        <div class="metric-sub">reliability</div>
+      </div>
+
+    </div>
+
+    <!-- COMPOSANTES DÉTAILLÉES -->
+    <div class="components-card">
+      <div class="components-title">Score Breakdown</div>
+
+      <div class="component-row">
+        <div class="comp-label">
+          <span>🎯 Quality</span>
+          <span class="comp-weight">×0.30</span>
+        </div>
+        <div class="comp-bar-wrap">
+          <div class="comp-bar-track">
+            <div class="comp-bar-fill quality"
+                 [style.width]="getScoreBarWidth(auditScore.qualityScore)"></div>
+          </div>
+          <span class="comp-value">{{ auditScore.qualityScore }}</span>
+        </div>
+      </div>
+
+      <div class="component-row">
+        <div class="comp-label">
+          <span>⏱️ Temporal</span>
+          <span class="comp-weight">×0.25</span>
+        </div>
+        <div class="comp-bar-wrap">
+          <div class="comp-bar-track">
+            <div class="comp-bar-fill temporal"
+                 [style.width]="getScoreBarWidth(auditScore.temporalScore)"></div>
+          </div>
+          <span class="comp-value">{{ auditScore.temporalScore }}</span>
+        </div>
+      </div>
+
+      <div class="component-row">
+        <div class="comp-label">
+          <span>🏗️ Structural</span>
+          <span class="comp-weight">×0.20</span>
+        </div>
+        <div class="comp-bar-wrap">
+          <div class="comp-bar-track">
+            <div class="comp-bar-fill structural"
+                 [style.width]="getScoreBarWidth(auditScore.structuralScore)"></div>
+          </div>
+          <span class="comp-value">{{ auditScore.structuralScore }}</span>
+        </div>
+      </div>
+
+      <div class="component-row">
+        <div class="comp-label">
+          <span>✅ Resolution</span>
+          <span class="comp-weight">×0.25</span>
+        </div>
+        <div class="comp-bar-wrap">
+          <div class="comp-bar-track">
+            <div class="comp-bar-fill resolution"
+                 [style.width]="getScoreBarWidth(auditScore.resolutionScore)"></div>
+          </div>
+          <span class="comp-value">{{ auditScore.resolutionScore }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COMPARAISON PLATEFORME -->
+    <div class="comparison-card">
+      <div class="comparison-title">📊 Benchmark Comparison</div>
+      <div class="comparison-row">
+        <div class="cmp-item">
+          <div class="cmp-label">This Audit</div>
+          <div class="cmp-value" [style.color]="getVerdictConfig().color">
+            {{ auditScore.compositeScore }}
+          </div>
+        </div>
+        <div class="cmp-vs">vs</div>
+        <div class="cmp-item">
+          <div class="cmp-label">Project Avg</div>
+          <div class="cmp-value" style="color: #2563eb">
+            {{ auditScore.projectAverage }}
+          </div>
+        </div>
+        <div class="cmp-vs">vs</div>
+        <div class="cmp-item">
+          <div class="cmp-label">Platform Avg</div>
+          <div class="cmp-value" style="color: #7c3aed">
+            {{ auditScore.platformAverage }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRAPHIQUE D'ÉVOLUTION SVG -->
+    <div class="chart-card" *ngIf="scoreHistory.length >= 2">
+      <div class="chart-title">📈 Score Evolution</div>
+      <div class="chart-wrap">
+        <svg viewBox="0 0 500 120" class="evolution-chart">
+
+          <!-- Grid lines -->
+          <line x1="20" y1="20"  x2="480" y2="20"
+                stroke="#f1f5f9" stroke-width="1"/>
+          <line x1="20" y1="60"  x2="480" y2="60"
+                stroke="#f1f5f9" stroke-width="1"/>
+          <line x1="20" y1="100" x2="480" y2="100"
+                stroke="#f1f5f9" stroke-width="1"/>
+
+          <!-- Zone remplie sous la courbe -->
+          <defs>
+            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="#2563eb" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#2563eb" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Ligne de courbe -->
+          <polyline
+            [attr.points]="getChartPoints()"
+            fill="none"
+            stroke="#2563eb"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+
+          <!-- Points -->
+          <g *ngFor="let dot of getChartDots()">
+            <circle [attr.cx]="dot.x" [attr.cy]="dot.y"
+                    r="5" fill="#2563eb" stroke="#fff" stroke-width="2"/>
+            <text [attr.x]="dot.x" [attr.y]="dot.y - 10"
+                  text-anchor="middle" font-size="9" fill="#475569">
+              {{ dot.score }}
+            </text>
+          </g>
+
+        </svg>
+      </div>
+      <div class="chart-legend">
+        <span *ngFor="let s of scoreHistory; let i = index" class="chart-legend-item">
+          Audit #{{ s.auditId }} — {{ s.compositeScore }}/100
+        </span>
+      </div>
+    </div>
+
+    <div class="chart-card insufficient" *ngIf="scoreHistory.length < 2">
+      <span>📊</span>
+      <p>Complete more audits on this project to see the score evolution chart.</p>
+    </div>
+
+  </div>
+</div>
+  <!-- STATS ROW -->
+  <div class="stats-row" *ngIf="report">
+    <div class="stat-card">
+      <div class="stat-value" [style.color]="getScoreColor(report.score || 0)">
+        {{ report.score?.toFixed(1) }}
+        <span class="stat-unit">/100</span>
+      </div>
+      <div class="stat-label">Performance Index</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" [style.color]="getScoreColor(report.progressScore || 0)">
+        {{ report.progressScore?.toFixed(1) }}
+        <span class="stat-unit">%</span>
+      </div>
+      <div class="stat-label">Task Progress</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value class-val"
+           [ngClass]="report.classification?.toLowerCase()">
+        {{ report.classification?.replace('_', ' ') }}
+      </div>
+      <div class="stat-label">Classification</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ getOpenCount() }}</div>
+      <div class="stat-label">Open Tickets</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value green">{{ getResolvedCount() }}</div>
+      <div class="stat-label">Resolved</div>
+    </div>
+  </div>
+
+  <!-- REPORT SECTION -->
+  <div class="section">
+    <div class="section-header">
+      <h3>📊 Audit Report</h3>
+      <button class="hbtn hbtn-report sm"
+              *ngIf="audit?.status === 'IN_PROGRESS' && !report"
+              (click)="generateReport()"
+              [disabled]="generatingReport">
+        {{ generatingReport ? '⏳ Generating...' : '📊 Generate Report' }}
+      </button>
+    </div>
+
+    <div class="report-loading" *ngIf="loadingReport">Loading report...</div>
+
+    <div class="report-card" *ngIf="!loadingReport && report">
+      <div class="report-summary">{{ report.summary }}</div>
+      <div class="report-meta">
+        <span>🕒 Generated: {{ report.createdAt | date:'medium' }}</span>
+      </div>
+
+      <!-- PROGRESS BAR -->
+      <div class="progress-section">
+        <div class="progress-label">
+          <span>Task Progress</span>
+          <span>{{ report.progressScore?.toFixed(1) }}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill"
+               [style.width.%]="report.progressScore || 0"
+               [style.background]="getScoreColor(report.progressScore || 0)">
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-section">
+        <div class="progress-label">
+          <span>Performance Index</span>
+          <span>{{ report.score?.toFixed(1) }}/100</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill"
+               [style.width.%]="report.score || 0"
+               [style.background]="getScoreColor(report.score || 0)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="report-empty" *ngIf="!loadingReport && !report">
+      <span>📋</span>
+      <p *ngIf="audit?.status === 'IN_PROGRESS'">
+        No report yet. Click "Generate Report" to analyze this project.
+      </p>
+      <p *ngIf="audit?.status === 'PENDING'">
+        Start the audit first to generate a report.
+      </p>
+    </div>
+  </div>
+
+  <!-- TICKETS SECTION -->
+  <div class="section">
+    <div class="section-header">
+      <h3>🎫 Anomaly Tickets</h3>
+      <button class="hbtn hbtn-flag"
+              *ngIf="audit?.status === 'IN_PROGRESS' || audit?.status === 'REPORTED'"
+              (click)="showFlagForm = !showFlagForm">
+        ⚑ Flag Anomaly
+      </button>
+    </div>
+
+    <!-- FLAG FORM -->
+    <div class="flag-form-card" *ngIf="showFlagForm">
+      <h4>⚑ New Anomaly</h4>
+      <div class="ff-row">
+        <div class="ff-group ff-full">
+          <label>Title <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newTicket.title"
+                 placeholder="e.g. Deadline not respected"
+                 class="ff-input">
+        </div>
+        <div class="ff-group ff-full">
+          <label>Description</label>
+          <textarea [(ngModel)]="newTicket.description"
+                    rows="2" class="ff-input"
+                    placeholder="Describe the anomaly..."></textarea>
+        </div>
+        <div class="ff-group">
+          <label>Severity</label>
+          <select [(ngModel)]="newTicket.severity" class="ff-input">
+            <option value="LOW">🟢 Low</option>
+            <option value="MEDIUM">🟡 Medium</option>
+            <option value="HIGH">🟠 High</option>
+            <option value="CRITICAL">🔴 Critical</option>
+          </select>
+        </div>
+        <div class="ff-group">
+          <label>Priority</label>
+          <select [(ngModel)]="newTicket.priority" class="ff-input">
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HIGH">High</option>
+          </select>
+        </div>
+      </div>
+      <div class="ff-error" *ngIf="flagError">⚠ {{ flagError }}</div>
+      <div class="ff-actions">
+        <button class="btn-cancel" (click)="showFlagForm = false; flagError = ''">Cancel</button>
+        <button class="btn-submit" (click)="flagTicket()">⚑ Flag Anomaly</button>
+      </div>
+    </div>
+
+    <!-- TICKET LIST -->
+    <div class="ticket-list" *ngIf="!loadingTickets && tickets.length > 0">
+      <div class="ticket-card" *ngFor="let ticket of tickets"
+           [ngClass]="ticket.status?.toLowerCase()">
+
+        <div class="tc-top">
+          <div class="tc-left">
+            <span class="tc-severity" [ngClass]="ticket.severity?.toLowerCase()">
+              {{ ticket.severity === 'CRITICAL' ? '🔴' :
+                 ticket.severity === 'HIGH' ? '🟠' :
+                 ticket.severity === 'MEDIUM' ? '🟡' : '🟢' }}
+              {{ ticket.severity }}
+            </span>
+            <strong class="tc-title">{{ ticket.title }}</strong>
+          </div>
+          <div class="tc-right">
+            <span class="tc-status-badge" [ngClass]="ticket.status?.toLowerCase()">
+              {{ ticket.status }}
+            </span>
+          </div>
+        </div>
+
+        <p class="tc-desc" *ngIf="ticket.description">{{ ticket.description }}</p>
+
+        <div class="tc-footer">
+          <div class="tc-status-actions">
+            <button class="ts-btn"
+                    *ngIf="ticket.status === 'OPEN'"
+                    (click)="updateTicketStatus(ticket, 'IN_REVIEW')">
+              👁 In Review
+            </button>
+            <button class="ts-btn ts-resolve"
+                    *ngIf="ticket.status !== 'RESOLVED'"
+                    (click)="updateTicketStatus(ticket, 'RESOLVED')">
+              ✅ Resolve
+            </button>
+          </div>
+          <div class="tc-dates">
+            <span *ngIf="ticket.createdAt">📅 {{ ticket.createdAt | date:'shortDate' }}</span>
+            <span *ngIf="ticket.resolvedAt">✅ {{ ticket.resolvedAt | date:'shortDate' }}</span>
+          </div>
+          <button class="tc-delete"
+                  *ngIf="ticket.status !== 'RESOLVED'"
+                  (click)="promptDeleteTicket(ticket)">
+            🗑️
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- EMPTY TICKETS -->
+    <div class="tickets-empty" *ngIf="!loadingTickets && tickets.length === 0">
+      <span>✅</span>
+      <p>No anomaly tickets. Project looks clean!</p>
+    </div>
+  </div>
+
+  <!-- DELETE TICKET MODAL -->
+  <div class="modal-overlay" *ngIf="showDeleteTicketModal" (click)="closeDeleteModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-icon">🗑️</div>
+      <h4 class="modal-title">Delete Ticket</h4>
+      <p class="modal-message">
+        Delete <strong>{{ ticketToDeleteName }}</strong>?
+        <br><span class="modal-warning">This action cannot be undone.</span>
+      </p>
+      <div class="modal-actions">
+        <button class="modal-btn-cancel" (click)="closeDeleteModal()">Cancel</button>
+        <button class="modal-btn-confirm" (click)="confirmDeleteTicket()">🗑️ Delete</button>
+      </div>
+    </div>
+  </div>
+  <!-- Dans la section Report, après report-summary -->
+<div class="report-export" *ngIf="report">
+  <button class="hbtn hbtn-pdf" (click)="exportPdf()">
+    📄 Export PDF
+  </button>
+</div>
+
+<!-- ── AI ANALYSIS SECTION ── -->
+<div class="section ai-section">
+  <div class="section-header">
+    <h3>🤖 AI Analysis</h3>
+    <button class="hbtn hbtn-ai"
+            *ngIf="report && !analyzingAi"
+            (click)="analyzeWithAi()">
+      {{ analysis ? '🔄 Re-analyze' : '🤖 Analyze with AI' }}
+    </button>
+    <div class="ai-loading-badge" *ngIf="analyzingAi">
+      <span class="ai-spinner"></span> AI is thinking...
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="ai-error" *ngIf="analysisError">
+    ⚠ {{ analysisError }}
+  </div>
+
+  <!-- NO REPORT YET -->
+  <div class="ai-empty" *ngIf="!report">
+    <span>🤖</span>
+    <p>Generate a report first to enable AI analysis.</p>
+  </div>
+
+  <!-- NO ANALYSIS YET -->
+  <div class="ai-empty" *ngIf="report && !analysis && !analyzingAi">
+    <span>🤖</span>
+    <p>Click "Analyze with AI" to get an intelligent diagnosis of this audit.</p>
+  </div>
+
+  <!-- ANALYSIS RESULT -->
+  <div class="ai-result" *ngIf="analysis && !analyzingAi">
+
+    <!-- RISK GAUGE -->
+    <div class="risk-gauge-card">
+      <div class="risk-left">
+        <div class="risk-title">🎯 Failure Risk</div>
+        <div class="risk-value" [style.color]="getRiskColor()">
+          {{ analysis.riskProbability?.toFixed(0) }}%
+        </div>
+        <div class="risk-label" [style.color]="getRiskColor()">
+          {{ analysis.riskProbability >= 70 ? 'HIGH RISK' :
+             analysis.riskProbability >= 40 ? 'MODERATE RISK' : 'LOW RISK' }}
+        </div>
+      </div>
+      <div class="risk-bar-wrap">
+        <div class="risk-bar-track">
+          <div class="risk-bar-fill"
+               [style.width.%]="analysis.riskProbability"
+               [style.background]="getRiskColor()">
+          </div>
+        </div>
+        <div class="risk-meta">
+          🕒 Analyzed: {{ analysis.analyzedAt | date:'medium' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- DIAGNOSIS -->
+    <div class="ai-card">
+      <div class="ai-card-header">🔬 Diagnosis</div>
+      <p class="ai-card-body">{{ analysis.diagnosis }}</p>
+    </div>
+
+
+
+<!-- ── ACTION PLAN SECTION ── -->
+<div class="section action-section" *ngIf="analysis">
+  <div class="section-header">
+    <h3>🗺️ Action Plan</h3>
+    <div class="plan-header-right">
+      <span class="plan-count" *ngIf="actionPlan.length > 0">
+        {{ actionPlan.length }} tasks generated
+      </span>
+      <button class="hbtn hbtn-plan"
+              (click)="generateActionPlan()"
+              [disabled]="generatingPlan">
+        <span *ngIf="!generatingPlan">
+          {{ planGenerated ? '🔄 Regenerate Plan' : '⚡ Generate Action Plan' }}
+        </span>
+        <span *ngIf="generatingPlan">⏳ Generating...</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="ai-error" *ngIf="planError">⚠ {{ planError }}</div>
+
+  <!-- EMPTY -->
+  <div class="ai-empty" *ngIf="!planGenerated && !generatingPlan">
+    <span>🗺️</span>
+    <p>Click "Generate Action Plan" to automatically create corrective tasks in the project.</p>
+  </div>
+
+  <!-- PLAN LIST -->
+  <div class="plan-result" *ngIf="planGenerated && actionPlan.length > 0">
+
+    <!-- SUMMARY BANNER -->
+    <div class="plan-banner">
+      <div class="plan-banner-icon">⚡</div>
+      <div>
+        <div class="plan-banner-title">Action Plan Generated</div>
+        <div class="plan-banner-sub">
+          {{ actionPlan.length }} corrective tasks have been automatically added to the project.
+        </div>
+      </div>
+      <div class="plan-banner-count">{{ actionPlan.length }}</div>
+    </div>
+
+    <!-- TASK TIMELINE -->
+    <div class="plan-timeline">
+      <div class="timeline-item"
+           *ngFor="let task of actionPlan; let i = index"
+           [ngClass]="task.status?.toLowerCase()">
+
+        <div class="timeline-connector" *ngIf="i < actionPlan.length - 1"></div>
+
+        <div class="timeline-dot">
+          {{ getTaskStatusIcon(task.status || 'TODO') }}
+        </div>
+
+        <div class="timeline-card">
+          <div class="tc-header">
+            <span class="tc-step">Step {{ i + 1 }}</span>
+            <span class="tc-priority"
+                  [style.color]="getPriorityColor(task.priority || 'LOW')">
+              ● {{ task.priority }}
+            </span>
+            <span class="tc-status-chip" [ngClass]="task.status?.toLowerCase()">
+              {{ task.status }}
+            </span>
+          </div>
+          <div class="tc-title">{{ task.title }}</div>
+          <div class="tc-desc" *ngIf="task.description">{{ task.description }}</div>
+          <div class="tc-footer-row">
+            <span class="tc-due" *ngIf="task.duedate">
+              📅 Due: {{ task.duedate | date:'mediumDate' }}
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- REDIRECT TO PROJECT -->
+    <div class="plan-project-link">
+      <span>These tasks are now visible in your project's phases.</span>
+      <a class="hbtn hbtn-start"
+         [routerLink]="getActionPlanRoute()"
+         [queryParams]="getActionPlanQueryParams()">
+        📂 View in Project →
+      </a>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+    <!-- RECOMMENDATIONS -->
+    <div class="ai-card" *ngIf="getRecommendationsList().length > 0">
+      <div class="ai-card-header">💡 Recommendations</div>
+      <ul class="ai-list">
+        <li *ngFor="let rec of getRecommendationsList(); let i = index">
+          <span class="ai-list-num">{{ i + 1 }}</span>
+          {{ rec }}
+        </li>
+      </ul>
+    </div>
+
+    <!-- CORRECTION PLAN -->
+    <div class="ai-card" *ngIf="getCorrectionSteps().length > 0">
+      <div class="ai-card-header">🗺️ Correction Plan</div>
+      <div class="ai-steps">
+        <div class="ai-step" *ngFor="let step of getCorrectionSteps(); let i = index">
+          <div class="ai-step-num">{{ i + 1 }}</div>
+          <div class="ai-step-text">{{ step }}</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
