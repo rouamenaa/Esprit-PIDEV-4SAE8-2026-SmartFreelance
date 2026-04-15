@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Condidature, CondidatureRequest, CondidatureStatus } from '../../../models/Condidature';
 import { CondidatureService } from '../../../services/condidature.service';
+import { ProjectService } from '../../../services/project.service';
+import { Project } from '../../../models/project.model';
 
 @Component({
   selector: 'app-condidature-edit',
@@ -19,10 +21,13 @@ export class CondidatureEditComponent implements OnInit, OnChanges {
   @Output() closeModal = new EventEmitter<void>();
   form!: FormGroup;
   errorhandling: any;
+  /** Projects from project-service (for project dropdown). */
+  projects: Project[] = [];
 
   constructor(
     private fb: FormBuilder,
-    private condidatureService: CondidatureService
+    private condidatureService: CondidatureService,
+    private projectService: ProjectService
   ) {}
 
   close(): void {
@@ -31,6 +36,10 @@ export class CondidatureEditComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.initForm();
+    this.projectService.getAll().subscribe({
+      next: (list) => (this.projects = list),
+      error: () => (this.projects = []),
+    });
   }
 
   ngOnChanges(): void {
@@ -66,7 +75,7 @@ export class CondidatureEditComponent implements OnInit, OnChanges {
     this.condidatureService.update(this.condidatureId, payload).subscribe({
       next: () => this.close(),
       error: (error: any) => {
-        this.errorhandling = error.error?.message || error.message || 'Erreur';
+        this.errorhandling = error.error?.message || error.message || 'Error';
       },
     });
   }

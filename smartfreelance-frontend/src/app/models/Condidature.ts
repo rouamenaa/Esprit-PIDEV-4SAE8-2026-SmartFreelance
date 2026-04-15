@@ -12,6 +12,12 @@ export interface Condidature {
   status: CondidatureStatus;
   createdAt?: string | null;
   updatedAt?: string | null;
+  /** When the application was signed. */
+  signedAt?: string | null;
+  /** Signature image as base64 (optional). */
+  signatureData?: string | null;
+  /** Client ID who signed the application. */
+  signedByClientId?: number | null;
 }
 
 export interface CondidatureRequest {
@@ -45,6 +51,12 @@ export interface CondidatureStats {
   acceptanceRatePercent: number;
   applicationsPerProject: ApplicationsPerProject[];
   freelancerSuccessRates: FreelancerSuccessRate[];
+}
+
+/** Condidatures grouped by project (for list view "by project"). */
+export interface CondidaturesByProject {
+  projectId: number;
+  condidatures: Condidature[];
 }
 
 /** Statistics related to a single candidature (for details view): project + freelancer. */

@@ -5,6 +5,8 @@ import { ActivatedRoute } from '@angular/router';
 import { CondidatureRequest, CondidatureStatus } from '../../../models/Condidature';
 import { CondidatureService } from '../../../services/condidature.service';
 import { AuthService } from '../../../core/serviceslogin/auth.service';
+import { ProjectService } from '../../../services/project.service';
+import { Project } from '../../../models/project.model';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -21,12 +23,15 @@ export class CondidatureAddComponent implements OnInit {
   errorhandling: string | null = null;
   isFreelancer = false;
   projectLocked = false;
+  /** Projects from project-service (for project dropdown). */
+  projects: Project[] = [];
 
   constructor(
     private fb: FormBuilder,
     private condidatureService: CondidatureService,
     private authService: AuthService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private projectService: ProjectService
   ) {}
 
   ngOnInit(): void {
@@ -37,6 +42,11 @@ export class CondidatureAddComponent implements OnInit {
       proposedPrice: [null, Validators.min(0)],
       estimatedDeliveryDays: [null, Validators.min(1)],
       status: ['PENDING' as CondidatureStatus, Validators.required],
+    });
+
+    this.projectService.getAll().subscribe({
+      next: (list) => (this.projects = list),
+      error: () => (this.projects = []),
     });
 
     const projectIdParam = Number(this.route.snapshot.queryParamMap.get('projectId'));
@@ -101,7 +111,7 @@ export class CondidatureAddComponent implements OnInit {
         this.closeModal.emit();
       },
       error: (err) => {
-        this.errorhandling = err?.error?.message || err?.message || 'Erreur lors de la création.';
+        this.errorhandling = err?.error?.message || err?.message || 'Error while creating.';
       },
     });
   }

@@ -27,7 +27,7 @@ export class CondidatureDetailsPageComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     const idNum = id ? parseInt(id, 10) : NaN;
     if (!id || isNaN(idNum)) {
-      this.error = 'Identifiant invalide';
+      this.error = 'Invalid id';
       this.loading = false;
       return;
     }
@@ -37,7 +37,7 @@ export class CondidatureDetailsPageComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.error = 'Candidature introuvable';
+        this.error = 'Application not found';
         this.loading = false;
       },
     });

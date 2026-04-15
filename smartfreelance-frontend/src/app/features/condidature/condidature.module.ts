@@ -10,14 +10,10 @@ import { CondidatureDeleteComponent } from './condidature-delete/condidature-del
 import { CondidatureAddPageComponent } from './condidature-add-page/condidature-add-page.component';
 import { CondidatureDetailsPageComponent } from './condidature-details-page/condidature-details-page.component';
 import { CondidatureEditPageComponent } from './condidature-edit-page/condidature-edit-page.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
-  declarations: [],
-  imports: [
-    CommonModule,
-    CondidatureRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
+  declarations: [
     CondidatureComponent,
     CondidatureTableComponent,
     CondidatureAddComponent,
@@ -26,6 +22,13 @@ import { CondidatureEditPageComponent } from './condidature-edit-page/condidatur
     CondidatureEditPageComponent,
     CondidatureEditComponent,
     CondidatureDeleteComponent,
+  ],
+  imports: [
+    CommonModule,
+    RouterModule,
+    CondidatureRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
   ],
 })
 export class CondidatureModule {}

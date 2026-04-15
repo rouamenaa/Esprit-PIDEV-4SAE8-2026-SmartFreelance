@@ -1,10 +1,10 @@
 <div class="details-page">
   <div class="details-page-toolbar">
-    <button type="button" class="btn-back" (click)="goBack()">&larr; Retour à la liste</button>
-    <button *ngIf="contrat" type="button" class="btn-modifier" (click)="goToEdit()">Modifier</button>
+    <button type="button" class="btn-back" (click)="goBack()">&larr; Back to list</button>
+    <button *ngIf="contrat" type="button" class="btn-modifier" (click)="goToEdit()">Edit</button>
   </div>
 
-  <p *ngIf="loading" class="message">Chargement...</p>
+  <p *ngIf="loading" class="message">Loading...</p>
   <p *ngIf="error" class="error-message">{{ error }}</p>
 
   <div *ngIf="!loading && !error && contrat" class="details-card">
@@ -14,7 +14,7 @@
     </header>
     <div class="details-body">
       <div class="details-row">
-        <span class="details-label">Titre</span>
+        <span class="details-label">Title</span>
         <span class="details-value">{{ contrat.titre || '-' }}</span>
       </div>
       <div class="details-row">
@@ -30,17 +30,58 @@
         <span class="details-value">{{ contrat.freelancerId }}</span>
       </div>
       <div class="details-row">
-        <span class="details-label">Montant</span>
+        <span class="details-label">Amount</span>
         <span class="details-value">{{ contrat.montant != null ? (contrat.montant | number) : '-' }}</span>
       </div>
       <div class="details-row">
-        <span class="details-label">Date début</span>
+        <span class="details-label">Start date</span>
         <span class="details-value">{{ formatDate(contrat.dateDebut) }}</span>
       </div>
       <div class="details-row">
-        <span class="details-label">Date fin</span>
+        <span class="details-label">End date</span>
         <span class="details-value">{{ formatDate(contrat.dateFin) }}</span>
       </div>
     </div>
+
+    <!-- Digital Signature (Client signs first, then Freelancer) -->
+    <section class="signature-section">
+      <h2 class="signature-section-title">Digital Signature</h2>
+      <p class="signature-hint">Client signs first, then freelancer. Both must sign for the contract to become active.</p>
+
+      <div class="signature-block">
+        <h3 class="signature-step-title">1. Client signs first</h3>
+        <ng-container *ngIf="contrat.clientSignedAt">
+          <p class="signature-signed">Signed on {{ formatDateTime(contrat.clientSignedAt) }}</p>
+        </ng-container>
+        <ng-container *ngIf="!contrat.clientSignedAt">
+          <div class="signature-form">
+            <label for="clientIdSign" class="signature-label">Client ID</label>
+            <input type="number" id="clientIdSign" class="signature-input" min="1" [(ngModel)]="signClientId" placeholder="Client ID (must match contract)" />
+            <button type="button" class="btn-sign btn-sign-client" (click)="signAsClient()" [disabled]="signingClient || !signClientId || signClientId < 1">
+              {{ signingClient ? 'Signing…' : 'Sign as client' }}
+            </button>
+          </div>
+        </ng-container>
+      </div>
+
+      <div class="signature-block">
+        <h3 class="signature-step-title">2. Freelancer signs second</h3>
+        <ng-container *ngIf="contrat.freelancerSignedAt">
+          <p class="signature-signed">Signed on {{ formatDateTime(contrat.freelancerSignedAt) }}</p>
+        </ng-container>
+        <ng-container *ngIf="contrat.clientSignedAt && !contrat.freelancerSignedAt">
+          <div class="signature-form">
+            <label for="freelancerIdSign" class="signature-label">Freelancer ID</label>
+            <input type="number" id="freelancerIdSign" class="signature-input" min="1" [(ngModel)]="signFreelancerId" placeholder="Freelancer ID (must match contract)" />
+            <button type="button" class="btn-sign btn-sign-freelancer" (click)="signAsFreelancer()" [disabled]="signingFreelancer || !signFreelancerId || signFreelancerId < 1">
+              {{ signingFreelancer ? 'Signing…' : 'Sign as freelancer' }}
+            </button>
+          </div>
+        </ng-container>
+        <p *ngIf="!contrat.clientSignedAt && !contrat.freelancerSignedAt" class="signature-waiting">Waiting for client to sign first.</p>
+      </div>
+
+      <p *ngIf="signError" class="signature-error">{{ signError }}</p>
+    </section>
   </div>
 </div>

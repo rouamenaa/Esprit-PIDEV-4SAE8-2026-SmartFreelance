@@ -1,10 +1,10 @@
-/* Delete application dialog – card styling (encapsulation: none so it overrides modal-content) */
-app-condidature-delete {
+/* Delete contract dialog – same card styling as condidature (encapsulation: none) */
+app-contract-delete {
   display: block;
   width: 100%;
 }
 
-app-condidature-delete .delete-dialog {
+app-contract-delete .delete-dialog {
   background: #fff;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
@@ -14,7 +14,7 @@ app-condidature-delete .delete-dialog {
   max-width: 440px;
 }
 
-app-condidature-delete .delete-dialog__header {
+app-contract-delete .delete-dialog__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -24,7 +24,7 @@ app-condidature-delete .delete-dialog__header {
   border-bottom: none;
 }
 
-app-condidature-delete .delete-dialog__title {
+app-contract-delete .delete-dialog__title {
   margin: 0;
   flex: 1;
   font-size: 1.125rem;
@@ -34,7 +34,7 @@ app-condidature-delete .delete-dialog__title {
   line-height: 1.3;
 }
 
-.delete-dialog__close {
+app-contract-delete .delete-dialog__close {
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -52,15 +52,15 @@ app-condidature-delete .delete-dialog__title {
   transition: background 0.2s;
 }
 
-app-condidature-delete .delete-dialog__close:hover {
+app-contract-delete .delete-dialog__close:hover {
   background: rgba(255, 255, 255, 0.35);
 }
 
-app-condidature-delete .delete-dialog__body {
+app-contract-delete .delete-dialog__body {
   padding: 1.375rem 1.25rem;
 }
 
-app-condidature-delete .delete-dialog__message {
+app-contract-delete .delete-dialog__message {
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.55;
@@ -68,7 +68,7 @@ app-condidature-delete .delete-dialog__message {
   text-align: left;
 }
 
-app-condidature-delete .delete-dialog__footer {
+app-contract-delete .delete-dialog__footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -78,7 +78,7 @@ app-condidature-delete .delete-dialog__footer {
   border-top: 1px solid #e5e7eb;
 }
 
-app-condidature-delete .delete-dialog__btn {
+app-contract-delete .delete-dialog__btn {
   min-width: 88px;
   padding: 0.5rem 1.25rem;
   font-size: 0.875rem;
@@ -88,30 +88,30 @@ app-condidature-delete .delete-dialog__btn {
   transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
-app-condidature-delete .delete-dialog__btn--secondary {
+app-contract-delete .delete-dialog__btn--secondary {
   background: #fff;
   color: #4b5563;
   border: 1px solid #d1d5db;
 }
 
-app-condidature-delete .delete-dialog__btn--secondary:hover {
+app-contract-delete .delete-dialog__btn--secondary:hover {
   background: #f3f4f6;
   border-color: #9ca3af;
   color: #374151;
 }
 
-app-condidature-delete .delete-dialog__btn--danger {
+app-contract-delete .delete-dialog__btn--danger {
   background: #dc2626;
   color: #fff;
   border: 1px solid #dc2626;
 }
 
-app-condidature-delete .delete-dialog__btn--danger:hover {
+app-contract-delete .delete-dialog__btn--danger:hover {
   background: #b91c1c;
   border-color: #b91c1c;
   box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35);
 }
 
-app-condidature-delete .delete-dialog__btn--danger:active {
+app-contract-delete .delete-dialog__btn--danger:active {
   background: #991b1b;
 }

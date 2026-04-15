@@ -121,3 +121,118 @@
   text-align: right;
   word-break: break-word;
 }
+
+/* Digital Signature section */
+.signature-section {
+  padding: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.signature-section-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.signature-hint {
+  margin: 0 0 1.25rem;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.signature-block {
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.signature-block:last-of-type {
+  margin-bottom: 0;
+}
+
+.signature-step-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.signature-signed {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #166534;
+  font-weight: 500;
+}
+
+.signature-waiting {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+.signature-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.signature-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.signature-input {
+  width: 8rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.btn-sign {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-sign:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-sign-client {
+  color: #fff;
+  background: #2563eb;
+}
+
+.btn-sign-client:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.btn-sign-freelancer {
+  color: #fff;
+  background: #059669;
+}
+
+.btn-sign-freelancer:hover:not(:disabled) {
+  background: #047857;
+}
+
+.signature-error {
+  margin: 1rem 0 0;
+  font-size: 0.875rem;
+  color: #dc2626;
+  font-weight: 500;
+}
