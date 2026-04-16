@@ -3,10 +3,8 @@ package com.example.pi.controller;
 import com.example.pi.entity.Reward;
 import com.example.pi.service.RewardService;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
-//@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/rewards")
 public class RewardController {
@@ -19,7 +17,7 @@ public class RewardController {
 
     @GetMapping
     public List<Reward> getAll(@RequestParam(required = false) Long formationId) {
-        if (formationId != null) return service.getByFormation(formationId); // ✅ filtre ajouté
+        if (formationId != null) return service.getByFormation(formationId);
         return service.getAll();
     }
 

@@ -1,7 +1,47 @@
+/* ================================================
+   REWARD FORM COMPONENT — CSS
+   ================================================ */
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  color: #8a90b0;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e8eaf0;
+  border-top-color: #f0a500;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.form-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #fff0f0;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  margin: 1rem 1.5rem;
+}
+
 .form-container {
   max-width: 680px;
   margin: 2.5rem auto;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
 }
 
 .form-card {
@@ -44,69 +84,110 @@
   color: #1a1d2e;
 }
 
-.form-card-body { padding: 2rem; }
+.form-card-body {
+  padding: 2rem;
+}
 
 .field-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .field-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #4a4f68;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
-.required { color: #e53e3e; }
+.field-icon { font-size: 1rem; }
+
+.required { color: #e53e3e; font-size: 0.9em; }
+.optional { color: #8a90b0; font-size: 0.8em; font-weight: 400; }
 
 .field-input {
-  width: 100%;
   padding: 0.65rem 1rem;
-  border: 1.5px solid #dde1ee;
+  border: 1.5px solid #d1d5db;
   border-radius: 10px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: #1a1d2e;
-  background: #fafbff;
-  outline: none;
+  background: #fff;
   transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
   box-sizing: border-box;
 }
 
 .field-input:focus {
+  outline: none;
   border-color: #f0a500;
   box-shadow: 0 0 0 3px rgba(240,165,0,0.12);
-  background: #fff;
 }
 
 .field-input.input-error {
   border-color: #e53e3e;
-  box-shadow: 0 0 0 3px rgba(229,62,62,0.1);
+}
+
+.input-prefix-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-prefix-wrapper:focus-within {
+  border-color: #f0a500;
+  box-shadow: 0 0 0 3px rgba(240,165,0,0.12);
+}
+
+.input-prefix {
+  background: #f5f7fa;
+  color: #8a90b0;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.65rem 0.85rem;
+  border-right: 1.5px solid #d1d5db;
+  flex-shrink: 0;
+}
+
+.field-input.with-prefix {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  flex: 1;
+}
+
+.field-input.with-prefix:focus {
+  outline: none;
+  box-shadow: none;
+  border: none;
 }
 
 .field-error {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #e53e3e;
-  font-weight: 500;
 }
 
 .form-actions {
   display: flex;
-  justify-content: flex-end;
   gap: 0.75rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e8eaf0;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #f0f2f8;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.6rem 1.3rem;
+  padding: 0.6rem 1.4rem;
   border: none;
   border-radius: 10px;
   font-size: 0.9rem;
@@ -115,8 +196,10 @@
   transition: all 0.2s ease;
 }
 
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .btn-cancel { background: #f0f2f5; color: #4a4f68; }
-.btn-cancel:hover { background: #e2e5ec; color: #1a1d2e; }
+.btn-cancel:hover { background: #e2e5ec; }
 
 .btn-submit { background: #f0a500; color: #fff; }
 .btn-submit:hover:not(:disabled) {
@@ -124,10 +207,9 @@
   box-shadow: 0 4px 12px rgba(240,165,0,0.35);
   transform: translateY(-1px);
 }
-.btn-submit:disabled { background: #f5d080; cursor: not-allowed; }
 
-@media (max-width: 500px) {
+@media (max-width: 640px) {
   .form-card-body { padding: 1.25rem; }
-  .form-actions { flex-direction: column-reverse; }
+  .form-actions { flex-direction: column; }
   .btn { width: 100%; justify-content: center; }
 }

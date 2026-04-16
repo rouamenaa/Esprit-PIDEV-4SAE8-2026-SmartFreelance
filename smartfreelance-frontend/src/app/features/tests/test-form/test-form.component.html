@@ -1,7 +1,7 @@
 <!-- Loading -->
 <div class="loading-container" *ngIf="loading">
   <div class="spinner"></div>
-  <p>Loading...</p>
+  <p>{{ isGenerating ? '⏳ Génération des questions...' : 'Loading...' }}</p>
 </div>
 
 <!-- Error -->
@@ -58,29 +58,52 @@
           </div>
         </div>
 
-        <!-- Total Score -->
+        <!-- Passing Score -->
         <div class="field-group">
-          <label for="totalScore" class="field-label">
-            <span class="field-icon">⭐</span> Total Score <span class="required">*</span>
+          <label for="passingScore" class="field-label">
+            <span class="field-icon">⭐</span> Passing Score <span class="required">*</span>
           </label>
           <div class="input-prefix-wrapper">
-            <span class="input-prefix">pts</span>
+            <span class="input-prefix">%</span>
             <input
               type="number"
               class="field-input with-prefix"
-              id="totalScore"
-              name="totalScore"
-              placeholder="Ex: 100"
-              [(ngModel)]="test.totalScore"
+              id="passingScore"
+              name="passingScore"
+              placeholder="Ex: 60"
+              [(ngModel)]="test.passingScore"
               required
               min="1"
-              #totalScore="ngModel"
-              [class.input-error]="totalScore.invalid && totalScore.touched"
+              max="100"
+              #passingScore="ngModel"
+              [class.input-error]="passingScore.invalid && passingScore.touched"
             />
           </div>
-          <div class="field-error" *ngIf="totalScore.invalid && totalScore.touched">
-            ⚠ Total score is required (min. 1).
+          <div class="field-error" *ngIf="passingScore.invalid && passingScore.touched">
+            ⚠ Passing score is required (min. 1).
           </div>
+        </div>
+
+        <!-- ✅ Section CSV - seulement en mode création -->
+        <div class="field-group ai-section" *ngIf="!isEditMode">
+          <label class="field-label">
+            <span class="field-icon">📊</span> Number of Questions
+          </label>
+          <div class="input-prefix-wrapper">
+            <span class="input-prefix">Q</span>
+            <input
+              type="number"
+              class="field-input with-prefix"
+              name="numberOfQuestions"
+              placeholder="Number of questions (ex: 5)"
+              [(ngModel)]="numberOfQuestions"
+              min="1"
+              max="50"
+            />
+          </div>
+          <p style="font-size: 12px; color: #888; margin-top: 8px;">
+            📌 Questions will be randomly selected from our database.
+          </p>
         </div>
 
         <!-- Hidden formation -->
@@ -89,8 +112,26 @@
         <!-- Actions -->
         <div class="form-actions">
           <button type="button" class="btn btn-cancel" (click)="cancel()">← Cancel</button>
-          <button type="submit" class="btn btn-submit" [disabled]="testForm.invalid">
-            {{ isEditMode ? '✏️ Update' : '✚ Create Test' }}
+
+          <!-- Bouton Update (edit mode) -->
+          <button
+            type="submit"
+            class="btn btn-submit"
+            [disabled]="testForm.invalid || isGenerating"
+            *ngIf="isEditMode"
+          >
+            ✏️ Update
+          </button>
+
+          <!-- ✅ Bouton Generate from CSV (create mode) -->
+          <button
+            type="button"
+            class="btn btn-ai"
+            [disabled]="testForm.invalid || isGenerating"
+            (click)="generateFromCSV()"
+            *ngIf="!isEditMode"
+          >
+            {{ isGenerating ? '⏳ Generating...' : '📊 Create Test' }}
           </button>
         </div>
 

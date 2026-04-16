@@ -5,7 +5,6 @@ import com.example.pi.entity.Reward;
 import com.example.pi.repository.FormationRepository;
 import com.example.pi.repository.RewardRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -23,7 +22,6 @@ public class RewardService {
         return repo.findAll();
     }
 
-    // ✅ Filtre par formationId
     public List<Reward> getByFormation(Long formationId) {
         return repo.findByFormationId(formationId);
     }
@@ -43,10 +41,47 @@ public class RewardService {
         return repo.save(r);
     }
 
+    // ✅ Attribution automatique badge + niveau selon score
+    public Reward assignReward(Long formationId, int percentage) {
+        Formation formation = formationRepo.findById(formationId)
+                .orElseThrow(() -> new RuntimeException("Formation not found with id: " + formationId));
+
+        Reward reward = new Reward();
+        reward.setFormation(formation);
+        reward.setMinScoreRequired(percentage);
+
+        if (percentage >= 90) {
+            reward.setLevel(Reward.Level.EXPERT);
+            reward.setName("Badge Expert 🏆");
+            reward.setType(Reward.RewardType.BADGE);
+            reward.setIconUrl("/icons/expert.png");
+        } else if (percentage >= 75) {
+            reward.setLevel(Reward.Level.ADVANCED);
+            reward.setName("Badge Avancé 🥇");
+            reward.setType(Reward.RewardType.BADGE);
+            reward.setIconUrl("/icons/advanced.png");
+        } else if (percentage >= 60) {
+            reward.setLevel(Reward.Level.INTERMEDIATE);
+            reward.setName("Badge Intermédiaire 🥈");
+            reward.setType(Reward.RewardType.LEVEL);
+            reward.setIconUrl("/icons/intermediate.png");
+        } else {
+            reward.setLevel(Reward.Level.BEGINNER);
+            reward.setName("Badge Débutant 🥉");
+            reward.setType(Reward.RewardType.LEVEL);
+            reward.setIconUrl("/icons/beginner.png");
+        }
+
+        return repo.save(reward);
+    }
+
     public Reward update(Long id, Reward r) {
         Reward existing = getById(id);
         existing.setName(r.getName());
         existing.setType(r.getType());
+        existing.setLevel(r.getLevel());
+        existing.setIconUrl(r.getIconUrl());
+        existing.setMinScoreRequired(r.getMinScoreRequired());
 
         if (r.getFormation() != null && r.getFormation().getId() != null) {
             Formation formation = formationRepo.findById(r.getFormation().getId())
