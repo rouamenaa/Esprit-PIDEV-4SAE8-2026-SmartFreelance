@@ -26,7 +26,7 @@ class ProjectServiceImplTest {
     private ApplicationContractClient applicationContractClient;
     private UserServiceClient userServiceClient;
     private ProjectServiceImpl service;
-
+//trigger pipe
     @BeforeEach
     void setUp() {
         projectRepository = mock(ProjectRepository.class);
