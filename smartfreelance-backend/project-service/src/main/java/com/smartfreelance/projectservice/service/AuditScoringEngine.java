@@ -5,6 +5,7 @@ import com.smartfreelance.projectservice.enums.AuditTrend;
 import com.smartfreelance.projectservice.enums.AuditVerdict;
 import com.smartfreelance.projectservice.enums.TicketStatus;
 import com.smartfreelance.projectservice.repository.*;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -35,7 +36,6 @@ public class AuditScoringEngine {
         this.projectRepository = projectRepository;
     }
 
-    // ── POINT D'ENTRÉE PRINCIPAL ─────────────────────────────────────────────
 
     public AuditScore computeScore(Integer auditId) {
 
@@ -103,8 +103,10 @@ public class AuditScoringEngine {
 
         // ── SAUVEGARDER ──────────────────────────────────────────────────────
 
-        AuditScore score = scoreRepository.findByAuditId(auditId)
-                .orElse(new AuditScore());
+        AuditScore score = scoreRepository.findTopByAuditIdOrderByCalculatedAtDescIdDesc(auditId);
+        if (score == null) {
+            score = new AuditScore();
+        }
 
         score.setAuditId(auditId);
         score.setProjectId(audit.getProjectId());
@@ -119,16 +121,19 @@ public class AuditScoringEngine {
         score.setVerdict(verdict);
         score.setTrend(trend);
         score.setConfidenceLevel(round(confidence));
-        score.setVerdictStatement(statement);
+        score.setVerdictStatement(normalizeVerdictStatement(statement, 120));
         score.setCalculatedAt(LocalDateTime.now());
 
-        return scoreRepository.save(score);
+        return saveScoreWithSafeStatement(score);
     }
 
     public AuditScore getScoreByAudit(Integer auditId) {
-        return scoreRepository.findByAuditId(auditId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Score not computed yet for this audit"));
+        AuditScore score = scoreRepository.findTopByAuditIdOrderByCalculatedAtDescIdDesc(auditId);
+        if (score == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Score not computed yet for this audit");
+        }
+        return score;
     }
 
     public List<AuditScore> getProjectHistory(Integer projectId) {
@@ -305,6 +310,33 @@ public class AuditScoringEngine {
                             "Trend: %s.",
                     auditRef, projectRef, score, date, projectRef, trend.name());
         };
+    }
+
+    private String normalizeVerdictStatement(String statement, int maxLength) {
+        if (statement == null) return null;
+        String normalized = statement.trim();
+        // DB column length varies across environments. Keep string bounded.
+        return normalized.length() <= maxLength
+                ? normalized
+                : normalized.substring(0, maxLength);
+    }
+
+    private AuditScore saveScoreWithSafeStatement(AuditScore score) {
+        try {
+            return scoreRepository.save(score);
+        } catch (DataIntegrityViolationException ex) {
+            // Fallback for environments where verdict_statement column is smaller than expected.
+            score.setVerdictStatement(normalizeVerdictStatement(score.getVerdictStatement(), 60));
+            try {
+                return scoreRepository.save(score);
+            } catch (DataIntegrityViolationException ex2) {
+                throw new ResponseStatusException(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Unable to persist audit score. verdict_statement column is too short in DB schema.",
+                        ex2
+                );
+            }
+        }
     }
 
     private double round(double value) {

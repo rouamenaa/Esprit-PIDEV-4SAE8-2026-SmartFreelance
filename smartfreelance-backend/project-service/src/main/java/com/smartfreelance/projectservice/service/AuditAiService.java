@@ -21,6 +21,7 @@ import java.util.Map;
 
 @Service
 public class AuditAiService {
+    // Le rapport contient : score, progressScore, classification, summary
 
     private static final String OLLAMA_URL = "http://localhost:11434/api/generate";
     private static final String MODEL = "llama3";
@@ -60,9 +61,10 @@ public class AuditAiService {
     }
 
     public AuditAnalysis getAnalysisByReport(Integer reportId) {
-        AuditAnalysis analysis = analysisRepository.findByAuditReportId(reportId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "No analysis found for this report"));
+        AuditAnalysis analysis = analysisRepository.findTopByAuditReportIdOrderByAnalyzedAtDescIdDesc(reportId);
+        if (analysis == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No analysis found for this report");
+        }
 
         AuditReport report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new ResponseStatusException(

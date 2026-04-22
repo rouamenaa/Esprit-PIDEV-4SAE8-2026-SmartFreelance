@@ -33,6 +33,7 @@ public class ProjectServiceImpl implements ProjectService {
             UserServiceClient userServiceClient) {
         this.projectRepository = projectRepository;
         this.applicationContractClient = applicationContractClient;
+
         this.userServiceClient = userServiceClient;
     }
 

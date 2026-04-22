@@ -273,6 +273,7 @@ goToLogin() {
 
     try {
       const apiKey = '';
+      
  
       const text = await this.fileToText(this.selectedFile);
 

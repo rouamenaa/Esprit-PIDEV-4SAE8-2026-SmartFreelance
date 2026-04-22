@@ -1,6 +1,10 @@
 package com.smartfreelance.projectservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smartfreelance.projectservice.client.ApplicationContractClient;
+import com.smartfreelance.projectservice.client.UserServiceClient;
+import com.smartfreelance.projectservice.dto.external.CondidatureExternalDTO;
+import com.smartfreelance.projectservice.dto.external.UserExternalDTO;
 import com.smartfreelance.projectservice.entity.Project;
 import com.smartfreelance.projectservice.enums.ProjectStatus;
 import com.smartfreelance.projectservice.repository.ProjectRepository;
@@ -8,11 +12,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Collections;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -31,8 +41,33 @@ class ProjectControllerIntegrationTest {
         @Autowired
         private ProjectRepository projectRepository;
 
+        @MockBean
+        private UserServiceClient userServiceClient;
+
+        @MockBean
+        private ApplicationContractClient applicationContractClient;
+
         @Test
         void testProjectCRUD() throws Exception {
+                UserExternalDTO client = new UserExternalDTO();
+                client.setId(1L);
+                client.setRole("CLIENT");
+                when(userServiceClient.getUserById(1L)).thenReturn(client);
+
+                UserExternalDTO freelancer = new UserExternalDTO();
+                freelancer.setId(99L);
+                freelancer.setRole("FREELANCER");
+                when(userServiceClient.getUserById(99L)).thenReturn(freelancer);
+
+                CondidatureExternalDTO candidature = new CondidatureExternalDTO();
+                candidature.setProjectId(1L);
+                candidature.setFreelancerId(99L);
+                candidature.setStatus("PENDING");
+                when(applicationContractClient.getCandidatures(eq(1L), eq(null)))
+                                .thenReturn(List.of(candidature), Collections.emptyList());
+                when(applicationContractClient.getActiveContractsByClientAndFreelancer(1L, 99L))
+                                .thenReturn(Collections.emptyList());
+
                 // CREATE
                 Project project = new Project();
                 project.setTitle("Integration Test Project");

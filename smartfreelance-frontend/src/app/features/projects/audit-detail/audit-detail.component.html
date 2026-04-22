@@ -449,8 +449,8 @@
           <div class="tc-status-actions">
             <button class="ts-btn"
                     *ngIf="ticket.status === 'OPEN'"
-                    (click)="updateTicketStatus(ticket, 'IN_REVIEW')">
-              👁 In Review
+                    (click)="updateTicketStatus(ticket, 'IN_PROGRESS')">
+              👁 In Progress
             </button>
             <button class="ts-btn ts-resolve"
                     *ngIf="ticket.status !== 'RESOLVED'"

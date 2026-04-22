@@ -5,11 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface AuditScoreRepository extends JpaRepository<AuditScore, Integer> {
 
-    Optional<AuditScore> findByAuditId(Integer auditId);
+    AuditScore findTopByAuditIdOrderByCalculatedAtDescIdDesc(Integer auditId);
 
     List<AuditScore> findByProjectIdOrderByCalculatedAtAsc(Integer projectId);
 
