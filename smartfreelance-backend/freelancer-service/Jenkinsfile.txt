@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'sonar' // Jenkins SonarQube server ID
+        SONARQUBE_ENV = 'sonar'
     }
 
     stages {
@@ -14,38 +14,32 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Building project...'
-                // Example for Maven:
-                sh 'mvn clean compile'
-                // For Node.js use: sh 'npm install'
+                dir('smartfreelance-backend/freelancer-service') {
+                    sh 'mvn clean compile'
+                }
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Running tests...'
-                // Example for Maven:
-                sh 'mvn test'
-                // For Node.js: sh 'npm test'
+                dir('smartfreelance-backend/freelancer-service') {
+                    sh 'mvn test'
+                }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                echo 'Running SonarQube analysis...'
-                withSonarQubeEnv("${SONARQUBE_ENV}") {
-                    sh 'mvn sonar:sonar'
-                    // For Node.js:
-                    // sh 'sonar-scanner'
+                dir('smartfreelance-backend/freelancer-service') {
+                    withSonarQubeEnv('sonar') {
+                        sh 'mvn sonar:sonar'
+                    }
                 }
             }
         }
     }
 
     post {
-        success {
-            echo 'Pipeline completed successfully!'
-        }
         failure {
             echo 'Pipeline failed!'
         }
