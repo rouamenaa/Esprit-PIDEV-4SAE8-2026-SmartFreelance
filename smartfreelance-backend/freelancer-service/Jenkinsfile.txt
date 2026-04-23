@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+
+    environment {
+        SONARQUBE_ENV = 'sonar' // Jenkins SonarQube server ID
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'nassim-back', url: 'https://github.com/rouamenaa/Esprit-PIDEV-4SAE8-2026-SmartFreelance.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building project...'
+                // Example for Maven:
+                sh 'mvn clean compile'
+                // For Node.js use: sh 'npm install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                // Example for Maven:
+                sh 'mvn test'
+                // For Node.js: sh 'npm test'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                echo 'Running SonarQube analysis...'
+                withSonarQubeEnv("${SONARQUBE_ENV}") {
+                    sh 'mvn sonar:sonar'
+                    // For Node.js:
+                    // sh 'sonar-scanner'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}
