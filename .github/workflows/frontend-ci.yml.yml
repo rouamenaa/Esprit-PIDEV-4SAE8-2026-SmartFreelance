@@ -1,0 +1,38 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'smartfreelance-frontend/**'
+  pull_request:
+    paths:
+      - 'smartfreelance-frontend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: smartfreelance-frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: smartfreelance-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chrome
+        run: sudo apt-get update && sudo apt-get install -y chromium-browser
+
+      - name: Run tests with coverage
+        run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
