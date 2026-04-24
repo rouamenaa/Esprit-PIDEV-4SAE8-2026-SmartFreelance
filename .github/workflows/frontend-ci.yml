@@ -2,7 +2,7 @@ name: Frontend CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
     paths:
       - 'smartfreelance-frontend/**'
   pull_request:
@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: smartfreelance-frontend/smartfreelance-frontend
+        working-directory: smartfreelance-frontend
 
     steps:
       - name: Checkout code
@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: smartfreelance-frontend/smartfreelance-frontend/package-lock.json
+          cache-dependency-path: smartfreelance-frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -39,21 +39,15 @@ jobs:
       - name: Run tests with coverage
         run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
 
-      - name: Debug coverage files
-        run: |
-          pwd
-          ls -la coverage || true
-          find coverage -name "lcov.info" -type f || true
-
       - name: SonarCloud Scan
         if: ${{ vars.SONAR_ORGANIZATION != '' && vars.SONAR_PROJECT_KEY_FRONT != '' }}
         uses: SonarSource/sonarqube-scan-action@v5
         with:
-          projectBaseDir: smartfreelance-frontend/smartfreelance-frontend
+          projectBaseDir: smartfreelance-frontend
           args: >
             -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY_FRONT }}
             -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.javascript.lcov.reportPaths=coverage/**/lcov.info
+            -Dsonar.javascript.lcov.reportPaths=coverage/smartfreelance-frontend/lcov.info
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
