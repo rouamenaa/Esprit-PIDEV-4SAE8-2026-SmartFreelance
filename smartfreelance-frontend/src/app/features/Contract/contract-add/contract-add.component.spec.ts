@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
 import { ContratService } from '../../../services/contrat.service';
 import { ContractAddComponent } from './contract-add.component';
@@ -13,7 +15,8 @@ describe('ContractAddComponent', () => {
     contratServiceSpy.create.and.returnValue(of({} as any));
 
     await TestBed.configureTestingModule({
-      imports: [ContractAddComponent],
+      declarations: [ContractAddComponent],
+      imports: [CommonModule, ReactiveFormsModule],
       providers: [{ provide: ContratService, useValue: contratServiceSpy }],
     }).compileComponents();
 

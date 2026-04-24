@@ -1,5 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { of } from 'rxjs';
 import { ContratService } from '../../../services/contrat.service';
 import { ContractTableComponent } from './contract-table.component';
 
@@ -9,12 +12,16 @@ describe('ContractTableComponent', () => {
   let contratServiceSpy: jasmine.SpyObj<ContratService>;
 
   beforeEach(async () => {
-    contratServiceSpy = jasmine.createSpyObj<ContratService>('ContratService', ['getAll', 'delete']);
+    contratServiceSpy = jasmine.createSpyObj<ContratService>('ContratService', ['getAll', 'getStatistics']);
     contratServiceSpy.getAll.and.returnValue(of([]));
-    contratServiceSpy.delete.and.returnValue(of(void 0));
+    contratServiceSpy.getStatistics.and.returnValue(
+      of({ completedContracts: 0, activeContracts: 0, clientSpending: 0 } as any)
+    );
 
     await TestBed.configureTestingModule({
-      imports: [ContractTableComponent],
+      declarations: [ContractTableComponent],
+      imports: [CommonModule, FormsModule],
+      schemas: [NO_ERRORS_SCHEMA],
       providers: [{ provide: ContratService, useValue: contratServiceSpy }],
     }).compileComponents();
 
@@ -44,36 +51,34 @@ describe('ContractTableComponent', () => {
     expect(component.list.length).toBe(1);
   });
 
-  it('should not delete when id is missing', () => {
+  it('should open delete modal when id exists', () => {
+    component.delete({ id: 10 } as any);
+
+    expect(component.showDeleteModal).toBeTrue();
+    expect(component.selectedContract?.id).toBe(10);
+  });
+
+  it('should not open delete modal when id is missing', () => {
     component.delete({} as any);
-    expect(contratServiceSpy.delete).not.toHaveBeenCalled();
+
+    expect(component.showDeleteModal).toBeFalse();
+    expect(component.selectedContract).toBeNull();
   });
 
-  it('should not delete when confirm returns false', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
-
+  it('should close delete modal and clear selected contract', () => {
     component.delete({ id: 10 } as any);
+    component.onCloseDelete();
 
-    expect(contratServiceSpy.delete).not.toHaveBeenCalled();
+    expect(component.showDeleteModal).toBeFalse();
+    expect(component.selectedContract).toBeNull();
   });
 
-  it('should delete and reload when confirmed', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    contratServiceSpy.getAll.and.returnValues(of([]), of([]));
+  it('should reload data and stats when delete is confirmed by child component', () => {
+    component.onDeleted();
 
-    component.delete({ id: 10 } as any);
-
-    expect(contratServiceSpy.delete).toHaveBeenCalledWith(10);
-    expect(contratServiceSpy.getAll).toHaveBeenCalledTimes(2);
-  });
-
-  it('should show alert when delete fails', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    spyOn(window, 'alert');
-    contratServiceSpy.delete.and.returnValue(throwError(() => new Error('boom')));
-
-    component.delete({ id: 10 } as any);
-
-    expect(window.alert).toHaveBeenCalledWith('Erreur lors de la suppression');
+    expect(contratServiceSpy.getAll).toHaveBeenCalled();
+    expect(contratServiceSpy.getStatistics).toHaveBeenCalled();
+    expect(component.showDeleteModal).toBeFalse();
+    expect(component.selectedContract).toBeNull();
   });
 });

@@ -1,24 +1,32 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
 import { ContratService } from '../../../services/contrat.service';
+import { FreelancerService } from '../../../services/freelancer-profile';
 import { ContractDetailsPageComponent } from './contract-details-page.component';
 
 describe('ContractDetailsPageComponent', () => {
   let component: ContractDetailsPageComponent;
   let fixture: ComponentFixture<ContractDetailsPageComponent>;
   let contratServiceSpy: jasmine.SpyObj<ContratService>;
+  let freelancerServiceSpy: jasmine.SpyObj<FreelancerService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
   async function createComponentWithRouteId(id: string | null, serviceResult: any) {
     contratServiceSpy = jasmine.createSpyObj<ContratService>('ContratService', ['getById']);
+    freelancerServiceSpy = jasmine.createSpyObj<FreelancerService>('FreelancerService', ['getById']);
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
     contratServiceSpy.getById.and.returnValue(serviceResult);
+    freelancerServiceSpy.getById.and.returnValue(of({ firstName: 'John', lastName: 'Doe' } as any));
 
     await TestBed.configureTestingModule({
-      imports: [ContractDetailsPageComponent],
+      declarations: [ContractDetailsPageComponent],
+      imports: [CommonModule, RouterTestingModule],
       providers: [
         { provide: ContratService, useValue: contratServiceSpy },
+        { provide: FreelancerService, useValue: freelancerServiceSpy },
         { provide: Router, useValue: routerSpy },
         {
           provide: ActivatedRoute,
