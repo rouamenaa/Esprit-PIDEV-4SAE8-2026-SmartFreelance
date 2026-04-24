@@ -48,6 +48,11 @@ jobs:
             -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY_FRONT }}
             -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
             -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.sources=src/app/services
+            -Dsonar.inclusions=src/app/services/project.service.ts,src/app/services/formation.service.ts,src/app/services/audit.service.ts,src/app/services/audit-ticket.service.ts,src/app/services/contrat.service.ts,src/app/services/condidature.service.ts
+            -Dsonar.exclusions=**/*.spec.ts,**/*.html,**/*.css
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=**/*.spec.ts
             -Dsonar.javascript.lcov.reportPaths=coverage/smartfreelance-frontend/lcov.info
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

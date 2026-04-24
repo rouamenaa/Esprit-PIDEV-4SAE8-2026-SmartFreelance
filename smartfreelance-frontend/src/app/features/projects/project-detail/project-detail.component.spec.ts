@@ -123,7 +123,7 @@ describe('ProjectDetailComponent', () => {
   it('deleteCurrentProject should stop when confirmation is canceled', () => {
     component.project = { ...mockProject };
     component.currentRole = 'ADMIN';
-    spyOn(window, 'confirm').and.returnValue(false);
+    spyOn(globalThis, 'confirm').and.returnValue(false);
 
     component.deleteCurrentProject();
 
@@ -133,7 +133,7 @@ describe('ProjectDetailComponent', () => {
   it('deleteCurrentProject should navigate on success', () => {
     component.project = { ...mockProject };
     component.currentRole = 'ADMIN';
-    spyOn(window, 'confirm').and.returnValue(true);
+    spyOn(globalThis, 'confirm').and.returnValue(true);
 
     component.deleteCurrentProject();
 

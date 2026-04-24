@@ -102,7 +102,7 @@ describe('SkillComponent', () => {
   });
 
   it('should ignore delete when id is missing', () => {
-    component.deleteSkill(undefined);
+    component.deleteSkill();
     expect(skillServiceSpy.delete).not.toHaveBeenCalled();
   });
 

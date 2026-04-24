@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ProjectPhasesComponent } from './project-phases.component';
 import { ProjectPhaseService } from '../../../services/phase.service';
+import { PhaseStatus, ProjectPhase } from '../../../models/project-phase.model';
 
 describe('ProjectPhasesComponent', () => {
   let component: ProjectPhasesComponent;
@@ -10,22 +11,25 @@ describe('ProjectPhasesComponent', () => {
   let phaseServiceSpy: jasmine.SpyObj<ProjectPhaseService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
-  const phases: any[] = [
+  const phases: ProjectPhase[] = [
     {
       id: 1,
       name: 'Design',
       startDate: '2026-01-01',
       endDate: '2026-01-10',
-      status: 'IN_PROGRESS',
-      tasks: [{ status: 'DONE' }, { status: 'OPEN' }]
+      status: PhaseStatus.IN_PROGRESS,
+      tasks: [
+        { title: 'Task A', priority: 'HIGH', status: 'DONE' },
+        { title: 'Task B', priority: 'MEDIUM', status: 'TODO' }
+      ]
     },
     {
       id: 2,
       name: 'Delivery',
       startDate: '2026-01-11',
       endDate: '2026-01-20',
-      status: 'COMPLETED',
-      tasks: [{ status: 'DONE' }]
+      status: PhaseStatus.COMPLETED,
+      tasks: [{ title: 'Task C', priority: 'LOW', status: 'DONE' }]
     }
   ];
 
@@ -38,9 +42,9 @@ describe('ProjectPhasesComponent', () => {
     ]);
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
 
-    phaseServiceSpy.getPhasesByProject.and.returnValue(of(phases as any));
-    phaseServiceSpy.createPhase.and.returnValue(of(phases[0] as any));
-    phaseServiceSpy.updatePhase.and.returnValue(of(phases[0] as any));
+    phaseServiceSpy.getPhasesByProject.and.returnValue(of(phases));
+    phaseServiceSpy.createPhase.and.returnValue(of(phases[0]));
+    phaseServiceSpy.updatePhase.and.returnValue(of(phases[0]));
     phaseServiceSpy.deletePhase.and.returnValue(of(void 0));
 
     await TestBed.configureTestingModule({
@@ -93,10 +97,10 @@ describe('ProjectPhasesComponent', () => {
 
   it('saveEdit should update phase and exit editing mode', () => {
     spyOn(component, 'loadPhases');
-    component.startEdit(phases[0] as any);
+    component.startEdit(phases[0]);
     component.phaseForm.patchValue({ name: 'Updated Name' });
 
-    component.saveEdit(phases[0] as any);
+    component.saveEdit(phases[0]);
 
     expect(phaseServiceSpy.updatePhase).toHaveBeenCalledWith(
       1,

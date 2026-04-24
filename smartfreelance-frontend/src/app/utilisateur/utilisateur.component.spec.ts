@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
 import { UtilisateurComponent } from './utilisateur.component';
 
@@ -15,8 +16,10 @@ describe('UtilisateurComponent', () => {
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [UtilisateurComponent, HttpClientTestingModule],
+      imports: [UtilisateurComponent],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { queryParams: of({}) } }
       ]
@@ -56,13 +59,13 @@ describe('UtilisateurComponent', () => {
   });
 
   it('addUser should block create mode if document is not verified', () => {
-    spyOn(window, 'alert');
+    spyOn(globalThis, 'alert');
     component.isEditMode = false;
     component.verificationResult = null;
 
     component.addUser();
 
-    expect(window.alert).toHaveBeenCalled();
+    expect(globalThis.alert).toHaveBeenCalled();
     expect(component.isLoading).toBeFalse();
   });
 
@@ -111,7 +114,7 @@ describe('UtilisateurComponent', () => {
   });
 
   it('deleteUser should call backend when confirmed', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
+    spyOn(globalThis, 'confirm').and.returnValue(true);
     spyOn(component, 'loadUsers');
 
     component.deleteUser(99);
@@ -123,7 +126,7 @@ describe('UtilisateurComponent', () => {
   });
 
   it('onFileSelected should accept pdf and reject other formats', () => {
-    spyOn(window, 'alert');
+    spyOn(globalThis, 'alert');
     const pdfFile = new File(['x'], 'cv.pdf', { type: 'application/pdf' });
     const txtFile = new File(['x'], 'note.txt', { type: 'text/plain' });
 
@@ -131,7 +134,7 @@ describe('UtilisateurComponent', () => {
     expect(component.selectedFileName).toBe('cv.pdf');
 
     component.onFileSelected({ target: { files: [txtFile] } });
-    expect(window.alert).toHaveBeenCalled();
+    expect(globalThis.alert).toHaveBeenCalled();
   });
 
   it('resetForm should clear form and verification state', () => {
