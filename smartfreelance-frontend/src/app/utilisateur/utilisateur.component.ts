@@ -14,6 +14,7 @@ import { RouterModule } from '@angular/router';
 })
 export class UtilisateurComponent implements OnInit {
   // Disable external AI verification calls (no API key needed).
+  //azertyu
   user: any = { id: null, email: '', name: '', password: '', role: '' };
   users: any[] = [];
   isEditMode: boolean = false;
