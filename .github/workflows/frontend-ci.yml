@@ -40,14 +40,14 @@ jobs:
         run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
 
       - name: SonarCloud Scan
-  if: ${{ secrets.SONAR_TOKEN != '' && vars.SONAR_ORGANIZATION != '' && vars.SONAR_PROJECT_KEY_FRONT != '' }}
-  uses: SonarSource/sonarqube-scan-action@v5
-  with:
-    projectBaseDir: smartfreelance-frontend
-    args: >
-      -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY_FRONT }}
-      -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
-      -Dsonar.host.url=https://sonarcloud.io
-      -Dsonar.javascript.lcov.reportPaths=coverage/smartfreelance-frontend/lcov.info
-  env:
-    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        if: ${{ secrets.SONAR_TOKEN != '' && vars.SONAR_ORGANIZATION != '' && vars.SONAR_PROJECT_KEY_FRONT != '' }}
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          projectBaseDir: smartfreelance-frontend
+          args: >
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY_FRONT }}
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.javascript.lcov.reportPaths=coverage/smartfreelance-frontend/lcov.info
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
