@@ -3,7 +3,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+<<<<<<< HEAD
 import { Test } from '../../../models/test.model';
+=======
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 import { TestService } from '../../../services/test.service';
 
 @Component({
@@ -34,6 +37,7 @@ export class TestFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+<<<<<<< HEAD
     this.route.paramMap.subscribe(params => {
       const routeFormationId = params.get('formationId');
       if (routeFormationId && !isNaN(+routeFormationId)) {
@@ -48,6 +52,17 @@ export class TestFormComponent implements OnInit {
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
+=======
+    this.route.queryParamMap.subscribe(params => {
+      const fId = params.get('formationId');
+      if (fId) {
+        this.formationId = +fId;
+      }
+    });
+
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
       this.isEditMode = true;
       this.loadTest(+id);
     }
@@ -113,10 +128,23 @@ export class TestFormComponent implements OnInit {
   }
 
   onSubmit(): void {
+<<<<<<< HEAD
     const formationId = this.formationId;
     if (formationId === null) {
       this.error = 'Formation ID is missing';
       return;
+=======
+    this.loading = true;
+
+    const testData: any = {
+      title: this.test.title,
+      totalScore: this.test.totalScore,
+      formation: { id: this.formationId }
+    };
+
+    if (this.isEditMode) {
+      testData.id = this.test.id;
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
     }
 
     this.loading = true;

@@ -52,6 +52,16 @@ public class Contrat {
 
     private LocalDateTime dateModification;
 
+    /** When the client signed the contract (null until client signs first). */
+    private LocalDateTime clientSignedAt;
+
+    /** When the freelancer signed the contract (null until freelancer signs after client). */
+    private LocalDateTime freelancerSignedAt;
+
+    /** Late penalty: reduce payment by this % if delivery is after end date (e.g. 5.00 = 5%). Null = no penalty. */
+    @Column(name = "late_penalty_percent", precision = 5, scale = 2)
+    private BigDecimal latePenaltyPercent;
+
     @PrePersist
     protected void onCreate() {
         dateCreation = LocalDateTime.now();

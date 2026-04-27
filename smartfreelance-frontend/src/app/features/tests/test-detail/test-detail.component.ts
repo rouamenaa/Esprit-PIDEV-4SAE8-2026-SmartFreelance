@@ -1,7 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+<<<<<<< HEAD
 import { FormsModule } from '@angular/forms';
+=======
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 import { Test } from '../../../models/test.model';
 import { TestService } from '../../../services/test.service';
 import { ConfirmService } from '../../../shared/services/confirm.service';
@@ -9,7 +12,11 @@ import { ConfirmService } from '../../../shared/services/confirm.service';
 @Component({
   selector: 'app-test-detail',
   standalone: true,
+<<<<<<< HEAD
   imports: [CommonModule, FormsModule],
+=======
+  imports: [CommonModule],
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
   templateUrl: './test-detail.component.html',
   styleUrls: ['./test-detail.component.css']
 })

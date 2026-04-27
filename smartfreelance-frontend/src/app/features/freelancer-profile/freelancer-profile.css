@@ -23,7 +23,13 @@ body {
 .profile-header h2 {
   font-size: 32px;
   font-weight: 800;
+<<<<<<< HEAD
   color: #f8fafc;
+=======
+
+  color: #0a0a0a;
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
   margin: 0;
   letter-spacing: -0.5px;
 }
@@ -153,6 +159,10 @@ body {
   margin: 0 0 20px 0;
   font-size: 20px;
   font-weight: 700;
+<<<<<<< HEAD
+=======
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 }
 
 .action-buttons {
@@ -179,7 +189,13 @@ body {
   align-items: center;
   gap: 12px;
   margin-bottom: 24px;
+<<<<<<< HEAD
   color: #f8fafc;
+=======
+
+  color: #050505;
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 }
 
 .advanced-header mat-icon {

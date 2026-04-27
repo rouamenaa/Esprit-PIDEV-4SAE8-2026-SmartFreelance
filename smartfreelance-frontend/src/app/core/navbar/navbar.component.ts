@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../../core/serviceslogin/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -7,15 +9,15 @@ import { Component } from '@angular/core';
   styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent {
-  isDark = true; // thème par défaut
+  isDark = true;
 
-  toggleSidebar() {
-    // à connecter avec la sidebar
-  }
+  constructor(private authService: AuthService, private router: Router) {}
+
+  toggleSidebar() {}
 
   toggleTheme() {
     this.isDark = !this.isDark;
-    if(this.isDark){
+    if (this.isDark) {
       document.body.classList.add('dark-mode');
       document.body.classList.remove('light-mode');
     } else {
@@ -23,5 +25,15 @@ export class NavbarComponent {
       document.body.classList.remove('dark-mode');
     }
   }
+<<<<<<< HEAD
   
 }
+=======
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+}
+  
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25

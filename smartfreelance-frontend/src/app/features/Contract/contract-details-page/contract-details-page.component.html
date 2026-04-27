@@ -1,46 +1,151 @@
-<div class="details-page">
-  <div class="details-page-toolbar">
-    <button type="button" class="btn-back" (click)="goBack()">&larr; Retour à la liste</button>
-    <button *ngIf="contrat" type="button" class="btn-modifier" (click)="goToEdit()">Modifier</button>
-  </div>
+<div class="project-detail-container" *ngIf="!loading">
+  <button class="back-btn" (click)="goBack()">← Back</button>
 
-  <p *ngIf="loading" class="message">Chargement...</p>
-  <p *ngIf="error" class="error-message">{{ error }}</p>
+  <h2 class="project-header">Contract Details</h2>
+  <div *ngIf="error" class="error">{{ error }}</div>
 
-  <div *ngIf="!loading && !error && contrat" class="details-card">
-    <header class="details-header">
-      <span class="details-id">#{{ contrat.id }}</span>
-      <span class="badge details-statut" [ngClass]="getStatutClass(contrat.statut)">{{ contrat.statut }}</span>
-    </header>
-    <div class="details-body">
-      <div class="details-row">
-        <span class="details-label">Titre</span>
-        <span class="details-value">{{ contrat.titre || '-' }}</span>
+  <div *ngIf="!error && contrat" class="project-card">
+    <section class="section-card">
+      <div class="section-head">
+        <h3>Contract Information</h3>
+        <div class="section-head-right">
+          <button type="button" class="pdf-btn" (click)="downloadPdf()">Download PDF</button>
+          <span class="status-chip" [ngClass]="getStatutClass(contrat.statut)">{{ contrat.statut }}</span>
+          <button type="button" class="edit-btn" (click)="goToEdit()">Edit</button>
+        </div>
       </div>
-      <div class="details-row">
-        <span class="details-label">Description</span>
-        <span class="details-value">{{ contrat.description || '-' }}</span>
+
+      <div class="info-grid">
+        <div class="detail-row">
+          <span class="detail-label">ID</span>
+          <span class="detail-value">#{{ contrat.id }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Title</span>
+          <span class="detail-value">{{ contrat.titre || '-' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Description</span>
+          <span class="detail-value">{{ contrat.description || '-' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Client</span>
+          <span class="detail-value">{{ clientDisplayName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Freelancer</span>
+          <span class="detail-value">{{ freelancerDisplayName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Amount</span>
+          <span class="detail-value">{{ contrat.montant != null ? (contrat.montant | number) : '-' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Start date</span>
+          <span class="detail-value">{{ formatDate(contrat.dateDebut) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">End date</span>
+          <span class="detail-value">{{ formatDate(contrat.dateFin) }}</span>
+        </div>
       </div>
-      <div class="details-row">
-        <span class="details-label">Client</span>
-        <span class="details-value">{{ contrat.clientId }}</span>
+    </section>
+
+    <section class="section-card signature-section">
+      <h3>Digital Signature</h3>
+      <p class="signature-hint">Client signs first, then freelancer. Both must sign for the contract to become active.</p>
+
+      <div class="signature-block">
+        <h4 class="signature-step-title">1. Client signs first</h4>
+        <ng-container *ngIf="contrat.clientSignedAt; else clientSignForm">
+          <p class="signature-signed">Signed on {{ formatDateTime(contrat.clientSignedAt) }}</p>
+          <button
+            type="button"
+            class="btn-remove-sign"
+            (click)="removeClientSign()"
+            [disabled]="cancelingClient || !!contrat.freelancerSignedAt"
+            [title]="contrat.freelancerSignedAt ? 'Cannot cancel client sign after freelancer signed' : ''"
+          >
+            {{ cancelingClient ? 'Removing…' : 'Cancel sign' }}
+          </button>
+        </ng-container>
+        <ng-template #clientSignForm>
+          <div class="signature-form">
+            <span class="signature-label">Client</span>
+            <span class="signature-fixed-name">{{ clientDisplayName }}</span>
+            <button type="button" class="btn-clear" (click)="clearSignature(clientCanvas, 'client')">Clear signature</button>
+          </div>
+          <div class="signature-pad-wrap">
+            <canvas
+              #clientCanvas
+              class="signature-pad"
+              width="520"
+              height="150"
+              (mousedown)="startDraw($event, clientCanvas, 'client')"
+              (mousemove)="draw($event, clientCanvas, 'client')"
+              (mouseup)="stopDraw('client')"
+              (mouseleave)="stopDraw('client')"
+              (touchstart)="startDraw($event, clientCanvas, 'client')"
+              (touchmove)="draw($event, clientCanvas, 'client')"
+              (touchend)="stopDraw('client')"
+            ></canvas>
+            <p class="signature-hint-line">Draw your signature before clicking sign.</p>
+            <button type="button" class="btn-sign btn-sign-client" (click)="signAsClient()" [disabled]="signingClient || !contrat.clientId || contrat.clientId < 1">
+              {{ signingClient ? 'Signing…' : 'Sign as client' }}
+            </button>
+          </div>
+        </ng-template>
       </div>
-      <div class="details-row">
-        <span class="details-label">Freelancer</span>
-        <span class="details-value">{{ contrat.freelancerId }}</span>
+
+      <div class="signature-block">
+        <h4 class="signature-step-title">2. Freelancer signs second</h4>
+        <ng-container *ngIf="contrat.freelancerSignedAt; else freelancerSignArea">
+          <p class="signature-signed">Signed on {{ formatDateTime(contrat.freelancerSignedAt) }}</p>
+          <button
+            type="button"
+            class="btn-remove-sign"
+            (click)="removeFreelancerSign()"
+            [disabled]="cancelingFreelancer"
+          >
+            {{ cancelingFreelancer ? 'Removing…' : 'Cancel sign' }}
+          </button>
+        </ng-container>
+        <ng-template #freelancerSignArea>
+          <div *ngIf="contrat.clientSignedAt; else waitingForClient">
+            <div class="signature-form">
+              <span class="signature-label">Freelancer</span>
+              <span class="signature-fixed-name">{{ freelancerDisplayName }}</span>
+              <button type="button" class="btn-clear" (click)="clearSignature(freelancerCanvas, 'freelancer')">Clear signature</button>
+            </div>
+            <div class="signature-pad-wrap">
+              <canvas
+                #freelancerCanvas
+                class="signature-pad"
+                width="520"
+                height="150"
+                (mousedown)="startDraw($event, freelancerCanvas, 'freelancer')"
+                (mousemove)="draw($event, freelancerCanvas, 'freelancer')"
+                (mouseup)="stopDraw('freelancer')"
+                (mouseleave)="stopDraw('freelancer')"
+                (touchstart)="startDraw($event, freelancerCanvas, 'freelancer')"
+                (touchmove)="draw($event, freelancerCanvas, 'freelancer')"
+                (touchend)="stopDraw('freelancer')"
+              ></canvas>
+              <p class="signature-hint-line">Draw your signature before clicking sign.</p>
+              <button type="button" class="btn-sign btn-sign-freelancer" (click)="signAsFreelancer()" [disabled]="signingFreelancer || !contrat.freelancerId || contrat.freelancerId < 1">
+                {{ signingFreelancer ? 'Signing…' : 'Sign as freelancer' }}
+              </button>
+            </div>
+          </div>
+          <ng-template #waitingForClient>
+            <p class="signature-waiting">Waiting for client to sign first.</p>
+          </ng-template>
+        </ng-template>
       </div>
-      <div class="details-row">
-        <span class="details-label">Montant</span>
-        <span class="details-value">{{ contrat.montant != null ? (contrat.montant | number) : '-' }}</span>
-      </div>
-      <div class="details-row">
-        <span class="details-label">Date début</span>
-        <span class="details-value">{{ formatDate(contrat.dateDebut) }}</span>
-      </div>
-      <div class="details-row">
-        <span class="details-label">Date fin</span>
-        <span class="details-value">{{ formatDate(contrat.dateFin) }}</span>
-      </div>
-    </div>
+
+      <p *ngIf="signError" class="signature-error">{{ signError }}</p>
+    </section>
   </div>
 </div>
+
+<div *ngIf="loading" class="loading">Loading contract details...</div>

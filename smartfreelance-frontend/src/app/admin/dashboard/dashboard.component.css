@@ -1,0 +1,45 @@
+.admin-dashboard {
+  padding: 24px;
+}
+
+.admin-dashboard__header h1 {
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+}
+
+.admin-dashboard__header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.admin-dashboard__grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.admin-card {
+  display: block;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  text-decoration: none;
+  background: #fff;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.admin-card h3 {
+  margin: 0 0 6px;
+  color: #0f172a;
+}
+
+.admin-card p {
+  margin: 0;
+  color: #475569;
+}

@@ -71,6 +71,7 @@
 
     <!-- QUICK ACTIONS -->
     <div class="quick-actions">
+<<<<<<< HEAD
       <h3>Manage Your Portfolio</h3>
       <div class="action-buttons">
         <button mat-raised-button color="accent" (click)="navigateToSkills()" matTooltip="Manage Skills">
@@ -174,6 +175,107 @@
             </svg>
           </div>
 
+=======
+
+      <h3>Manage Your Profile</h3>
+
+      <div class="action-buttons">
+        <button mat-raised-button color="accent" (click)="navigateToSkills()" matTooltip="Manage Skills">
+          <mat-icon>psychology</mat-icon>
+          Skills
+        </button>
+        <button mat-raised-button color="accent" (click)="navigateToPortfolio()" matTooltip="Manage Portfolio Projects">
+          <mat-icon>work</mat-icon>
+          Portfolio
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         🔹 ADVANCED FEATURES SECTION
+    ════════════════════════════════════════════════════════ -->
+    <div class="advanced-section" *ngIf="showProfileInfo && existingProfile">
+
+      <div class="advanced-header">
+        <mat-icon>auto_awesome</mat-icon>
+        <h3>Profile Insights</h3>
+      </div>
+
+      <!-- Loading spinner -->
+      <div class="advanced-loading" *ngIf="loadingAdvanced">
+        <div class="loading-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <p>Analysing your profile…</p>
+      </div>
+
+      <div class="advanced-grid" *ngIf="showAdvanced">
+
+        <!-- ── CARD 1 : Profile Analytics ─────────────────── -->
+        <div class="adv-card analytics-card" *ngIf="analytics">
+          <div class="adv-card-header">
+            <div class="adv-icon-wrap analytics-icon">
+              <mat-icon>bar_chart</mat-icon>
+            </div>
+            <div>
+              <h4>Profile Analytics</h4>
+              <span class="adv-subtitle">Your key stats at a glance</span>
+            </div>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-chip">
+              <mat-icon>psychology</mat-icon>
+              <div>
+                <span class="stat-number">{{ analytics.totalSkills }}</span>
+                <span class="stat-label">Skills</span>
+              </div>
+            </div>
+            <div class="stat-chip">
+              <mat-icon>work_outline</mat-icon>
+              <div>
+                <span class="stat-number">{{ analytics.totalProjects }}</span>
+                <span class="stat-label">Projects</span>
+              </div>
+            </div>
+            <div class="stat-chip">
+              <mat-icon>attach_money</mat-icon>
+              <div>
+                <span class="stat-number">${{ analytics.hourlyRate }}</span>
+                <span class="stat-label">/ hour</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── CARD 2 : Profile Completion ───────────────── -->
+        <div class="adv-card completion-card" *ngIf="completion">
+          <div class="adv-card-header">
+            <div class="adv-icon-wrap completion-icon">
+              <mat-icon>task_alt</mat-icon>
+            </div>
+            <div>
+              <h4>Profile Completion</h4>
+              <span class="adv-subtitle">{{ getCompletionLabel() }}</span>
+            </div>
+          </div>
+
+          <!-- Circular progress -->
+          <div class="completion-gauge">
+            <svg viewBox="0 0 100 100" class="gauge-svg">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" stroke-width="8" />
+              <circle cx="50" cy="50" r="42" fill="none" [attr.stroke]="getCompletionColor()" stroke-width="8"
+                stroke-linecap="round" stroke-dasharray="263.9"
+                [attr.stroke-dashoffset]="263.9 - (263.9 * (completion.percentage / 100))" transform="rotate(-90 50 50)"
+                class="gauge-progress" />
+              <text x="50" y="54" text-anchor="middle" class="gauge-text">
+                {{ completion.percentage }}%
+              </text>
+            </svg>
+          </div>
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
           <!-- Missing fields -->
           <div class="missing-fields" *ngIf="completion.missingFields.length > 0">
             <p class="missing-title">

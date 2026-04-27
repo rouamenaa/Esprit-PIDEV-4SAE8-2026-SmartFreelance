@@ -31,7 +31,7 @@ public class ProjectPhase {
 
     @Enumerated(EnumType.STRING)
     private PhaseStatus status;
-
+    private String description;
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")

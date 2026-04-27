@@ -19,7 +19,6 @@ public class User {
     private Long id;
 
     private String username;
-    @Column(unique = true, nullable = false) // Empêche les doublons d'email
 
     private String email;
     private String nom;
@@ -29,19 +28,6 @@ public class User {
     private Role role;
 
 
-
-
-
 }
 
 
-
-
-
-
-
-
-
-
-
-// Exemple : "USER" ou "ADMIN"

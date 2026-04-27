@@ -8,6 +8,7 @@ import {
   CondidatureStatus,
   CondidatureStats,
   CondidatureDetailStats,
+  CondidaturesByProject,
 } from '../models/Condidature';
 
 /** Read rating from raw API object (handles freelancer_rating, freelancerRating, or any case variant). */
@@ -24,10 +25,19 @@ function readRatingFromRaw(raw: Record<string, unknown>): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-/** Normalize API response: set freelancerRating from DB field (used by getAll, getById, etc.). */
+/** Normalize API response: set freelancerRating and signature fields (used by getAll, getById, etc.). */
 function normalizeCondidature(raw: Record<string, unknown>): Condidature {
   const freelancerRating = readRatingFromRaw(raw);
-  return { ...raw, freelancerRating } as unknown as Condidature;
+  const signedAt = raw['signedAt'] ?? raw['signed_at'] ?? null;
+  const signatureData = raw['signatureData'] ?? raw['signature_data'] ?? null;
+  const signedByClientId = raw['signedByClientId'] ?? raw['signed_by_client_id'] ?? null;
+  return {
+    ...raw,
+    freelancerRating,
+    signedAt: signedAt ?? undefined,
+    signatureData: signatureData ?? undefined,
+    signedByClientId: signedByClientId != null ? Number(signedByClientId) : undefined,
+  } as unknown as Condidature;
 }
 
 /** Normalize stats API response (handles camelCase or snake_case from backend). */
@@ -119,6 +129,24 @@ export class CondidatureService {
       .pipe(map(normalizeCondidature));
   }
 
+  /** List condidatures grouped by project (for list view "by project"). */
+  getGroupedByProject(ranked: boolean = true): Observable<CondidaturesByProject[]> {
+    const params = new HttpParams().set('ranked', ranked ? 'true' : 'false');
+    return this.http
+      .get<Array<{ projectId: number; condidatures: Record<string, unknown>[] }>>(
+        `${this.url}/condidatures/grouped-by-project`,
+        { params }
+      )
+      .pipe(
+        map((groups) =>
+          groups.map((g) => ({
+            projectId: g.projectId,
+            condidatures: (g.condidatures || []).map(normalizeCondidature),
+          }))
+        )
+      );
+  }
+
   /** Statistics for admin dashboard: applications per project, acceptance rate, freelancer success rate. */
   getStatistics(): Observable<CondidatureStats> {
     return this.http
@@ -130,5 +158,7 @@ export class CondidatureService {
   getStatisticsForCondidature(id: number): Observable<CondidatureDetailStats> {
     return this.http.get<CondidatureDetailStats>(`${this.url}/condidatures/${id}/statistics`);
   }
+
+  /** Sign the application (records signedAt and client ID). */
 }
 

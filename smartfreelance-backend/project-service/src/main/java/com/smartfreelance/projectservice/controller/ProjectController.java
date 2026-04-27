@@ -2,18 +2,12 @@ package com.smartfreelance.projectservice.controller;
 
 import com.smartfreelance.projectservice.entity.Project;
 import com.smartfreelance.projectservice.service.ProjectService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
-
-//@CrossOrigin(origins = "http://localhost:4200")
-
-//@CrossOrigin(origins = "http://localhost:4200")
-
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/api/projects")
 public class ProjectController {
 
@@ -129,8 +123,5 @@ public class ProjectController {
     public String getProjectPerformanceLevel(@PathVariable Long id) {
         return projectService.classifyProjectPerformance(id);
     }
-    @GetMapping("/{id}/progress-details")
-    public ResponseEntity<Map<String, Object>> getProgressDetails(@PathVariable Long id) {
-        return ResponseEntity.ok(projectService.getProjectProgressDetails(id));
-    }
+    
 }

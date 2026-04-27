@@ -4,7 +4,15 @@ import { UnauthorizedComponent } from './auth/unauthorized/unauthorized.componen
 import { UtilisateurComponent } from './utilisateur/utilisateur.component';
 import { DashboardComponent } from './admin/dashboard/dashboard.component';
 import { authGuard } from './core/guards/auth.guard';
+<<<<<<< HEAD
 import { LoginComponent } from './auth/login/login.component';
+=======
+import { roleGuard } from './core/guards/role.guard';
+import { LoginComponent } from './auth/login/login.component';
+import { RoleSelectComponent } from './features/role-select/role-select.component';
+import { ConfirmEmailComponent } from './auth/confirm-email/confirm-email.component'; 
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 
 
 
@@ -29,16 +37,31 @@ import { AuthLayoutComponent } from './core/auth-layout/auth-layout.component';
 import { LayoutComponent } from './core/layout/layout.component';
 
 export const routes: Routes = [
+<<<<<<< HEAD
 
   // ===== AUTH + HOME — sans navbar/sidebar =====
   { path: 'login',        component: LoginComponent },
   { path: 'home',         component: HomeComponent },
   { path: 'unauthorized', component: UnauthorizedComponent },
 
+=======
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+
+  // ===== Routes publiques — sans guard =====
+  { path: 'login',       component: LoginComponent },
+  { path: 'home',        component: HomeComponent },
+  { path: 'unauthorized',component: UnauthorizedComponent },
+  { path: 'utilisateur', component: UtilisateurComponent },
+  { path: 'role-select', component: RoleSelectComponent },
+  { path: 'confirm',     component: ConfirmEmailComponent }, // ✅ Ajouté
+
+  // ===== Routes protégées par rôle =====
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
   // ===== APP — avec navbar/sidebar =====
   {
     path: '',
     component: LayoutComponent,
+<<<<<<< HEAD
     children: [
       { path: 'utilisateur', component: UtilisateurComponent },
       { path: 'admin',       component: DashboardComponent, canActivate: [authGuard] },
@@ -55,42 +78,175 @@ export const routes: Routes = [
       { path: 'courses/new',                   component: CourseFormComponent },
       { path: 'courses/:id/edit',              component: CourseFormComponent },
       { path: 'courses/:id',                   component: CourseDetailComponent },
+=======
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'admin',
+        component: DashboardComponent,
+        canActivate: [roleGuard(['ADMIN'])]
+      },
+
+      // Formations
+      { path: 'formations',            component: FormationListComponent },
+      { path: 'formations/new',        component: FormationFormComponent },
+      { path: 'formations/statistics', component: FormationStatisticsComponent },
+      { path: 'formations/:id/edit',   component: FormationFormComponent },
+      { path: 'formations/:id',        component: FormationDetailComponent },
+
+      // Courses
+      { path: 'courses',               component: CourseListComponent },
+      { path: 'courses/new',           component: CourseFormComponent },
+      { path: 'courses/:id/edit',      component: CourseFormComponent },
+      { path: 'courses/:id',           component: CourseDetailComponent },
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
       { path: 'formations/:formationId/courses',          component: CourseListComponent },
       { path: 'formations/:formationId/courses/new',      component: CourseFormComponent },
       { path: 'formations/:formationId/courses/:id/edit', component: CourseFormComponent },
       { path: 'formations/:formationId/courses/:id',      component: CourseDetailComponent },
 
       // Tests
+<<<<<<< HEAD
       { path: 'tests',                         component: TestListComponent },
       { path: 'tests/new',                     component: TestFormComponent },
       { path: 'tests/:id/edit',                component: TestFormComponent },
       { path: 'tests/:id',                     component: TestDetailComponent },
+=======
+      { path: 'tests',                 component: TestListComponent },
+      { path: 'tests/new',             component: TestFormComponent },
+      { path: 'tests/:id/edit',        component: TestFormComponent },
+      { path: 'tests/:id',             component: TestDetailComponent },
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
       { path: 'formations/:formationId/tests',          component: TestListComponent },
       { path: 'formations/:formationId/tests/new',      component: TestFormComponent },
       { path: 'formations/:formationId/tests/:id/edit', component: TestFormComponent },
       { path: 'formations/:formationId/tests/:id',      component: TestDetailComponent },
 
       // Rewards
+<<<<<<< HEAD
       { path: 'rewards',                       component: RewardListComponent },
       { path: 'rewards/new',                   component: RewardFormComponent },
       { path: 'rewards/:id/edit',              component: RewardFormComponent },
       { path: 'rewards/:id',                   component: RewardDetailComponent },
+=======
+      { path: 'rewards',               component: RewardListComponent },
+      { path: 'rewards/new',           component: RewardFormComponent },
+      { path: 'rewards/:id/edit',      component: RewardFormComponent },
+      { path: 'rewards/:id',           component: RewardDetailComponent },
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
       { path: 'formations/:formationId/rewards',          component: RewardListComponent },
       { path: 'formations/:formationId/rewards/new',      component: RewardFormComponent },
       { path: 'formations/:formationId/rewards/:id/edit', component: RewardFormComponent },
       { path: 'formations/:formationId/rewards/:id',      component: RewardDetailComponent },
 
       // Lazy loaded
+<<<<<<< HEAD
       { path: 'condidatures',      loadChildren: () => import('./features/condidature/condidature.module').then(m => m.CondidatureModule) },
       { path: 'contrats',          loadChildren: () => import('./features/Contract/contract.module').then(m => m.ContractModule) },
       { path: 'profil-freelancer', loadComponent: () => import('./features/freelancer-profile/freelancer-profile').then(m => m.FreelancerProfileComponent) },
       { path: 'portfolio',         loadComponent: () => import('./features/portfolio-project/portfolio-project').then(m => m.PortfolioProjectComponent) },
       { path: 'skills',            loadComponent: () => import('./features/skill/skill').then(m => m.SkillComponent) },
+=======
+      {
+        path: 'condidatures',
+        loadChildren: () => import('./features/condidature/condidature.module').then(m => m.CondidatureModule),
+        canActivate: [roleGuard(['ADMIN', 'CLIENT', 'FREELANCER'])]
+      },
+      {
+        path: 'contrats',
+        loadChildren: () => import('./features/Contract/contract.module').then(m => m.ContractModule),
+        canActivate: [roleGuard(['ADMIN', 'CLIENT'])]
+      },
+      {
+        path: 'profil-freelancer',
+        loadComponent: () => import('./features/freelancer-profile/freelancer-profile').then(m => m.FreelancerProfileComponent),
+        canActivate: [roleGuard(['FREELANCER'])]
+      },
+      {
+        path: 'portfolio',
+        loadComponent: () => import('./features/portfolio-project/portfolio-project').then(m => m.PortfolioProjectComponent),
+        canActivate: [roleGuard(['FREELANCER'])]
+      },
+      {
+        path: 'skills',
+        loadComponent: () => import('./features/skill/skill').then(m => m.SkillComponent),
+        canActivate: [roleGuard(['FREELANCER', 'CLIENT'])]
+      },
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 
       // Projects
       { path: '', loadChildren: () => import('./features/projects/projects.module').then(m => m.ProjectsModule) },
     ]
   },
 
+<<<<<<< HEAD
   { path: '**', redirectTo: 'home' }
 ];
+=======
+
+//   // ===== AUTH + HOME — sans navbar/sidebar =====
+//   { path: 'login',        component: LoginComponent },
+//   { path: 'home',         component: HomeComponent },
+//   { path: 'unauthorized', component: UnauthorizedComponent },
+// { path: 'utilisateur', component: UtilisateurComponent },
+//       { path: 'admin',       component: DashboardComponent, canActivate: [authGuard] },
+//   // ===== APP — avec navbar/sidebar =====
+//   {
+//     path: '',
+//     component: LayoutComponent,
+//     children: [
+      
+
+//       // Formations
+//       { path: 'formations',                    component: FormationListComponent },
+//       { path: 'formations/new',                component: FormationFormComponent },
+//       { path: 'formations/statistics',         component: FormationStatisticsComponent },
+//       { path: 'formations/:id/edit',           component: FormationFormComponent },
+//       { path: 'formations/:id',                component: FormationDetailComponent },
+
+//       // Courses
+//       { path: 'courses',                       component: CourseListComponent },
+//       { path: 'courses/new',                   component: CourseFormComponent },
+//       { path: 'courses/:id/edit',              component: CourseFormComponent },
+//       { path: 'courses/:id',                   component: CourseDetailComponent },
+//       { path: 'formations/:formationId/courses',          component: CourseListComponent },
+//       { path: 'formations/:formationId/courses/new',      component: CourseFormComponent },
+//       { path: 'formations/:formationId/courses/:id/edit', component: CourseFormComponent },
+//       { path: 'formations/:formationId/courses/:id',      component: CourseDetailComponent },
+
+//       // Tests
+//       { path: 'tests',                         component: TestListComponent },
+//       { path: 'tests/new',                     component: TestFormComponent },
+//       { path: 'tests/:id/edit',                component: TestFormComponent },
+//       { path: 'tests/:id',                     component: TestDetailComponent },
+//       { path: 'formations/:formationId/tests',          component: TestListComponent },
+//       { path: 'formations/:formationId/tests/new',      component: TestFormComponent },
+//       { path: 'formations/:formationId/tests/:id/edit', component: TestFormComponent },
+//       { path: 'formations/:formationId/tests/:id',      component: TestDetailComponent },
+
+//       // Rewards
+//       { path: 'rewards',                       component: RewardListComponent },
+//       { path: 'rewards/new',                   component: RewardFormComponent },
+//       { path: 'rewards/:id/edit',              component: RewardFormComponent },
+//       { path: 'rewards/:id',                   component: RewardDetailComponent },
+//       { path: 'formations/:formationId/rewards',          component: RewardListComponent },
+//       { path: 'formations/:formationId/rewards/new',      component: RewardFormComponent },
+//       { path: 'formations/:formationId/rewards/:id/edit', component: RewardFormComponent },
+//       { path: 'formations/:formationId/rewards/:id',      component: RewardDetailComponent },
+
+//       // Lazy loaded
+//       { path: 'condidatures',      loadChildren: () => import('./features/condidature/condidature.module').then(m => m.CondidatureModule) },
+//       { path: 'contrats',          loadChildren: () => import('./features/Contract/contract.module').then(m => m.ContractModule) },
+//       { path: 'profil-freelancer', loadComponent: () => import('./features/freelancer-profile/freelancer-profile').then(m => m.FreelancerProfileComponent) },
+//       { path: 'portfolio',         loadComponent: () => import('./features/portfolio-project/portfolio-project').then(m => m.PortfolioProjectComponent) },
+//       { path: 'skills',            loadComponent: () => import('./features/skill/skill').then(m => m.SkillComponent) },
+
+//       // Projects
+//       { path: '', loadChildren: () => import('./features/projects/projects.module').then(m => m.ProjectsModule) },
+//     ]
+//   },
+
+// >>>>>>> a084d154fb5e9c0f17cf6e3e48ec9b63dbf3dd50
+  { path: '**', redirectTo: 'home' }
+];
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25

@@ -32,6 +32,27 @@ export class TestListComponent implements OnInit {
     if (idParam && !isNaN(+idParam)) {
       this.formationId = +idParam;
     }
+<<<<<<< HEAD
+=======
+    this.loadTests();
+  }
+
+  loadTests(): void {
+    this.loading = true;
+    const obs = this.formationId
+      ? this.service.getByFormation(this.formationId)
+      : this.service.getAll();
+
+    obs.subscribe({
+      next: (data) => { this.tests = data; this.loading = false; },
+      error: (err) => {
+        console.error(err);
+        this.error = `Erreur ${err.status}`;
+        this.loading = false;
+      }
+    });
+  }
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 
     this.loadTests();
   }
