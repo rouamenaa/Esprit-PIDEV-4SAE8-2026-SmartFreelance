@@ -1,0 +1,94 @@
+pipeline {
+    agent any
+
+    tools {
+        maven "Maven3"
+        jdk "JDK17"
+    }
+
+    environment {
+        SONAR_TOKEN = credentials('sonar-token')
+    }
+
+    stages {
+
+        stage('Clone Repository') {
+            steps {
+                git branch: 'aziz-aroua',
+                url: 'https://github.com/rouamenaa/Esprit-PIDEV-4SAE8-2026-SmartFreelance.git'
+            }
+        }
+
+        stage('Go to Microservice') {
+            steps {
+                dir('smartfreelance-backend/formation-certification-service') {
+                    sh 'mvn clean compile'
+                }
+            }
+        }
+
+        stage('Run Tests (JUnit)') {
+            steps {
+                dir('smartfreelance-backend/formation-certification-service') {
+                    sh 'mvn test'
+                }
+            }
+
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Code Coverage (JaCoCo)') {
+            steps {
+                dir('smartfreelance-backend/formation-certification-service') {
+                    sh 'mvn jacoco:report'
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                dir('smartfreelance-backend/formation-certification-service') {
+                    sh """
+                    mvn sonar:sonar \
+                    -Dsonar.projectKey=smartfreelance \
+                    -Dsonar.projectName=SmartFreelance \
+                    -Dsonar.host.url=http://localhost:9000 \
+                    -Dsonar.login=$SONAR_TOKEN \
+                    -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                    """
+                }
+            }
+        }
+
+        stage('Build Package') {
+            steps {
+                dir('smartfreelance-backend/formation-certification-service') {
+                    sh 'mvn package -DskipTests'
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir('smartfreelance-backend/formation-certification-service') {
+                    sh 'docker build -t smartfreelance-ms .'
+                }
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo "✔ PIPELINE SUCCESS - SmartFreelance CI/CD"
+        }
+
+        failure {
+            echo "❌ PIPELINE FAILED - check logs"
+        }
+    }
+}
