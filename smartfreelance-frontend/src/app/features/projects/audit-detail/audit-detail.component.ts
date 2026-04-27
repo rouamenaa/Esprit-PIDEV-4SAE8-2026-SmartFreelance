@@ -112,6 +112,11 @@ computeScore(): void {
       this.loadHistory();
     },
     error: err => {
+        console.error('computeScore error', {
+          status: err?.status,
+          message: err?.error?.message,
+          error: err?.error
+        });
       this.scoreError = err.error?.message || 'Error computing score';
       this.computingScore = false;
     }
@@ -253,7 +258,16 @@ getChartDots(): { x: number; y: number; score: number; date: string }[] {
   updateTicketStatus(ticket: AuditTicket, status: string): void {
     this.ticketService.updateStatus(ticket.id!, status).subscribe({
       next: () => this.loadTickets(),
-      error: err => alert(err.error?.message || 'Cannot update status')
+      error: err => {
+        console.error('updateTicketStatus error', {
+          ticketId: ticket?.id,
+          askedStatus: status,
+          backendStatus: err?.status,
+          backendMessage: err?.error?.message,
+          backendError: err?.error
+        });
+        alert(err.error?.message || 'Cannot update status');
+      }
     });
   }
 

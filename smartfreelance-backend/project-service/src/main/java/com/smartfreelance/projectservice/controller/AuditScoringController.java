@@ -5,6 +5,7 @@ import com.smartfreelance.projectservice.service.AuditScoringEngine;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -26,7 +27,14 @@ public class AuditScoringController {
 
     @GetMapping("/audit/{auditId}")
     public ResponseEntity<AuditScore> getByAudit(@PathVariable Integer auditId) {
-        return ResponseEntity.ok(scoringEngine.getScoreByAudit(auditId));
+        try {
+            return ResponseEntity.ok(scoringEngine.getScoreByAudit(auditId));
+        } catch (ResponseStatusException ex) {
+            if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                return ResponseEntity.noContent().build();
+            }
+            throw ex;
+        }
     }
 
     @GetMapping("/project/{projectId}/history")

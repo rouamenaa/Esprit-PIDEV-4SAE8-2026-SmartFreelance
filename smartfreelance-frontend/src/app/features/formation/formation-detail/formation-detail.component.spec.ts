@@ -1,4 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+
 import { FormationDetailComponent } from './formation-detail.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormationService } from '../../../services/formation.service';
@@ -49,6 +54,7 @@ describe('FormationDetailComponent', () => {
     snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
     await TestBed.configureTestingModule({
+
       imports: [FormationDetailComponent],
       providers: [
         { provide: FormationService, useValue: formationServiceSpy },
@@ -74,6 +80,12 @@ describe('FormationDetailComponent', () => {
     }).compileComponents();
 
     formationServiceSpy.getFormationById.and.returnValue(of(mockFormation));
+
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      imports: [FormationDetailComponent]
+    })
+    .compileComponents();
+
 
     fixture = TestBed.createComponent(FormationDetailComponent);
     component = fixture.componentInstance;

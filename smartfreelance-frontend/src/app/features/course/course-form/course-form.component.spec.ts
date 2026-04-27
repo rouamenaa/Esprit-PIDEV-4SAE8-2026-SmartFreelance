@@ -1,4 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+
 import { CourseFormComponent } from './course-form.component';
 import { CourseService } from '../../../services/course.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -46,6 +51,12 @@ describe('CourseFormComponent', () => {
         }
       ]
     }).compileComponents();
+
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      imports: [CourseFormComponent]
+    })
+    .compileComponents();
+
 
     fixture = TestBed.createComponent(CourseFormComponent);
     component = fixture.componentInstance;

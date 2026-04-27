@@ -23,8 +23,12 @@ export class UtilisateurComponent implements OnInit {
 <<<<<<< HEAD
 =======
   // Disable external AI verification calls (no API key needed).
+<<<<<<< HEAD
   
 >>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
+=======
+  //azertyu
+>>>>>>> fc154c3c405b879e817312141dae127907ca162c
   user: any = { id: null, email: '', name: '', password: '', role: '' };
   users: any[] = [];
   isEditMode: boolean = false;
@@ -408,6 +412,7 @@ goToLogin() {
       const apiKey = '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';
 =======
       const apiKey = '';
+      
  
 >>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
       const text = await this.fileToText(this.selectedFile);

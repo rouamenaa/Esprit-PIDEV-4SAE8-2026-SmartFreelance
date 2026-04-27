@@ -1,4 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+
+
 import { FormationFormComponent } from './formation-form.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormationService } from '../../../services/formation.service';
@@ -33,6 +39,7 @@ describe('FormationFormComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
+
       imports: [FormationFormComponent, CommonModule, FormsModule],
       providers: [
         { provide: FormationService, useValue: formationServiceSpy },
@@ -49,6 +56,12 @@ describe('FormationFormComponent', () => {
         }
       ]
     }).compileComponents();
+
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      imports: [FormationFormComponent]
+    })
+    .compileComponents();
+
 
     fixture = TestBed.createComponent(FormationFormComponent);
     component = fixture.componentInstance;

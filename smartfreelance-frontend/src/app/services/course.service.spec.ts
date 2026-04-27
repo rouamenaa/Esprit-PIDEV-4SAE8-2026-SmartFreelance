@@ -1,5 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+
 import { CourseService } from './course.service';
 import { Course } from '../models/course.model';
 import { environment } from '../../environments/environment';
@@ -23,6 +26,7 @@ describe('CourseService', () => {
       imports: [HttpClientTestingModule],
       providers: [CourseService]
     });
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
     service = TestBed.inject(CourseService);
     httpMock = TestBed.inject(HttpTestingController);
   });

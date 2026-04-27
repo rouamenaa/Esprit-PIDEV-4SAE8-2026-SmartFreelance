@@ -1,5 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+
 import { RewardService } from './reward.service';
 import { Reward } from '../models/reward.model';
 import { environment } from '../../environments/environment';
@@ -26,6 +29,7 @@ describe('RewardService', () => {
       providers: [RewardService]
     });
 
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
     service = TestBed.inject(RewardService);
     httpMock = TestBed.inject(HttpTestingController);
   });

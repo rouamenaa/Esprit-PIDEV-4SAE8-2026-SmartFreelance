@@ -15,7 +15,8 @@ function normalizeContrat(raw: Contrat | Record<string, unknown>): Contrat {
 
 /** Maps form/partial data to API request body (Contrat shape) */
 function toApiBody(data: Partial<Contrat>): Partial<Contrat> {
-  return {
+  const latePenaltyPercent = data.latePenaltyPercent ?? (data as any).late_penalty_percent;
+  const body: Partial<Contrat> = {
     clientId: data.clientId ?? (data as any).client_id,
     freelancerId: data.freelancerId ?? (data as any).freelancer_id,
     titre: data.titre ?? (data as any).title ?? '',
@@ -24,8 +25,11 @@ function toApiBody(data: Partial<Contrat>): Partial<Contrat> {
     dateDebut: data.dateDebut ?? (data as any).startDate ?? (data as any).start_date ?? '',
     dateFin: data.dateFin ?? (data as any).endDate ?? (data as any).end_date ?? '',
     statut: data.statut ?? 'BROUILLON',
-    latePenaltyPercent: data.latePenaltyPercent ?? (data as any).late_penalty_percent ?? undefined,
   };
+  if (latePenaltyPercent != null) {
+    body.latePenaltyPercent = latePenaltyPercent;
+  }
+  return body;
 }
 
 @Injectable({

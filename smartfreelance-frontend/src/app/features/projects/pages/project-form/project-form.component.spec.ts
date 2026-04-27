@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 
 import { ProjectFormComponent } from './project-form.component';
 
@@ -8,7 +11,8 @@ describe('ProjectFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ProjectFormComponent]
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      imports: [ProjectFormComponent]
     })
     .compileComponents();
 

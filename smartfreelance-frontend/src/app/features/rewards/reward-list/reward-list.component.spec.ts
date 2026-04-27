@@ -1,4 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+
 import { RewardListComponent } from './reward-list.component';
 import { RewardService } from '../../../services/reward.service';
 import { ConfirmService } from '../../../shared/services/confirm.service';
@@ -52,6 +56,10 @@ describe('RewardListComponent', () => {
 
     rewardServiceSpy.getByFormation.and.returnValue(of([mockReward]));
     rewardServiceSpy.getAll.and.returnValue(of([mockReward]));
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      imports: [RewardListComponent]
+    })
+    .compileComponents();
 
     fixture = TestBed.createComponent(RewardListComponent);
     component = fixture.componentInstance;

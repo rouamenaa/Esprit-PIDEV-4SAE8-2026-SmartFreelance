@@ -23,7 +23,11 @@ describe('CourseDetailComponent', () => {
   };
 
   beforeEach(async () => {
-    courseServiceSpy = jasmine.createSpyObj('CourseService', ['getCourseById', 'deleteCourse']);
+    courseServiceSpy = jasmine.createSpyObj('CourseService', [
+      'getCourseById',
+      'deleteCourse'
+    ]);
+
     confirmServiceSpy = jasmine.createSpyObj('ConfirmService', ['delete']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -38,7 +42,7 @@ describe('CourseDetailComponent', () => {
           useValue: {
             snapshot: {
               paramMap: {
-                get: (key: string) => key === 'id' ? '1' : null
+                get: (key: string) => (key === 'id' ? '1' : null)
               }
             }
           }
@@ -63,26 +67,46 @@ describe('CourseDetailComponent', () => {
   });
 
   it('should handle error when loading course', () => {
-    courseServiceSpy.getCourseById.and.returnValue(throwError(() => new Error('error')));
+    courseServiceSpy.getCourseById.and.returnValue(
+      throwError(() => new Error('error'))
+    );
+
     component.loadCourse(1);
+
     expect(component.error).toBe('Erreur lors du chargement du cours.');
   });
 
   it('should navigate back', () => {
     component.goBack();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/formations', 1, 'courses']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith([
+      '/formations',
+      1,
+      'courses'
+    ]);
   });
 
   it('should navigate to edit', () => {
     component.edit();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/formations', 1, 'courses', 1, 'edit']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith([
+      '/formations',
+      1,
+      'courses',
+      1,
+      'edit'
+    ]);
   });
 
   it('should delete course when confirmed', () => {
     confirmServiceSpy.delete.and.returnValue(of(true));
     courseServiceSpy.deleteCourse.and.returnValue(of(void 0));
+
     component.delete();
+
     expect(courseServiceSpy.deleteCourse).toHaveBeenCalledWith(1);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/formations', 1, 'courses']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith([
+      '/formations',
+      1,
+      'courses'
+    ]);
   });
 });

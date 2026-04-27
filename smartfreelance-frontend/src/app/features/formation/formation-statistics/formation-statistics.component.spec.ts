@@ -1,4 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+
+
 import { FormationStatisticsComponent } from './formation-statistics.component';
 import { FormationService } from '../../../services/formation.service';
 import { of, throwError } from 'rxjs';
@@ -25,6 +31,7 @@ describe('FormationStatisticsComponent', () => {
     formationServiceSpy = jasmine.createSpyObj('FormationService', ['getGlobalStatistics', 'getMonthlyRegistrations']);
 
     await TestBed.configureTestingModule({
+
       imports: [FormationStatisticsComponent, CommonModule],
       providers: [
         { provide: FormationService, useValue: formationServiceSpy }
@@ -33,6 +40,12 @@ describe('FormationStatisticsComponent', () => {
 
     formationServiceSpy.getGlobalStatistics.and.returnValue(of(mockGlobalStats));
     formationServiceSpy.getMonthlyRegistrations.and.returnValue(of(mockMonthlyRegistrations));
+
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      imports: [FormationStatisticsComponent]
+    })
+    .compileComponents();
+
 
     fixture = TestBed.createComponent(FormationStatisticsComponent);
     component = fixture.componentInstance;

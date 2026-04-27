@@ -32,7 +32,8 @@ export class AuditTicketService {
   }
 
   updateStatus(id: number, status: string): Observable<AuditTicket> {
-    return this.http.put<AuditTicket>(`${this.base}/${id}/status?status=${status}`, {});
+    const normalized = status === 'IN_REVIEW' ? 'IN_PROGRESS' : status;
+    return this.http.put<AuditTicket>(`${this.base}/${id}/status?status=${normalized}`, {});
   }
 
   delete(id: number): Observable<void> {

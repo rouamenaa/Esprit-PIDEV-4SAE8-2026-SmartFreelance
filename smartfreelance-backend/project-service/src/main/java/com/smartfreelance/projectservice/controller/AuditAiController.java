@@ -2,6 +2,7 @@ package com.smartfreelance.projectservice.controller;
 
 import com.smartfreelance.projectservice.entity.AuditAnalysis;
 import com.smartfreelance.projectservice.service.AuditAiService;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +33,13 @@ public class AuditAiController {
      */
     @GetMapping("/report/{reportId}")
     public ResponseEntity<AuditAnalysis> getAnalysis(@PathVariable Integer reportId) {
-        return ResponseEntity.ok(aiService.getAnalysisByReport(reportId));
+        try {
+            return ResponseEntity.ok(aiService.getAnalysisByReport(reportId));
+        } catch (ResponseStatusException ex) {
+            if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                return ResponseEntity.noContent().build();
+            }
+            throw ex;
+        }
     }
 }

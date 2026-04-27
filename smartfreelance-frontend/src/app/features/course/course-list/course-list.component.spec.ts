@@ -1,4 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+
+
 import { CourseListComponent } from './course-list.component';
 import { CourseService } from '../../../services/course.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -26,6 +32,7 @@ describe('CourseListComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
+
       imports: [CourseListComponent],
       providers: [
         { provide: CourseService, useValue: courseServiceSpy },
@@ -45,6 +52,12 @@ describe('CourseListComponent', () => {
 
     courseServiceSpy.getAllCourses.and.returnValue(of([mockCourse]));
     courseServiceSpy.getCoursesByFormation.and.returnValue(of([mockCourse]));
+
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      imports: [CourseListComponent]
+    })
+    .compileComponents();
+
 
     fixture = TestBed.createComponent(CourseListComponent);
     component = fixture.componentInstance;

@@ -15,7 +15,6 @@ import java.util.List;
 
 @Service
 public class ActionPlanService {
-
     private final AuditAnalysisRepository analysisRepository;
     private final AuditReportRepository reportRepository;
     private final AuditRepository auditRepository;

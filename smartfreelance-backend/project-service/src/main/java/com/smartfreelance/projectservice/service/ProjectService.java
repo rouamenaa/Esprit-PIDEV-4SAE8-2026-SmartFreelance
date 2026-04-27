@@ -42,11 +42,6 @@ public interface ProjectService {
     double calculateProjectPerformanceIndex(Long projectId);
 
     String classifyProjectPerformance(Long projectId);
-<<<<<<< HEAD
-    Map<String, Object> getProjectProgressDetails(Long projectId);
-}
-=======
 
     Map<String, Object> getProjectProgressDetails(Long projectId);
 }
->>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25

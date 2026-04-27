@@ -1,4 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+
+
 import { FormationListComponent } from './formation-list.component';
 import { FormationService } from '../../../services/formation.service';
 import { Router } from '@angular/router';
@@ -42,6 +48,7 @@ describe('FormationListComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
+
       imports: [FormationListComponent, CommonModule, FormsModule],
       providers: [
         { provide: FormationService, useValue: formationServiceSpy },
@@ -51,6 +58,12 @@ describe('FormationListComponent', () => {
 
     formationServiceSpy.getFormationsPaged.and.returnValue(of(mockPageResponse));
     formationServiceSpy.searchFormations.and.returnValue(of(mockPageResponse));
+
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      imports: [FormationListComponent]
+    })
+    .compileComponents();
+
 
     fixture = TestBed.createComponent(FormationListComponent);
     component = fixture.componentInstance;
