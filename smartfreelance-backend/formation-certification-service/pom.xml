@@ -96,11 +96,29 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- TESTS -->
+        <!-- JUnit 4 explicite (pour compatibilité avec vos anciens tests) -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Spring Boot Test – on exclut JUnit 5 (Jupiter) pour éviter le conflit -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>
@@ -132,7 +150,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- TESTS RUNNER -->
+            <!-- TESTS RUNNER (Surefire) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -149,7 +167,7 @@
                 <version>3.10.0.2594</version>
             </plugin>
 
-            <!-- CODE COVERAGE (IMPORTANT DEVOPS) -->
+            <!-- CODE COVERAGE (JaCoCo) -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
