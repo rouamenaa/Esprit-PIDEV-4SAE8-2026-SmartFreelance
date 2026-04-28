@@ -17,14 +17,20 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building project...'
-                sh 'mvn clean compile'
+                sh '''
+                    cd smartfreelance-backend/formation-certification-service
+                    mvn clean compile
+                '''
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                sh 'mvn test'
+                sh '''
+                    cd smartfreelance-backend/formation-certification-service
+                    mvn test
+                '''
             }
         }
 
@@ -32,7 +38,10 @@ pipeline {
             steps {
                 echo 'Running SonarQube analysis...'
                 withSonarQubeEnv("${SONARQUBE_ENV}") {
-                    sh 'mvn sonar:sonar'
+                    sh '''
+                        cd smartfreelance-backend/formation-certification-service
+                        mvn sonar:sonar
+                    '''
                 }
             }
         }
