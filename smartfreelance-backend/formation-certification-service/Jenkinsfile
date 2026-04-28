@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'sonar'
+        // ⚠️ Remplace ici par le NOM EXACT dans Jenkins
+        SONARQUBE_ENV = 'SonarQube'
     }
 
     stages {
