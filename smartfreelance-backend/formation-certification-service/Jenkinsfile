@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // ⚠️ Remplace ici par le NOM EXACT dans Jenkins
         SONARQUBE_ENV = 'SonarQube'
     }
 
@@ -38,11 +37,15 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 echo 'Running SonarQube analysis...'
+
                 withSonarQubeEnv("${SONARQUBE_ENV}") {
-                    sh '''
-                        cd smartfreelance-backend/formation-certification-service
-                        mvn sonar:sonar
-                    '''
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+
+                        sh '''
+                            cd smartfreelance-backend/formation-certification-service
+                            mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
                 }
             }
         }
