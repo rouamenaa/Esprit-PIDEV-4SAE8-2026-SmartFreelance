@@ -2,104 +2,48 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token')
+        SONARQUBE_ENV = 'sonar'
     }
 
     stages {
 
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
                 git branch: 'aziz-aroua',
                 url: 'https://github.com/rouamenaa/Esprit-PIDEV-4SAE8-2026-SmartFreelance.git'
             }
         }
 
-        stage('Go to Microservice') {
+        stage('Build') {
             steps {
-                dir('smartfreelance-backend/formation-certification-service') {
-                    sh '''
-                        export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-                        export PATH=$JAVA_HOME/bin:$PATH
-                        mvn clean compile
-                    '''
-                }
+                echo 'Building project...'
+                sh 'mvn clean compile'
             }
         }
 
-        stage('Run Tests (JUnit)') {
+        stage('Test') {
             steps {
-                dir('smartfreelance-backend/formation-certification-service') {
-                    sh '''
-                        export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-                        export PATH=$JAVA_HOME/bin:$PATH
-                        mvn test
-                    '''
-                }
-            }
-            post {
-                always {
-                    junit '**/target/surefire-reports/*.xml'
-                }
-            }
-        }
-
-        stage('Code Coverage (JaCoCo)') {
-            steps {
-                dir('smartfreelance-backend/formation-certification-service') {
-                    sh '''
-                        export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-                        export PATH=$JAVA_HOME/bin:$PATH
-                        mvn jacoco:report
-                    '''
-                }
+                echo 'Running tests...'
+                sh 'mvn test'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                dir('smartfreelance-backend/formation-certification-service') {
-                    sh """
-                        export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-                        export PATH=\$JAVA_HOME/bin:\$PATH
-                        mvn sonar:sonar \
-                        -Dsonar.projectKey=smartfreelance \
-                        -Dsonar.projectName=SmartFreelance \
-                        -Dsonar.host.url=http://localhost:9000 \
-                        -Dsonar.login=$SONAR_TOKEN \
-                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-                    """
+                echo 'Running SonarQube analysis...'
+                withSonarQubeEnv("${SONARQUBE_ENV}") {
+                    sh 'mvn sonar:sonar'
                 }
             }
         }
-
-        stage('Build Package') {
-            steps {
-                dir('smartfreelance-backend/formation-certification-service') {
-                    sh '''
-                        export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-                        export PATH=$JAVA_HOME/bin:$PATH
-                        mvn package -DskipTests
-                    '''
-                }
-            }
-        }
-
-        stage('Docker Build') {
-            steps {
-                dir('smartfreelance-backend/formation-certification-service') {
-                    sh 'docker build -t smartfreelance-ms .'
-                }
-            }
-        }
-
     }
 
     post {
         success {
-            echo "✔ PIPELINE SUCCESS - SmartFreelance CI/CD"
+            echo 'Pipeline completed successfully!'
         }
         failure {
-            echo "❌ PIPELINE FAILED - check logs"
+            echo 'Pipeline failed!'
         }
     }
 }
