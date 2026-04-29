@@ -1,4 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../../core/serviceslogin/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -13,10 +16,15 @@ export class NavbarComponent {
   toggleSidebar() {
     this.sidebarToggle.emit();
   }
+  isDark = true;
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  toggleSidebar() {}
 
   toggleTheme() {
     this.isDark = !this.isDark;
-    if(this.isDark){
+    if (this.isDark) {
       document.body.classList.add('dark-mode');
       document.body.classList.remove('light-mode');
     } else {
@@ -26,3 +34,10 @@ export class NavbarComponent {
   }
   
 }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+}
+  

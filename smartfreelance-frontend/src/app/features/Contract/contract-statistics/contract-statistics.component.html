@@ -1,0 +1,30 @@
+<div class="stats-page">
+  <div class="stats-page__toolbar">
+    <a routerLink="/contrats" class="stats-page__back">
+      <span class="stats-page__back-icon" aria-hidden="true">&larr;</span>
+      Back to list
+    </a>
+  </div>
+
+  <h1 class="stats-page__title">Contract statistics</h1>
+
+  <p *ngIf="loading" class="stats-page__loading">Loading...</p>
+  <p *ngIf="error" class="stats-page__error">{{ error }}</p>
+
+  <ng-container *ngIf="!loading && !error && stats">
+    <div class="stats-cards">
+      <div class="stats-card">
+        <span class="stats-card__label">Completed contracts</span>
+        <span class="stats-card__value">{{ stats.completedContracts }}</span>
+      </div>
+      <div class="stats-card">
+        <span class="stats-card__label">Active contracts</span>
+        <span class="stats-card__value">{{ stats.activeContracts }}</span>
+      </div>
+      <div class="stats-card">
+        <span class="stats-card__label">Client spending</span>
+        <span class="stats-card__value">{{ stats.clientSpending | number:'1.2-2' }}</span>
+      </div>
+    </div>
+  </ng-container>
+</div>

@@ -13,18 +13,25 @@ import { RewardService } from '../../../services/reward.service';
 })
 export class RewardFormComponent implements OnInit {
 
-  reward: any = { name: '', type: '' };
+  reward: any = {
+    name: '',
+    type: 'BADGE',
+    level: 'BEGINNER',
+    minScoreRequired: 60,
+    iconUrl: ''
+  };
   isEditMode = false;
   loading = false;
   error = '';
   formationId?: number;
-  rewardTypes = ['BADGE', 'CERTIFICATE', 'POINTS', 'TROPHY'];
+  rewardTypes = ['BADGE', 'LEVEL'];
+  rewardLevels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'];
 
   constructor(
     private service: RewardService,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe(params => {
@@ -60,6 +67,9 @@ export class RewardFormComponent implements OnInit {
     const rewardData: any = {
       name: this.reward.name,
       type: this.reward.type,
+      level: this.reward.level,
+      minScoreRequired: this.reward.minScoreRequired,
+      iconUrl: this.reward.iconUrl || null,
       formation: { id: this.formationId }
     };
     if (this.isEditMode) rewardData.id = this.reward.id;

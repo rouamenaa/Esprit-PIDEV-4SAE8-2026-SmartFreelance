@@ -17,6 +17,17 @@ private NLP_URL = 'http://127.0.0.1:8000/analyze';
   // GET all projects
   getAll(): Observable<Project[]> {
     return this.http.get<Project[]>(this.apiUrl1);
+<<<<<<< HEAD
+=======
+  }
+
+  getByFreelancerId(freelancerId: number): Observable<Project[]> {
+    return this.http.get<Project[]>(`${this.apiUrl1}/freelancers/${freelancerId}`);
+  }
+
+  getByClientId(clientId: number): Observable<Project[]> {
+    return this.http.get<Project[]>(`${this.apiUrl1}/clients/${clientId}`);
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
   }
 
   // GET by ID

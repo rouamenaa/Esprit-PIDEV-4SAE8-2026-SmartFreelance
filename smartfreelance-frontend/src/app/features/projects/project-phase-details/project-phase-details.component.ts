@@ -27,6 +27,7 @@ export class ProjectPhaseDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.phaseId = Number(this.route.snapshot.paramMap.get('id'));
+    this.showTaskForm = this.route.snapshot.queryParamMap.get('openTasks') === '1';
     this.loadPhase();
   }
 
@@ -48,4 +49,8 @@ getDuration(): number {
 goBack(): void {
   this.router.navigate(['/projects']);
 }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25

@@ -48,6 +48,11 @@ public class FormationService {
         existing.setDescription(f.getDescription());
         existing.setDuration(f.getDuration());
         existing.setLevel(f.getLevel());
+        existing.setStartDate(f.getStartDate());       // ← NEW
+        existing.setEndDate(f.getEndDate());           // ← NEW
+        existing.setPrice(f.getPrice());               // ← NEW
+        existing.setMaxParticipants(f.getMaxParticipants()); // ← NEW
+        existing.setCategory(f.getCategory());         // ← NEW
         return repo.save(existing);
     }
 

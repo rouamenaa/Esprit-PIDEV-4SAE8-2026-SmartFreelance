@@ -27,4 +27,8 @@ public class ContratResponse {
     private Contrat.StatutContrat statut;
     private LocalDateTime dateCreation;
     private LocalDateTime dateModification;
+    private LocalDateTime clientSignedAt;
+    private LocalDateTime freelancerSignedAt;
+    /** Late penalty: reduce payment by this % if delivery is late (e.g. 5 = 5%). Null = no penalty. */
+    private BigDecimal latePenaltyPercent;
 }

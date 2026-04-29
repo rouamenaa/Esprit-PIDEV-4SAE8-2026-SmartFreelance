@@ -1,0 +1,58 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'smartfreelance-frontend/**'
+  pull_request:
+    paths:
+      - 'smartfreelance-frontend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: smartfreelance-frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: smartfreelance-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chrome
+        run: sudo apt-get update && sudo apt-get install -y chromium-browser
+
+      - name: Run tests with coverage
+        run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+
+      - name: SonarCloud Scan
+        if: ${{ vars.SONAR_ORGANIZATION != '' && vars.SONAR_PROJECT_KEY_FRONT != '' }}
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          projectBaseDir: smartfreelance-frontend
+          args: >
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY_FRONT }}
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.sources=src/app/services
+            -Dsonar.inclusions=src/app/services/project.service.ts,src/app/services/formation.service.ts,src/app/services/audit.service.ts,src/app/services/audit-ticket.service.ts,src/app/services/contrat.service.ts,src/app/services/condidature.service.ts
+            -Dsonar.exclusions=**/*.spec.ts,**/*.html,**/*.css
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=**/*.spec.ts
+            -Dsonar.javascript.lcov.reportPaths=coverage/smartfreelance-frontend/lcov.info
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

@@ -1,12 +1,15 @@
+<!-- Loading -->
 <div class="loading-container" *ngIf="loading">
   <div class="spinner"></div>
   <p>Loading...</p>
 </div>
 
+<!-- Error -->
 <div class="detail-error-banner" *ngIf="error">
   <span>⚠️</span> {{ error }}
 </div>
 
+<!-- Detail -->
 <div class="detail-container" *ngIf="!loading && test">
   <div class="detail-card">
 
@@ -25,23 +28,26 @@
 
     <!-- Body -->
     <div class="detail-body">
-
       <div class="reward-visual">
         <div class="reward-icon">📝</div>
         <div class="reward-glow"></div>
       </div>
 
       <div class="detail-meta-grid">
-
         <div class="meta-card">
           <div class="meta-icon">⭐</div>
           <div class="meta-info">
-            <span class="meta-label">Total Score</span>
-            <span class="meta-value">{{ test.totalScore }} pts</span>
+            <span class="meta-label">Passing Score</span>
+            <span class="meta-value">{{ test.passingScore }} %</span>
           </div>
         </div>
-
-        <!-- ✅ formation?.id au lieu de formationId -->
+        <div class="meta-card" *ngIf="test.questions && test.questions.length > 0">
+          <div class="meta-icon">❓</div>
+          <div class="meta-info">
+            <span class="meta-label">Questions</span>
+            <span class="meta-value">{{ test.questions.length }}</span>
+          </div>
+        </div>
         <div class="meta-card" *ngIf="test.formation?.id">
           <div class="meta-icon">📚</div>
           <div class="meta-info">
@@ -49,8 +55,132 @@
             <span class="meta-value"># {{ test.formation?.id }}</span>
           </div>
         </div>
-
       </div>
+    </div>
+
+    <!-- AI generating spinner -->
+    <div class="ai-generating" *ngIf="isPolling && (!test.questions || test.questions.length === 0)">
+      <div class="ai-spinner-wrapper">
+        <div class="ai-spinner"></div>
+        <div class="ai-pulse-ring"></div>
+      </div>
+      <h3 class="ai-title">📊 Loading questions...</h3>
+      <p class="ai-subtitle">Please wait. The page refreshes automatically.</p>
+    </div>
+
+    <!-- Questions -->
+    <div class="questions-section" *ngIf="test.questions && test.questions.length > 0 && !result">
+      <div class="questions-header">
+        <h3 class="questions-title">📝 Questions</h3>
+        <span class="questions-progress">
+          {{ answeredCount() }} / {{ test.questions.length }} answered
+        </span>
+      </div>
+
+      <div class="question-card" *ngFor="let question of test.questions; let i = index">
+        <div class="question-header">
+          <span class="question-number">Q{{ i + 1 }}</span>
+          <span class="question-content">{{ question.content }}</span>
+          <span class="question-points">{{ question.points }} pts</span>
+        </div>
+
+        <div class="answers-list">
+          <div class="answer-item"
+            *ngFor="let answer of question.answers"
+            [class.selected]="selectedAnswers[question.id!] === answer.id"
+            (click)="selectAnswer(question.id!, answer.id!)">
+            <span class="answer-radio">
+              {{ selectedAnswers[question.id!] === answer.id ? '🔵' : '⚪' }}
+            </span>
+            <span class="answer-content">{{ answer.content }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="submit-section">
+        <button class="btn btn-submit-test"
+          (click)="submitTest()"
+          [disabled]="isSubmitting || !allAnswered()">
+          {{ isSubmitting ? '⏳ Grading...' : '✅ Submit Test' }}
+        </button>
+        <p class="submit-hint" *ngIf="!allAnswered()">
+          ⚠️ Please answer all {{ test.questions.length }} questions before submitting.
+          ({{ answeredCount() }}/{{ test.questions.length }} done)
+        </p>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="result-section" *ngIf="result">
+      <div class="result-card"
+        [class.result-passed]="result.passed"
+        [class.result-failed]="!result.passed">
+        <div class="result-icon">{{ result.passed ? '🏆' : '😔' }}</div>
+        <h3 class="result-title">{{ result.passed ? 'Congratulations!' : 'Try Again!' }}</h3>
+
+        <div class="result-score">
+          <span class="score-value">{{ result.score }}</span>
+          <span class="score-total">/ {{ result.totalPoints }} pts</span>
+        </div>
+
+        <div class="score-bar-wrapper">
+          <div class="score-bar" [style.width.%]="getScorePercentage()"
+            [class.bar-passed]="result.passed"
+            [class.bar-failed]="!result.passed">
+          </div>
+        </div>
+        <span class="score-percentage">{{ getScorePercentage() }}%</span>
+
+        <div class="result-badge"
+          [class.badge-passed]="result.passed"
+          [class.badge-failed]="!result.passed">
+          {{ result.passed ? '✅ Passed' : '❌ Failed' }}
+        </div>
+
+        <p class="reward-hint" *ngIf="result.passed">
+          🎖️ A reward badge has been automatically assigned!
+        </p>
+
+        <button class="btn btn-back" *ngIf="!result.passed" (click)="goBack()">← Back</button>
+      </div>
+    </div>
+
+    <!-- Certificate name input (if needed) -->
+    <div class="certificate-section" *ngIf="result?.passed && showNameInput && !certificateImageUrl">
+      <h3>🎉 Generate your personalized certificate</h3>
+      <p>Enter your full name to generate your certificate</p>
+      <input
+        type="text"
+        [(ngModel)]="userName"
+        placeholder="Enter your full name..."
+        class="name-input"
+      />
+      <div class="certificate-actions">
+        <button
+          class="btn btn-certificate"
+          (click)="generateCertificate()"
+          [disabled]="!userName.trim() || isGeneratingCertificate">
+          {{ isGeneratingCertificate ? '⏳ Generating...' : '📜 Generate Certificate' }}
+        </button>
+        <button class="btn btn-back" (click)="goBack()">← Skip</button>
+      </div>
+    </div>
+
+    <!-- Certificate preview -->
+    <div class="certificate-preview" *ngIf="certificateImageUrl">
+      <h3>📄 Your Certificate is Ready!</h3>
+      <img [src]="certificateImageUrl" alt="Certificate" />
+      <div class="certificate-actions">
+        <button class="btn btn-download" (click)="downloadCertificate()">
+          ⬇️ Download Certificate
+        </button>
+        <button class="btn btn-back" (click)="goBack()">← Back</button>
+      </div>
+    </div>
+
+    <!-- No questions -->
+    <div class="no-questions" *ngIf="!isPolling && (!test.questions || test.questions.length === 0)">
+      <p>⚠️ No questions for this test.</p>
     </div>
 
   </div>

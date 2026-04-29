@@ -18,12 +18,30 @@ export class FormationFormComponent implements OnInit {
     title: '',
     description: '',
     duration: 0,
-    level: ''
+    level: '',
+    startDate: '',
+    endDate: '',
+    price: undefined,
+    maxParticipants: undefined,
+    category: ''
   };
+
   isEditMode = false;
   loading = false;
   error = '';
-  levels: string[] = ['Débutant', 'Intermédiaire', 'Avancé'];
+
+  levels: string[] = ['Beginner', 'Intermediate', 'Advanced'];
+  categories: string[] = [
+    'IT & Software',
+    'Management',
+    'Marketing',
+    'Design',
+    'Languages',
+    'Finance',
+    'Human Resources',
+    'Personal Development',
+    'Other'
+  ];
 
   constructor(
     private route: ActivatedRoute,
@@ -46,23 +64,35 @@ export class FormationFormComponent implements OnInit {
         this.formation = data;
         this.loading = false;
       },
-      error: (err) => {
-        this.error = 'Erreur lors du chargement de la formation.';
+      error: () => {
+        this.error = 'Failed to load the training.';
         this.loading = false;
       }
     });
   }
 
   onSubmit(): void {
+    // Validate end date is after start date
+    if (
+      this.formation.startDate &&
+      this.formation.endDate &&
+      this.formation.endDate < this.formation.startDate
+    ) {
+      this.error = 'End date must be after the start date.';
+      return;
+    }
+
     this.loading = true;
+    this.error = '';
+
     if (this.isEditMode) {
       this.formationService.updateFormation(this.formation.id, this.formation).subscribe({
         next: () => {
           this.router.navigate(['/formations', this.formation.id]);
         },
         error: (err) => {
-          console.error('Erreur modification:', err);
-          this.error = 'Erreur lors de la mise à jour : ' + (err.error?.message || err.statusText || 'Erreur inconnue');
+          console.error('Update error:', err);
+          this.error = 'Failed to update: ' + (err.error?.message || err.statusText || 'Unknown error');
           this.loading = false;
         }
       });
@@ -72,8 +102,8 @@ export class FormationFormComponent implements OnInit {
           this.router.navigate(['/formations', created.id]);
         },
         error: (err) => {
-          console.error('Erreur création:', err);
-          this.error = 'Erreur lors de la création : ' + (err.error?.message || err.statusText || 'Erreur inconnue');
+          console.error('Create error:', err);
+          this.error = 'Failed to create: ' + (err.error?.message || err.statusText || 'Unknown error');
           this.loading = false;
         }
       });

@@ -41,4 +41,9 @@ public class ContratRequest {
 
     @NotNull(message = "statut est requis")
     private Contrat.StatutContrat statut;
+
+    /** Optional: reduce payment by this % if delivery is late (0–100). */
+    @DecimalMin(value = "0", message = "latePenaltyPercent doit être >= 0")
+    @DecimalMax(value = "100", message = "latePenaltyPercent doit être <= 100")
+    private BigDecimal latePenaltyPercent;
 }

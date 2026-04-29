@@ -18,7 +18,7 @@
       <div class="form-title-wrapper">
         <span class="form-badge">{{ isEditMode ? 'Edit' : 'New' }}</span>
         <h2 class="form-title">
-          {{ isEditMode ? 'Edit training' : 'Add a training' }}
+          {{ isEditMode ? 'Edit Training' : 'Add a Training' }}
         </h2>
       </div>
     </div>
@@ -61,6 +61,25 @@
             placeholder="Describe the content and objectives of the training..."
             [(ngModel)]="formation.description"
           ></textarea>
+        </div>
+
+        <!-- Category -->
+        <div class="field-group">
+          <label for="category" class="field-label">
+            <span class="field-icon">🏷️</span> Category
+          </label>
+          <div class="select-wrapper">
+            <select
+              class="field-input field-select"
+              id="category"
+              name="category"
+              [(ngModel)]="formation.category"
+            >
+              <option value="">-- Select a category --</option>
+              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            </select>
+            <span class="select-arrow">▾</span>
+          </div>
         </div>
 
         <!-- Duration + Level (side by side) -->
@@ -118,13 +137,105 @@
 
         </div>
 
+        <!-- Start Date + End Date (side by side) -->
+        <div class="field-row">
+
+          <!-- Start Date -->
+          <div class="field-group">
+            <label for="startDate" class="field-label">
+              <span class="field-icon">📅</span> Start Date
+            </label>
+            <input
+              type="date"
+              class="field-input"
+              id="startDate"
+              name="startDate"
+              [(ngModel)]="formation.startDate"
+            />
+          </div>
+
+          <!-- End Date -->
+          <div class="field-group">
+            <label for="endDate" class="field-label">
+              <span class="field-icon">📅</span> End Date
+            </label>
+            <input
+              type="date"
+              class="field-input"
+              id="endDate"
+              name="endDate"
+              [(ngModel)]="formation.endDate"
+              [min]="formation.startDate || ''"
+              #endDate="ngModel"
+            />
+            <div class="field-error" *ngIf="endDate.touched && formation.endDate && formation.startDate && formation.endDate < formation.startDate">
+              ⚠ End date must be after start date.
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Price + Max Participants (side by side) -->
+        <div class="field-row">
+
+          <!-- Price -->
+          <div class="field-group">
+            <label for="price" class="field-label">
+              <span class="field-icon">💰</span> Price (TND)
+            </label>
+            <div class="input-prefix-wrapper">
+              <span class="input-prefix">TND</span>
+              <input
+                type="number"
+                class="field-input with-prefix"
+                id="price"
+                name="price"
+                placeholder="e.g., 299"
+                [(ngModel)]="formation.price"
+                min="0"
+                step="0.01"
+                #price="ngModel"
+                [class.input-error]="price.invalid && price.touched"
+              />
+            </div>
+            <div class="field-error" *ngIf="price.invalid && price.touched">
+              ⚠ Price must be a positive value.
+            </div>
+          </div>
+
+          <!-- Max Participants -->
+          <div class="field-group">
+            <label for="maxParticipants" class="field-label">
+              <span class="field-icon">👥</span> Max Participants
+            </label>
+            <div class="input-prefix-wrapper">
+              <span class="input-prefix">👤</span>
+              <input
+                type="number"
+                class="field-input with-prefix"
+                id="maxParticipants"
+                name="maxParticipants"
+                placeholder="e.g., 30"
+                [(ngModel)]="formation.maxParticipants"
+                min="1"
+                #maxParticipants="ngModel"
+                [class.input-error]="maxParticipants.invalid && maxParticipants.touched"
+              />
+            </div>
+            <div class="field-error" *ngIf="maxParticipants.invalid && maxParticipants.touched">
+              ⚠ Minimum 1 participant required.
+            </div>
+          </div>
+
+        </div>
+
         <!-- Actions -->
         <div class="form-actions">
           <button type="button" class="btn btn-cancel" (click)="cancel()">
             ← Cancel
           </button>
           <button type="submit" class="btn btn-submit" [disabled]="formationForm.invalid">
-            {{ isEditMode ? '✏️ Edit' : '✚ Create training' }}
+            {{ isEditMode ? '✏️ Save Changes' : '✚ Create Training' }}
           </button>
         </div>
 

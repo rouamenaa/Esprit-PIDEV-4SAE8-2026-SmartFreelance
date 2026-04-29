@@ -2,15 +2,33 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+<<<<<<< HEAD
+=======
+import { Router, ActivatedRoute } from '@angular/router';
+import { RouterModule } from '@angular/router';
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 
 @Component({
   selector: 'app-utilisateur',
   standalone: true,
+<<<<<<< HEAD
   imports: [CommonModule, FormsModule],
+=======
+  imports: [CommonModule, FormsModule, RouterModule],
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
   templateUrl: './utilisateur.component.html',
   styleUrls: ['./utilisateur.component.css']
 })
 export class UtilisateurComponent implements OnInit {
+<<<<<<< HEAD
+=======
+  // Disable external AI verification calls (no API key needed).
+<<<<<<< HEAD
+  
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
+=======
+  //azertyu
+>>>>>>> fc154c3c405b879e817312141dae127907ca162c
   user: any = { id: null, email: '', name: '', password: '', role: '' };
   users: any[] = [];
   isEditMode: boolean = false;
@@ -18,14 +36,22 @@ export class UtilisateurComponent implements OnInit {
   nameError: string = '';
   passwordError: string = '';
   roleError: string = '';
+<<<<<<< HEAD
   successMessage: string = '';
   isLoading: boolean = false;
+=======
+  submitError: string = '';
+  successMessage: string = '';
+  isLoading: boolean = false;
+  hoveredIndex: number | null = null;
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 
   selectedFile: File | null = null;
   selectedFileName: string = '';
   isVerifying: boolean = false;
   verificationResult: { valid: boolean; message: string; name?: string } | null = null;
 
+<<<<<<< HEAD
   private registerUrl = 'http://localhost:8085/auth/register';
   private usersUrl = 'http://localhost:8085/auth/all';
   private usersUrl1 = 'http://localhost:8085/auth/user';
@@ -36,6 +62,50 @@ export class UtilisateurComponent implements OnInit {
     this.loadUsers();
   }
 
+=======
+  // ✅ Nouveau — afficher l'écran "check your email"
+  registrationDone: boolean = false;
+  registeredEmail: string = '';
+
+  private registerUrl = 'http://localhost:8085/auth/register';
+  private usersUrl   = 'http://localhost:8085/auth/all';
+  private usersUrl1  = 'http://localhost:8085/auth/user';
+
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+goToLogin() {
+  this.router.navigate(['/login']);
+}
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      if (params['role']) {
+        this.user.role = params['role'];
+      }
+    });
+    this.loadUsers();
+  }
+
+  goHome() { this.router.navigate(['/home']); }
+// =======
+//   private registerUrl = 'http://localhost:8085/auth/register';
+//   private usersUrl = 'http://localhost:8085/auth/all';
+//   private usersUrl1 = 'http://localhost:8085/auth/user';
+
+//   constructor(private http: HttpClient, private router: Router) {}
+
+//   ngOnInit() {
+//     this.loadUsers();
+//   } 
+
+//   goHome() {
+//     this.router.navigate(['/home']);
+//   }
+// >>>>>>> a084d154fb5e9c0f17cf6e3e48ec9b63dbf3dd50
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
@@ -54,34 +124,62 @@ export class UtilisateurComponent implements OnInit {
   }
 
   validateEmail(): boolean {
+<<<<<<< HEAD
     if (!this.user.email) { this.emailError = 'Email est obligatoire'; return false; }
     if (!this.isValidEmail(this.user.email)) { this.emailError = 'Format email invalide (ex: nom@domaine.com)'; return false; }
+=======
+    if (!this.user.email) { this.emailError = 'Email is required'; return false; }
+    if (!this.isValidEmail(this.user.email)) { this.emailError = 'Invalid email format'; return false; }
+// =======
+//     if (!this.user.email) { this.emailError = 'Email est obligatoire'; return false; }
+//     if (!this.isValidEmail(this.user.email)) { this.emailError = 'Format email invalide (ex: nom@domaine.com)'; return false; }
+// >>>>>>> a084d154fb5e9c0f17cf6e3e48ec9b63dbf3dd50
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
     this.emailError = '';
     return true;
   }
 
   validateName(): boolean {
+<<<<<<< HEAD
     if (!this.user.name) { this.nameError = 'Nom est obligatoire'; return false; }
     if (this.user.name.length < 3) { this.nameError = 'Minimum 3 caractères'; return false; }
     if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(this.user.name)) { this.nameError = 'Lettres uniquement'; return false; }
+=======
+    if (!this.user.name) { this.nameError = 'Name is required'; return false; }
+    if (this.user.name.length < 3) { this.nameError = 'Minimum 3 characters'; return false; }
+    if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(this.user.name)) { this.nameError = 'Letters only'; return false; }
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
     this.nameError = '';
     return true;
   }
 
   validatePassword(): boolean {
+<<<<<<< HEAD
     if (!this.user.password) { this.passwordError = 'Mot de passe est obligatoire'; return false; }
     if (this.user.password.length < 6) { this.passwordError = 'Minimum 6 caractères'; return false; }
+=======
+    if (!this.user.password) { this.passwordError = 'Password is required'; return false; }
+    if (this.user.password.length < 6) { this.passwordError = 'Minimum 6 characters'; return false; }
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
     this.passwordError = '';
     return true;
   }
 
   validateRole(): boolean {
+<<<<<<< HEAD
     if (!this.user.role) { this.roleError = 'Veuillez sélectionner un rôle'; return false; }
+=======
+    if (!this.user.role) { this.roleError = 'Please select a role'; return false; }
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
     this.roleError = '';
     return true;
   }
 
   addUser() {
+<<<<<<< HEAD
     console.log('🔴 addUser appelé');
     console.log('Valeurs:', this.user);
 
@@ -93,6 +191,17 @@ export class UtilisateurComponent implements OnInit {
       }
       if (!this.verificationResult.valid) {
         alert('❌ Le document IA est invalide. L\'ajout est bloqué.');
+=======
+    this.submitError = '';
+    if (!this.isEditMode ) {
+      if (!this.verificationResult) {
+        alert('⚠️ Please verify an AI document before adding a user.');
+        return;
+      }
+      if (!this.verificationResult.valid) {
+        alert('❌ Invalid document. Adding is blocked.');
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
         return;
       }
     }
@@ -107,27 +216,41 @@ export class UtilisateurComponent implements OnInit {
 
     const payload = {
       username: this.user.name,
+<<<<<<< HEAD
+=======
+      nom: this.user.name,
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
       email: this.user.email,
       password: this.user.password,
       role: this.user.role
     };
 
+<<<<<<< HEAD
     console.log('📦 Payload envoyé:', payload);
 
+=======
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
     if (this.isEditMode) {
       this.http.put(`${this.usersUrl1}/${this.user.id}`, payload, {
         headers: this.getHeaders(),
         responseType: 'text'
       }).subscribe({
+<<<<<<< HEAD
         next: (res) => {
           console.log('✅ Modification réussie:', res);
           this.successMessage = 'Utilisateur modifié avec succès !';
+=======
+        next: () => {
+          this.successMessage = 'User updated successfully!';
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
           this.loadUsers();
           this.resetForm();
           this.isLoading = false;
         },
         error: (err) => {
           this.isLoading = false;
+<<<<<<< HEAD
           console.error('❌ Erreur modification:', err.status, err.error);
           if (err.status === 409) this.emailError = 'Cet email existe déjà';
           else this.emailError = `Erreur ${err.status}: ${err.error}`;
@@ -151,6 +274,29 @@ export class UtilisateurComponent implements OnInit {
           console.error('❌ Erreur body:', err.error);
           if (err.status === 409) this.emailError = 'Cet email existe déjà';
           else this.emailError = `Erreur ${err.status}: ${err.error}`;
+=======
+          if (err.status === 409) this.emailError = 'This email already exists';
+          else this.submitError = this.toFriendlyError(err, 'update');
+        }
+      });
+    } else {
+      // ✅ Register — afficher écran de confirmation au lieu de rediriger
+
+      this.http.post(this.registerUrl, payload, {
+        headers: this.getHeaders(),
+      }).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.registeredEmail = this.user.email; // ✅ sauvegarder l'email
+          this.registrationDone = true;           // ✅ afficher l'écran
+        },
+        error: (err) => {
+          this.isLoading = false;
+          if (err.status === 409) this.emailError = 'This email already exists';
+          else if (err.status === 403) this.roleError = 'ADMIN ne peut pas etre cree via ce formulaire.';
+          else this.submitError = this.toFriendlyError(err, 'register');
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
         }
       });
     }
@@ -167,13 +313,22 @@ export class UtilisateurComponent implements OnInit {
   }
 
   deleteUser(id: number) {
+<<<<<<< HEAD
     if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+=======
+    if (confirm('Are you sure you want to delete this user?')) {
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
       this.http.delete(`${this.usersUrl1}/${id}`, {
         headers: this.getHeaders(),
         responseType: 'text'
       }).subscribe({
         next: () => this.loadUsers(),
+<<<<<<< HEAD
         error: (err) => console.error('Erreur suppression:', err)
+=======
+        error: (err) => console.error('Delete error:', err)
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
       });
     }
   }
@@ -186,6 +341,7 @@ export class UtilisateurComponent implements OnInit {
     this.passwordError = '';
     this.roleError = '';
     this.successMessage = '';
+<<<<<<< HEAD
     // ✅ Reset aussi la vérification IA après ajout réussi
     this.verificationResult = null;
     this.selectedFile = null;
@@ -193,24 +349,72 @@ export class UtilisateurComponent implements OnInit {
   }
 
   // ✅ Méthodes IA
+=======
+    this.submitError = '';
+    this.verificationResult = null;
+    this.selectedFile = null;
+    this.selectedFileName = '';
+    this.registrationDone = false;
+    this.registeredEmail = '';
+  }
+
+  private toFriendlyError(err: any, action: 'register' | 'update'): string {
+    const raw = (typeof err?.error === 'string'
+      ? err.error
+      : (err?.error?.message || err?.message || '')
+    ).toLowerCase();
+
+    if (raw.includes('email already exists')) {
+      return 'Cet email existe deja.';
+    }
+    if (raw.includes('nom') || raw.includes('not-null property references a null or transient value')) {
+      return 'Le nom est obligatoire. Verifiez le champ Full name puis reessayez.';
+    }
+    if (raw.includes('forbidden') || err?.status === 403) {
+      return action === 'register'
+        ? "Creation refusee par le serveur. Verifiez le role choisi."
+        : "Modification refusee par le serveur.";
+    }
+
+    return `Echec de ${action === 'register' ? "l'ajout" : 'la modification'} utilisateur (HTTP ${err?.status ?? 'N/A'}).`;
+  }
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
       this.selectedFile = file;
       this.selectedFileName = file.name;
+<<<<<<< HEAD
       this.verificationResult = null; // reset résultat à chaque nouveau fichier
     } else {
       alert('Veuillez sélectionner un fichier PDF uniquement.');
+=======
+      this.verificationResult = null;
+    } else {
+      alert('Please select a PDF file only.');
+    
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
     }
   }
 
   async verifyDocument() {
     if (!this.selectedFile) return;
+<<<<<<< HEAD
+=======
+    
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
     this.isVerifying = true;
     this.verificationResult = null;
 
     try {
+<<<<<<< HEAD
       const apiKey = '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';
+=======
+      const apiKey = '';
+      
+ 
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
       const text = await this.fileToText(this.selectedFile);
 
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -224,6 +428,7 @@ export class UtilisateurComponent implements OnInit {
           max_tokens: 500,
           messages: [{
             role: 'user',
+<<<<<<< HEAD
             content: `Voici le contenu d'un document (CV ou diplôme) :
           
 ${text}
@@ -239,6 +444,24 @@ Critères :
 - valid = false si vide ou sans nom
 - name = le nom complet détecté (ou null)
 - message = explication en 1 phrase`
+=======
+            content: `Here is the content of a document (CV or diploma):
+
+${text}
+
+Reply ONLY in JSON without markdown:
+{
+  "valid": true or false,
+  "name": "First Last detected or null",
+  "message": "Short explanation in English"
+}
+Criteria:
+- valid = true if a readable full name is clearly present
+- valid = false if empty or no name
+- name = the full name detected (or null)
+- message = explanation in 1 sentence`
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
           }]
         })
       });
@@ -262,7 +485,12 @@ Critères :
     } catch (error) {
       this.verificationResult = {
         valid: false,
+<<<<<<< HEAD
         message: 'Erreur: ' + (error as any).message
+=======
+        message: 'Error: ' + (error as any).message
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
       };
     } finally {
       this.isVerifying = false;
@@ -279,6 +507,10 @@ Critères :
           pdfjsLib.GlobalWorkerOptions.workerSrc =
             'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
           const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
           let fullText = '';
 
@@ -306,4 +538,8 @@ Critères :
       reader.readAsDataURL(file);
     });
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25

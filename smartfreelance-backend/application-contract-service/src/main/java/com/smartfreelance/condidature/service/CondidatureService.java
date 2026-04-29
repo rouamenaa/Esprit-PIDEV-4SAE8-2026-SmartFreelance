@@ -1,14 +1,18 @@
 package com.smartfreelance.condidature.service;
 
+import com.smartfreelance.condidature.client.ProjectServiceClient;
 import com.smartfreelance.condidature.dto.ApplicationsPerProjectDTO;
+import com.smartfreelance.condidature.dto.AssignFreelancerRequestDTO;
 import com.smartfreelance.condidature.dto.CondidatureDetailStatsDTO;
 import com.smartfreelance.condidature.dto.CondidatureDTO;
 import com.smartfreelance.condidature.dto.CondidatureRequestDTO;
 import com.smartfreelance.condidature.dto.CondidatureStatsDTO;
+import com.smartfreelance.condidature.dto.CondidaturesByProjectDTO;
 import com.smartfreelance.condidature.dto.FreelancerSuccessRateDTO;
 import com.smartfreelance.condidature.model.Condidature;
 import com.smartfreelance.condidature.model.Condidature.CondidatureStatus;
 import com.smartfreelance.condidature.repository.CondidatureRepository;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +25,10 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings("null")
 public class CondidatureService {
 
     private final CondidatureRepository condidatureRepository;
+    private final ProjectServiceClient projectServiceClient;
 
     public List<CondidatureDTO> findAll() {
         return condidatureRepository.findAll().stream()
@@ -75,6 +79,21 @@ public class CondidatureService {
         return rankAndToDTO(list);
     }
 
+    /**
+     * Returns candidatures grouped by project for list view "by project".
+     * Each group contains condidatures for one project (optionally ranked).
+     */
+    public List<CondidaturesByProjectDTO> getCondidaturesGroupedByProject(boolean ranked) {
+        List<Long> projectIds = condidatureRepository.findDistinctProjectIds();
+        if (projectIds.isEmpty()) return List.of();
+        return projectIds.stream()
+                .map(projectId -> CondidaturesByProjectDTO.builder()
+                        .projectId(projectId)
+                        .condidatures(ranked ? findRankedByProjectId(projectId) : findByProjectId(projectId))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     private List<CondidatureDTO> rankAndToDTO(List<Condidature> list) {
         if (list.isEmpty()) return List.of();
 
@@ -91,16 +110,13 @@ public class CondidatureService {
         double priceRange = maxPrice - minPrice;
         if (priceRange <= 0) priceRange = 1;
 
-        int minDays = list.stream()
+        java.util.IntSummaryStatistics daysStats = list.stream()
                 .map(Condidature::getEstimatedDeliveryDays)
                 .filter(java.util.Objects::nonNull)
                 .mapToInt(Integer::intValue)
-                .min().orElse(0);
-        int maxDays = list.stream()
-                .map(Condidature::getEstimatedDeliveryDays)
-                .filter(java.util.Objects::nonNull)
-                .mapToInt(Integer::intValue)
-                .max().orElse(1);
+                .summaryStatistics();
+        int minDays = daysStats.getCount() > 0 ? daysStats.getMin() : 0;
+        int maxDays = daysStats.getCount() > 0 ? daysStats.getMax() : 1;
         int daysRange = maxDays - minDays;
         if (daysRange <= 0) daysRange = 1;
 
@@ -131,9 +147,30 @@ public class CondidatureService {
     @Transactional
     public CondidatureDTO create(CondidatureRequestDTO dto) {
         Objects.requireNonNull(dto, "dto");
+
+        Condidature existing = condidatureRepository.findByProjectIdAndFreelancerId(dto.getProjectId(), dto.getFreelancerId())
+                .orElse(null);
+        if (existing != null) {
+            if (existing.getStatus() == CondidatureStatus.PENDING || existing.getStatus() == CondidatureStatus.ACCEPTED) {
+                throw new IllegalArgumentException("A condidature already exists for this project and freelancer.");
+            }
+
+            // Allow re-apply after REJECTED/WITHDRAWN by reusing the same row.
+            existing.setCoverLetter(dto.getCoverLetter());
+            existing.setProposedPrice(dto.getProposedPrice());
+            existing.setEstimatedDeliveryDays(dto.getEstimatedDeliveryDays());
+            existing.setFreelancerRating(dto.getFreelancerRating());
+            existing.setStatus(dto.getStatus() != null ? dto.getStatus() : CondidatureStatus.PENDING);
+            return toDTO(condidatureRepository.save(existing));
+        }
+
+        if (condidatureRepository.existsByFreelancerIdAndStatus(dto.getFreelancerId(), CondidatureStatus.ACCEPTED)) {
+            throw new IllegalArgumentException("You are already accepted in a project. You cannot apply to other projects.");
+        }
         if (condidatureRepository.existsByProjectIdAndFreelancerId(dto.getProjectId(), dto.getFreelancerId())) {
             throw new IllegalArgumentException("A condidature already exists for this project and freelancer.");
         }
+
         Condidature entity = toEntity(dto);
         if (dto.getStatus() == null) {
             entity.setStatus(CondidatureStatus.PENDING);
@@ -166,8 +203,9 @@ public class CondidatureService {
     }
 
     /**
-     * Accept a candidature (client side): set status to ACCEPTED and reject all other
-     * candidatures for the same project.
+     * Accept a candidature (client side): set status to ACCEPTED, reject all other
+     * candidatures for the same project, and delete this freelancer's applications
+     * in other projects (a freelancer can only work on one project at a time).
      */
     @Transactional
     public CondidatureDTO accept(Long id) {
@@ -181,12 +219,40 @@ public class CondidatureService {
         condidatureRepository.save(accepted);
 
         Long projectId = accepted.getProjectId();
+        Long freelancerId = accepted.getFreelancerId();
+
+        if (freelancerId == null || freelancerId <= 0) {
+            throw new IllegalArgumentException("freelancerId invalide pour cette candidature. Veuillez mettre a jour la candidature avant acceptation.");
+        }
+
+        try {
+            projectServiceClient.assignFreelancer(
+                    projectId,
+                    AssignFreelancerRequestDTO.builder().freelancerId(freelancerId).build()
+            );
+        } catch (FeignException ex) {
+            String details = ex.contentUTF8();
+            String message = (details != null && !details.isBlank()) ? details : ex.getMessage();
+            throw new IllegalStateException(
+                    "Unable to synchronize accepted candidature with project-service: " + message,
+                    ex
+            );
+        }
+
         List<Condidature> others = condidatureRepository.findByProjectId(projectId).stream()
                 .filter(c -> !c.getId().equals(id) && c.getStatus() == CondidatureStatus.PENDING)
                 .collect(Collectors.toList());
         for (Condidature c : others) {
             c.setStatus(CondidatureStatus.REJECTED);
             condidatureRepository.save(c);
+        }
+
+        // Delete this freelancer's applications in other projects (one project at a time)
+        List<Condidature> otherProjects = condidatureRepository.findByFreelancerId(freelancerId).stream()
+                .filter(c -> !c.getProjectId().equals(projectId))
+                .collect(Collectors.toList());
+        for (Condidature c : otherProjects) {
+            condidatureRepository.delete(c);
         }
 
         return toDTO(accepted);
@@ -309,18 +375,18 @@ public class CondidatureService {
     }
 
     private CondidatureDTO toDTO(Condidature entity) {
-        return CondidatureDTO.builder()
-                .id(entity.getId())
-                .projectId(entity.getProjectId())
-                .freelancerId(entity.getFreelancerId())
-                .coverLetter(entity.getCoverLetter())
-                .proposedPrice(entity.getProposedPrice())
-                .estimatedDeliveryDays(entity.getEstimatedDeliveryDays())
-                .freelancerRating(entity.getFreelancerRating())
-                .status(entity.getStatus())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .build();
+        CondidatureDTO dto = new CondidatureDTO();
+        dto.setId(entity.getId());
+        dto.setProjectId(entity.getProjectId());
+        dto.setFreelancerId(entity.getFreelancerId());
+        dto.setCoverLetter(entity.getCoverLetter());
+        dto.setProposedPrice(entity.getProposedPrice());
+        dto.setEstimatedDeliveryDays(entity.getEstimatedDeliveryDays());
+        dto.setFreelancerRating(entity.getFreelancerRating());
+        dto.setStatus(entity.getStatus());
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
+        return dto;
     }
 
     private Condidature toEntity(CondidatureRequestDTO dto) {

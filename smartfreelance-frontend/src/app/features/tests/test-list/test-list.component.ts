@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Test } from '../../../models/test.model';
@@ -17,7 +18,7 @@ export class TestListComponent implements OnInit {
   tests: Test[] = [];
   loading = false;
   error = '';
-  formationId!: number;
+  formationId: number | null = null;
 
   constructor(
     private service: TestService,
@@ -31,6 +32,8 @@ export class TestListComponent implements OnInit {
     if (idParam && !isNaN(+idParam)) {
       this.formationId = +idParam;
     }
+<<<<<<< HEAD
+=======
     this.loadTests();
   }
 
@@ -49,18 +52,57 @@ export class TestListComponent implements OnInit {
       }
     });
   }
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 
-  addTest(): void {
-    this.router.navigate(['/tests/new'], {
-      queryParams: { formationId: this.formationId }
+    this.loadTests();
+  }
+
+  loadTests(): void {
+    this.loading = true;
+    this.error = '';
+
+    const obs = this.formationId !== null
+      ? this.service.getByFormation(this.formationId)
+      : this.service.getAll();
+
+    obs.subscribe({
+      next: (data: Test[]) => {
+        this.tests = data;
+        this.loading = false;
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('Failed to load tests', err);
+        this.tests = [];
+        this.error = this.formatHttpError(err, 'Unable to load tests from backend');
+        this.loading = false;
+      }
     });
   }
 
+  addTest(): void {
+    if (this.formationId !== null) {
+      this.router.navigate(['/formations', this.formationId, 'tests', 'new']);
+      return;
+    }
+
+    this.router.navigate(['/tests/new']);
+  }
+
   viewTest(id: number): void {
+    if (this.formationId !== null) {
+      this.router.navigate(['/formations', this.formationId, 'tests', id]);
+      return;
+    }
+
     this.router.navigate(['/tests', id]);
   }
 
   editTest(id: number): void {
+    if (this.formationId !== null) {
+      this.router.navigate(['/formations', this.formationId, 'tests', id, 'edit']);
+      return;
+    }
+
     this.router.navigate(['/tests', id, 'edit']);
   }
 
@@ -69,13 +111,32 @@ export class TestListComponent implements OnInit {
       if (confirmed) {
         this.service.delete(id).subscribe({
           next: () => this.loadTests(),
-          error: (err) => console.error(err)
+          error: (err: HttpErrorResponse) => {
+            console.error('Failed to delete test', err);
+            this.error = this.formatHttpError(err, 'Unable to delete test');
+          }
         });
       }
     });
   }
 
   goBack(): void {
-    this.router.navigate(['/formations', this.formationId]);
+    if (this.formationId !== null) {
+      this.router.navigate(['/formations', this.formationId]);
+      return;
+    }
+
+    this.router.navigate(['/tests']);
+  }
+
+  private formatHttpError(err: HttpErrorResponse, fallback: string): string {
+    const backendMessage =
+      typeof err.error === 'string'
+        ? err.error
+        : err.error?.message;
+
+    return backendMessage
+      ? `Error ${err.status}: ${backendMessage}`
+      : `Error ${err.status || 0}: ${fallback}`;
   }
 }

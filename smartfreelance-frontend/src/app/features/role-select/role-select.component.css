@@ -1,0 +1,148 @@
+.role-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f5f9;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding: 24px;
+}
+
+/* ── Card ── */
+.role-card {
+  width: 100%;
+  max-width: 560px;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 24px rgba(0,0,0,.07);
+  padding: 38px 40px;
+}
+
+/* ── Brand ── */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.brand-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: #111827; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+.brand-name {
+  font-size: 16px; font-weight: 700;
+  color: #111827; letter-spacing: -0.02em;
+}
+
+/* ── Header ── */
+.role-header { margin-bottom: 28px; }
+.role-title {
+  font-size: 24px; font-weight: 700;
+  color: #111827; margin: 0 0 5px;
+}
+.role-subtitle { font-size: 14px; color: #6b7280; margin: 0; }
+
+/* ── Options ── */
+.role-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.role-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+  position: relative;
+  background: #fff;
+}
+.role-option:hover {
+  border-color: #d1d5db;
+  background: #fafafa;
+}
+.role-option--selected {
+  border-color: #111827;
+  background: #f9fafb;
+  box-shadow: 0 0 0 3px rgba(17,24,39,.06);
+}
+
+/* ── Icon ── */
+.role-icon {
+  width: 58px; height: 58px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.role-icon--purple { background: #ede9fe; color: #6d28d9; }
+.role-icon--blue   { background: #dbeafe; color: #1d4ed8; }
+
+/* ── Content ── */
+.role-content { flex: 1; }
+.role-name {
+  font-size: 16px; font-weight: 700;
+  color: #111827; margin: 0 0 5px;
+}
+.role-desc {
+  font-size: 13px; color: #6b7280;
+  margin: 0 0 12px; line-height: 1.5;
+}
+.role-perks {
+  list-style: none;
+  padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.role-perks li {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12.5px; color: #374151; font-weight: 500;
+}
+.role-perks svg { color: #16a34a; flex-shrink: 0; }
+
+/* ── Check badge ── */
+.role-check {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: #111827; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ── Button ── */
+.btn-continue {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px;
+  background: #111827; color: #fff;
+  border: none; border-radius: 10px;
+  font-size: 14.5px; font-weight: 600;
+  font-family: inherit; cursor: pointer;
+  transition: all .15s;
+  margin-bottom: 18px;
+}
+.btn-continue:hover:not(:disabled) {
+  background: #1f2937;
+  box-shadow: 0 4px 14px rgba(17,24,39,.2);
+  transform: translateY(-1px);
+}
+.btn-continue:disabled {
+  opacity: .4; cursor: not-allowed;
+}
+
+/* ── Login link ── */
+.login-link {
+  text-align: center; font-size: 13px;
+  color: #6b7280; margin: 0;
+}
+.login-link a {
+  color: #111827; font-weight: 600; text-decoration: none;
+}
+.login-link a:hover { text-decoration: underline; }

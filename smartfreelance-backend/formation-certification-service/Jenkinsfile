@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+
+    environment {
+        SONARQUBE_ENV = 'sonar'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'aziz-aroua',
+                url: 'https://github.com/rouamenaa/Esprit-PIDEV-4SAE8-2026-SmartFreelance.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building project...'
+                sh '''
+                    cd smartfreelance-backend/formation-certification-service
+                    mvn clean compile
+                '''
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                sh '''
+                    cd smartfreelance-backend/formation-certification-service
+                    mvn test
+                '''
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                echo 'Running SonarQube analysis...'
+                withSonarQubeEnv("${SONARQUBE_ENV}") {
+                    sh '''
+                        cd smartfreelance-backend/formation-certification-service
+                        mvn sonar:sonar
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}

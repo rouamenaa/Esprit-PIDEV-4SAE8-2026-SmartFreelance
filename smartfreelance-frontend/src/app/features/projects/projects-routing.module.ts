@@ -7,8 +7,12 @@ import { ProjectDetailComponent } from './project-detail/project-detail.componen
 import { ProjectPhasesComponent } from './project-phases/project-phases.component';
 import { TaskComponent } from './task/task.component';
 import { ProjectPhaseDetailsComponent } from './project-phase-details/project-phase-details.component';
+import { AuditListComponent } from './audit/audit-list.component';
+import { AuditDetailComponent } from './audit-detail/audit-detail.component';
+import { roleGuard } from '../../core/guards/role.guard';
 
 const routes: Routes = [
+<<<<<<< HEAD
   { path: 'projects', component: ProjectListComponent },
   { path: 'create', component: ProjectCreateComponent },
   { path: 'edit/:id', component: ProjectEditComponent },
@@ -17,12 +21,25 @@ const routes: Routes = [
   { path: 'tasks', component: TaskComponent },
   { path: 'phases/:id', component: ProjectPhaseDetailsComponent },
  
+=======
+  { path: 'projects', component: ProjectListComponent, canActivate: [roleGuard(['ADMIN', 'CLIENT', 'FREELANCER'])] },
+  { path: 'create', component: ProjectCreateComponent, canActivate: [roleGuard(['ADMIN', 'CLIENT'])] },
+  { path: 'edit/:id', component: ProjectEditComponent, canActivate: [roleGuard(['ADMIN', 'CLIENT'])] },
+  { path: 'projects/:id', component: ProjectDetailComponent, canActivate: [roleGuard(['ADMIN', 'CLIENT', 'FREELANCER'])] },
+  { path: 'projects/:id/phases', component: ProjectPhasesComponent, canActivate: [roleGuard(['ADMIN', 'CLIENT', 'FREELANCER'])] },
+  { path: 'tasks', component: TaskComponent, canActivate: [roleGuard(['ADMIN', 'CLIENT'])] },
+  { path: 'phases/:id', component: ProjectPhaseDetailsComponent, canActivate: [roleGuard(['ADMIN', 'CLIENT', 'FREELANCER'])] },
+  { path: 'projects/:id/audits', component: AuditListComponent, canActivate: [roleGuard(['ADMIN', 'CLIENT'])] },
+  { path: 'audits/:id', component: AuditDetailComponent, canActivate: [roleGuard(['ADMIN', 'CLIENT'])] },
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 
 
 
- 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 ];
 
 @NgModule({

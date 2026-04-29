@@ -21,7 +21,13 @@ public interface ProjectService {
 
     List<Project> getAllProjects();
 
+    List<Project> getProjectsByClientId(Long clientId);
+
+    List<Project> getProjectsByFreelancerId(Long freelancerId);
+
     Project getProjectById(Long id);
+
+    Project assignFreelancer(Long projectId, Long freelancerId);
 
     Project updateProject(Long projectId, Project updatedProject);
 
@@ -36,5 +42,6 @@ public interface ProjectService {
     double calculateProjectPerformanceIndex(Long projectId);
 
     String classifyProjectPerformance(Long projectId);
+
     Map<String, Object> getProjectProgressDetails(Long projectId);
 }

@@ -5,8 +5,7 @@ import { ContractTableComponent } from './contract-table/contract-table.componen
 
 @Component({
   selector: 'app-contract',
-  standalone: true,
-  imports: [CommonModule, RouterModule, ContractTableComponent],
+  standalone: false,
   templateUrl: './contract.component.html',
   styleUrl: './contract.component.css',
 })
