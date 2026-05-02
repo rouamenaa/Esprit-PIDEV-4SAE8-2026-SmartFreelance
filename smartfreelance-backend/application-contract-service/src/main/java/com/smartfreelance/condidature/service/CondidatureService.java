@@ -13,6 +13,7 @@ import com.smartfreelance.condidature.model.Condidature;
 import com.smartfreelance.condidature.model.Condidature.CondidatureStatus;
 import com.smartfreelance.condidature.repository.CondidatureRepository;
 import feign.FeignException;
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CondidatureService {
 
     private final CondidatureRepository condidatureRepository;
@@ -233,10 +235,10 @@ public class CondidatureService {
         } catch (FeignException ex) {
             String details = ex.contentUTF8();
             String message = (details != null && !details.isBlank()) ? details : ex.getMessage();
-            throw new IllegalStateException(
-                    "Unable to synchronize accepted candidature with project-service: " + message,
-                    ex
-            );
+            // Keep acceptance flow functional even if project-service sync fails temporarily.
+            // This prevents gateway 502 on "Accept" and allows manual/project-side reconciliation.
+            log.warn("Project assignment sync failed for candidature {} (projectId={}, freelancerId={}): {}",
+                    id, projectId, freelancerId, message);
         }
 
         List<Condidature> others = condidatureRepository.findByProjectId(projectId).stream()

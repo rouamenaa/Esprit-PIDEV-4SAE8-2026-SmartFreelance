@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { Condidature, CondidaturesByProject } from '../../../models/Condidature';
 import { CondidatureService } from '../../../services/condidature.service';
 import { CondidatureDeleteComponent } from '../condidature-delete/condidature-delete.component';
@@ -30,11 +31,13 @@ export class CondidatureTableComponent implements OnInit {
   role: string | null = null;
   normalizedRole: string | null = null;
   userId: number | null = null;
+  private userNamesById = new Map<number, string>();
 
   constructor(
     private condidatureService: CondidatureService,
     private authService: AuthService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -69,6 +72,7 @@ export class CondidatureTableComponent implements OnInit {
           }),
         }));
         this.list = this.groupedByProject.flatMap((g) => g.condidatures);
+        this.loadUserNames();
         this.applySort();
         this.loading = false;
       },
@@ -81,6 +85,7 @@ export class CondidatureTableComponent implements OnInit {
       next: (data) => {
         this.list = (data || []).map((item) => this.ensureRatingOnItem(item));
         this.rebuildGroupsFromList();
+        this.loadUserNames();
         this.applySort();
         this.loading = false;
       },
@@ -93,9 +98,21 @@ export class CondidatureTableComponent implements OnInit {
       next: (projects) => {
         const projectIds = [...new Set((projects || []).map((p) => p.id).filter((id) => id > 0))];
         if (projectIds.length === 0) {
-          this.list = [];
-          this.sortedList = [];
-          this.loading = false;
+          // Fallback: if client has no owned projects, show all candidatures
+          // so the list is still usable for global review.
+          this.condidatureService.getGroupedByProject(true).subscribe({
+            next: (groups) => {
+              this.groupedByProject = (groups || []).map((g) => ({
+                projectId: g.projectId,
+                condidatures: (g.condidatures || []).map((item) => this.ensureRatingOnItem(item)),
+              }));
+              this.list = this.groupedByProject.flatMap((g) => g.condidatures);
+              this.loadUserNames();
+              this.applySort();
+              this.loading = false;
+            },
+            error: () => (this.loading = false),
+          });
           return;
         }
 
@@ -106,6 +123,7 @@ export class CondidatureTableComponent implements OnInit {
               .flat()
               .map((item) => this.ensureRatingOnItem(item));
             this.rebuildGroupsFromList();
+            this.loadUserNames();
             this.applySort();
             this.loading = false;
           },
@@ -246,6 +264,11 @@ export class CondidatureTableComponent implements OnInit {
     return c.id;
   }
 
+  getFreelancerDisplay(freelancerId: number | null | undefined): string {
+    if (!freelancerId || !Number.isFinite(freelancerId)) return '-';
+    return this.userNamesById.get(freelancerId) ?? `#${freelancerId}`;
+  }
+
   canManageCandidatures(): boolean {
     return this.normalizedRole === 'ADMIN' || this.normalizedRole === 'CLIENT';
   }
@@ -275,5 +298,33 @@ export class CondidatureTableComponent implements OnInit {
 
   applySort(): void {
     this.sortedList = this.sortList([...this.list]);
+  }
+
+  private loadUserNames(): void {
+    const ids = Array.from(
+      new Set(
+        this.list
+          .map((c) => Number(c.freelancerId))
+          .filter((id): id is number => Number.isFinite(id) && id > 0)
+      )
+    );
+    if (ids.length === 0) return;
+
+    this.http.get<any[]>('http://localhost:8085/auth/all').subscribe({
+      next: (users) => {
+        const byId = new Map<number, string>();
+        for (const user of users ?? []) {
+          const id = Number(user?.id);
+          if (!Number.isFinite(id) || id <= 0) continue;
+          const name = String(user?.username ?? user?.nom ?? '').trim();
+          if (!name) continue;
+          byId.set(id, name);
+        }
+        this.userNamesById = byId;
+      },
+      error: () => {
+        // Keep ID fallback when user-service is unavailable.
+      },
+    });
   }
 }

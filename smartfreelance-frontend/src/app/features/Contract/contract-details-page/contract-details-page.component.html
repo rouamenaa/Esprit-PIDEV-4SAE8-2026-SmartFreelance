@@ -53,12 +53,18 @@
 
     <section class="section-card signature-section">
       <h3>Digital Signature</h3>
-      <p class="signature-hint">Client signs first, then freelancer. Both must sign for the contract to become active.</p>
+      <p class="signature-hint">Each signed-in role can sign directly from its own section.</p>
 
-      <div class="signature-block">
-        <h4 class="signature-step-title">1. Client signs first</h4>
+      <div class="signature-block" *ngIf="showClientSignatureSection">
+        <h4 class="signature-step-title">Client signature</h4>
         <ng-container *ngIf="contrat.clientSignedAt; else clientSignForm">
-          <p class="signature-signed">Signed on {{ formatDateTime(contrat.clientSignedAt) }}</p>
+          <p class="signature-signed">Signed</p>
+          <img
+            *ngIf="signatureImages.client"
+            [src]="signatureImages.client"
+            alt="Client signature"
+            class="signed-signature-preview"
+          />
           <button
             type="button"
             class="btn-remove-sign"
@@ -83,24 +89,62 @@
               height="150"
               (mousedown)="startDraw($event, clientCanvas, 'client')"
               (mousemove)="draw($event, clientCanvas, 'client')"
-              (mouseup)="stopDraw('client')"
-              (mouseleave)="stopDraw('client')"
+              (mouseup)="stopDraw('client', clientCanvas)"
+              (mouseleave)="stopDraw('client', clientCanvas)"
               (touchstart)="startDraw($event, clientCanvas, 'client')"
               (touchmove)="draw($event, clientCanvas, 'client')"
-              (touchend)="stopDraw('client')"
+              (touchend)="stopDraw('client', clientCanvas)"
             ></canvas>
             <p class="signature-hint-line">Draw your signature before clicking sign.</p>
-            <button type="button" class="btn-sign btn-sign-client" (click)="signAsClient()" [disabled]="signingClient || !contrat.clientId || contrat.clientId < 1">
+            <button
+              type="button"
+              class="btn-sign btn-sign-client"
+              (click)="signAsClient()"
+              [disabled]="!canSignAsClient || !isVerificationAccepted('client') || signingClient || !contrat.clientId || contrat.clientId < 1"
+            >
               {{ signingClient ? 'Signing…' : 'Sign as client' }}
             </button>
+            <p *ngIf="!canSignAsClient" class="signature-readonly-hint">Read-only for your role. Only client can sign here.</p>
+            <p *ngIf="canSignAsClient && !isVerificationAccepted('client')" class="signature-readonly-hint">Please verify the uploaded document before signing.</p>
+
+            <div class="signature-verification">
+              <label class="verification-label" for="clientRealSign">Upload real signature photo</label>
+              <input id="clientRealSign" class="verification-upload" type="file" accept="*/*" (change)="onRealSignatureSelected($event, 'client')" />
+              <button type="button" class="btn-verify-signature" (click)="verifySignature('client')" [disabled]="verificationLoading.client">
+                {{ verificationLoading.client ? 'Verifying…' : 'Verify signature match' }}
+              </button>
+              <img
+                *ngIf="realSignaturePreview.client && !realSignatureIsPdf.client"
+                [src]="realSignaturePreview.client"
+                alt="Client real signature preview"
+                class="verification-preview"
+              />
+              <p *ngIf="realSignaturePreview.client && realSignatureIsPdf.client" class="verification-file-label">Document selected for verification</p>
+              <p *ngIf="verificationError.client" class="verification-error">{{ verificationError.client }}</p>
+              <div
+                *ngIf="verificationResult.client"
+                class="verification-result"
+                [ngClass]="verificationVerdictClass('client')"
+              >
+                <strong>{{ verificationResult.client.verdict }}</strong>
+                <span>Score: {{ verificationResult.client.similarityScore }}%</span>
+                <p>{{ verificationResult.client.message }}</p>
+              </div>
+            </div>
           </div>
         </ng-template>
       </div>
 
-      <div class="signature-block">
-        <h4 class="signature-step-title">2. Freelancer signs second</h4>
+      <div class="signature-block" *ngIf="showFreelancerSignatureSection">
+        <h4 class="signature-step-title">Freelancer signature</h4>
         <ng-container *ngIf="contrat.freelancerSignedAt; else freelancerSignArea">
-          <p class="signature-signed">Signed on {{ formatDateTime(contrat.freelancerSignedAt) }}</p>
+          <p class="signature-signed">Signed</p>
+          <img
+            *ngIf="signatureImages.freelancer"
+            [src]="signatureImages.freelancer"
+            alt="Freelancer signature"
+            class="signed-signature-preview"
+          />
           <button
             type="button"
             class="btn-remove-sign"
@@ -111,39 +155,132 @@
           </button>
         </ng-container>
         <ng-template #freelancerSignArea>
-          <div *ngIf="contrat.clientSignedAt; else waitingForClient">
-            <div class="signature-form">
-              <span class="signature-label">Freelancer</span>
-              <span class="signature-fixed-name">{{ freelancerDisplayName }}</span>
-              <button type="button" class="btn-clear" (click)="clearSignature(freelancerCanvas, 'freelancer')">Clear signature</button>
-            </div>
-            <div class="signature-pad-wrap">
-              <canvas
-                #freelancerCanvas
-                class="signature-pad"
-                width="520"
-                height="150"
-                (mousedown)="startDraw($event, freelancerCanvas, 'freelancer')"
-                (mousemove)="draw($event, freelancerCanvas, 'freelancer')"
-                (mouseup)="stopDraw('freelancer')"
-                (mouseleave)="stopDraw('freelancer')"
-                (touchstart)="startDraw($event, freelancerCanvas, 'freelancer')"
-                (touchmove)="draw($event, freelancerCanvas, 'freelancer')"
-                (touchend)="stopDraw('freelancer')"
-              ></canvas>
-              <p class="signature-hint-line">Draw your signature before clicking sign.</p>
-              <button type="button" class="btn-sign btn-sign-freelancer" (click)="signAsFreelancer()" [disabled]="signingFreelancer || !contrat.freelancerId || contrat.freelancerId < 1">
-                {{ signingFreelancer ? 'Signing…' : 'Sign as freelancer' }}
+          <div class="signature-form">
+            <span class="signature-label">Freelancer</span>
+            <span class="signature-fixed-name">{{ freelancerDisplayName }}</span>
+            <button type="button" class="btn-clear" (click)="clearSignature(freelancerCanvas, 'freelancer')">Clear signature</button>
+          </div>
+          <div class="signature-pad-wrap">
+            <canvas
+              #freelancerCanvas
+              class="signature-pad"
+              width="520"
+              height="150"
+              (mousedown)="startDraw($event, freelancerCanvas, 'freelancer')"
+              (mousemove)="draw($event, freelancerCanvas, 'freelancer')"
+              (mouseup)="stopDraw('freelancer', freelancerCanvas)"
+              (mouseleave)="stopDraw('freelancer', freelancerCanvas)"
+              (touchstart)="startDraw($event, freelancerCanvas, 'freelancer')"
+              (touchmove)="draw($event, freelancerCanvas, 'freelancer')"
+              (touchend)="stopDraw('freelancer', freelancerCanvas)"
+            ></canvas>
+            <p class="signature-hint-line">Draw your signature before clicking sign.</p>
+            <button
+              type="button"
+              class="btn-sign btn-sign-freelancer"
+              (click)="signAsFreelancer()"
+              [disabled]="!canSignAsFreelancer || !isVerificationAccepted('freelancer') || signingFreelancer || !contrat.freelancerId || contrat.freelancerId < 1"
+            >
+              {{ signingFreelancer ? 'Signing…' : 'Sign as freelancer' }}
+            </button>
+            <p *ngIf="!canSignAsFreelancer" class="signature-readonly-hint">Read-only for your role. Only freelancer can sign here.</p>
+            <p *ngIf="canSignAsFreelancer && !isVerificationAccepted('freelancer')" class="signature-readonly-hint">Please verify the uploaded document before signing.</p>
+
+            <div class="signature-verification">
+              <label class="verification-label" for="freelancerRealSign">Upload real signature photo</label>
+              <input
+                id="freelancerRealSign"
+                class="verification-upload"
+                type="file"
+                accept="*/*"
+                (change)="onRealSignatureSelected($event, 'freelancer')"
+              />
+              <button type="button" class="btn-verify-signature" (click)="verifySignature('freelancer')" [disabled]="verificationLoading.freelancer">
+                {{ verificationLoading.freelancer ? 'Verifying…' : 'Verify signature match' }}
               </button>
+              <img
+                *ngIf="realSignaturePreview.freelancer && !realSignatureIsPdf.freelancer"
+                [src]="realSignaturePreview.freelancer"
+                alt="Freelancer real signature preview"
+                class="verification-preview"
+              />
+              <p *ngIf="realSignaturePreview.freelancer && realSignatureIsPdf.freelancer" class="verification-file-label">Document selected for verification</p>
+              <p *ngIf="verificationError.freelancer" class="verification-error">{{ verificationError.freelancer }}</p>
+              <div
+                *ngIf="verificationResult.freelancer"
+                class="verification-result"
+                [ngClass]="verificationVerdictClass('freelancer')"
+              >
+                <strong>{{ verificationResult.freelancer.verdict }}</strong>
+                <span>Score: {{ verificationResult.freelancer.similarityScore }}%</span>
+                <p>{{ verificationResult.freelancer.message }}</p>
+              </div>
             </div>
           </div>
-          <ng-template #waitingForClient>
-            <p class="signature-waiting">Waiting for client to sign first.</p>
-          </ng-template>
         </ng-template>
       </div>
 
       <p *ngIf="signError" class="signature-error">{{ signError }}</p>
+    </section>
+
+    <section class="section-card fraud-section">
+      <div class="fraud-head">
+        <div>
+          <h3>Fraud Analysis</h3>
+          <p class="fraud-subtitle">Contract risk evaluation based on status, timeline, and financial consistency.</p>
+        </div>
+        <span class="fraud-badge" [ngClass]="fraudRiskClass">{{ fraudRiskLabel }}</span>
+      </div>
+
+      <div class="fraud-metrics">
+        <div class="fraud-score-card">
+          <div class="fraud-score-value">{{ fraudRiskPercent }}</div>
+          <div class="fraud-score-label">risk score</div>
+        </div>
+        <div class="fraud-metric-grid">
+          <div class="fraud-metric-item">
+            <span class="fraud-metric-title">Issues detected</span>
+            <strong>{{ fraudIssues.length }}</strong>
+          </div>
+          <div class="fraud-metric-item">
+            <span class="fraud-metric-title">Highest severity</span>
+            <strong>{{ fraudIssues.length ? fraudIssues[0].severity : 'None' }}</strong>
+          </div>
+          <div class="fraud-metric-item fraud-metric-item--wide">
+            <span class="fraud-metric-title">Recommendation</span>
+            <strong>{{ fraudRecommendation }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="fraud-progress">
+        <div class="fraud-progress-track">
+          <div class="fraud-progress-value" [style.width.%]="fraudRiskScore"></div>
+        </div>
+        <div class="fraud-progress-labels">
+          <span>0%</span>
+          <span>40%</span>
+          <span>70%</span>
+          <span>100%</span>
+        </div>
+      </div>
+
+      <div *ngIf="fraudIssues.length; else noFraudIssues" class="fraud-issues">
+        <div class="fraud-issue" *ngFor="let issue of fraudIssues">
+          <span class="fraud-issue-severity" [ngClass]="{
+            'fraud-issue-severity--high': issue.severity === 'High',
+            'fraud-issue-severity--medium': issue.severity === 'Medium',
+            'fraud-issue-severity--low': issue.severity === 'Low'
+          }">{{ issue.severity }}</span>
+          <div>
+            <div class="fraud-issue-type">{{ issue.issueType }}</div>
+            <div class="fraud-issue-text">{{ issue.explanation }}</div>
+          </div>
+        </div>
+      </div>
+      <ng-template #noFraudIssues>
+        <p class="fraud-empty">No major red flags detected for this contract.</p>
+      </ng-template>
     </section>
   </div>
 </div>

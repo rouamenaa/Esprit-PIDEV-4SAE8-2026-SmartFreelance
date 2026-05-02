@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { Contrat, ContractStatistics, StatutContrat } from '../../../models/Contract';
 import { ContratService } from '../../../services/contrat.service';
 
@@ -12,6 +13,7 @@ import { ContratService } from '../../../services/contrat.service';
 })
 export class ContractTableComponent implements OnInit {
   list: Contrat[] = [];
+  private userNamesById = new Map<number, string>();
   loading = true;
   stats: ContractStatistics | null = null;
   statsLoading = true;
@@ -31,7 +33,10 @@ export class ContractTableComponent implements OnInit {
     { value: 'ANNULE', label: 'Cancelled' },
   ];
 
-  constructor(private contratService: ContratService) {}
+  constructor(
+    private contratService: ContratService,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
     this.load();
@@ -43,6 +48,7 @@ export class ContractTableComponent implements OnInit {
     this.contratService.getAll().subscribe({
       next: (data) => {
         this.list = data ?? [];
+        this.loadUserNames();
         this.loading = false;
       },
       error: () => (this.loading = false),
@@ -68,6 +74,8 @@ export class ContractTableComponent implements OnInit {
         (c) =>
           (c.titre ?? '').toLowerCase().includes(q) ||
           (c.description ?? '').toLowerCase().includes(q) ||
+          this.getClientDisplay(c).toLowerCase().includes(q) ||
+          this.getFreelancerDisplay(c).toLowerCase().includes(q) ||
           String(c.clientId ?? '').includes(q) ||
           String(c.freelancerId ?? '').includes(q) ||
           String(c.id ?? '').includes(q)
@@ -133,5 +141,46 @@ export class ContractTableComponent implements OnInit {
     this.filterStatus = '';
     this.filterClientId = '';
     this.filterFreelancerId = '';
+  }
+
+  getClientDisplay(c: Contrat): string {
+    return this.getUserDisplay(c.clientId);
+  }
+
+  getFreelancerDisplay(c: Contrat): string {
+    return this.getUserDisplay(c.freelancerId);
+  }
+
+  private getUserDisplay(userId: number | undefined): string {
+    if (!userId) return '-';
+    return this.userNamesById.get(userId) ?? `#${userId}`;
+  }
+
+  private loadUserNames(): void {
+    const ids = Array.from(
+      new Set(
+        this.list
+          .flatMap((c) => [c.clientId, c.freelancerId])
+          .filter((id): id is number => Number.isFinite(id) && id > 0)
+      )
+    );
+    if (ids.length === 0) return;
+
+    this.http.get<any[]>('http://localhost:8085/auth/all').subscribe({
+      next: (users) => {
+        const byId = new Map<number, string>();
+        for (const user of users ?? []) {
+          const id = Number(user?.id);
+          if (!Number.isFinite(id) || id <= 0) continue;
+          const name = String(user?.username ?? user?.nom ?? '').trim();
+          if (!name) continue;
+          byId.set(id, name);
+        }
+        this.userNamesById = byId;
+      },
+      error: () => {
+        // Keep ID fallback when user-service is unavailable.
+      },
+    });
   }
 }

@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: application-contract-service
+  labels:
+    app: application-contract-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: application-contract-service
+  template:
+    metadata:
+      labels:
+        app: application-contract-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8083"
+    spec:
+      imagePullSecrets:
+        - name: harbor-registry-secret
+      containers:
+        - name: application-contract-service
+          image: harbor.local/smartfreelance/application-contract-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8083
+          envFrom:
+            - configMapRef:
+                name: application-contract-service-config
+            - secretRef:
+                name: application-contract-service-secret
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8083
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8083
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: application-contract-service
+  labels:
+    app: application-contract-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: application-contract-service
+  template:
+    metadata:
+      labels:
+        app: application-contract-service
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8083"
+        sidecar.istio.io/inject: "true"
+        # Vault Agent Injector (uncomment when Vault is installed and a role is configured):
+        # vault.hashicorp.com/agent-inject: "true"
+        # vault.hashicorp.com/role: "application-contract-service"
+        # vault.hashicorp.com/agent-inject-secret-database: "secret/data/apps/contract-service/database"
+    spec:
+      containers:
+        - name: application-contract-service
+          image: smartfreelance/application-contract-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8083
+              name: http
+          envFrom:
+            - configMapRef:
+                name: application-contract-service-config
+            - secretRef:
+                name: application-contract-service-secret
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8083
+            initialDelaySeconds: 25
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8083
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

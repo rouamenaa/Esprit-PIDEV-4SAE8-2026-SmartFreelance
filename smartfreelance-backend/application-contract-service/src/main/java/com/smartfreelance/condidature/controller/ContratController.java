@@ -2,6 +2,9 @@ package com.smartfreelance.condidature.controller;
 
 import com.smartfreelance.condidature.dto.ContratRequest;
 import com.smartfreelance.condidature.dto.ContratResponse;
+import com.smartfreelance.condidature.dto.ContratFraudScoreDTO;
+import com.smartfreelance.condidature.dto.ContratSignatureVerificationRequestDTO;
+import com.smartfreelance.condidature.dto.ContratSignatureVerificationResponseDTO;
 import com.smartfreelance.condidature.dto.ContratStatisticsDTO;
 import com.smartfreelance.condidature.model.Contrat;
 import com.smartfreelance.condidature.service.ContratService;
@@ -34,6 +37,18 @@ public class ContratController {
     @GetMapping("/{id}")
     public ResponseEntity<ContratResponse> findById(@PathVariable Long id) {
         return ResponseEntity.ok(contratService.findById(id));
+    }
+
+    @GetMapping("/{id}/fraud-score")
+    public ResponseEntity<ContratFraudScoreDTO> getFraudScore(@PathVariable Long id) {
+        return ResponseEntity.ok(contratService.getFraudScore(id));
+    }
+
+    @PostMapping("/{id}/signature/verify")
+    public ResponseEntity<ContratSignatureVerificationResponseDTO> verifySignature(
+            @PathVariable Long id,
+            @RequestBody ContratSignatureVerificationRequestDTO request) {
+        return ResponseEntity.ok(contratService.verifySignature(id, request));
     }
 
     @GetMapping("/client/{clientId}")

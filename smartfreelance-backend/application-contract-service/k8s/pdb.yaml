@@ -1,0 +1,20 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: application-contract-service
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: application-contract-service
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: application-contract-service
+  labels:
+    app: application-contract-service
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: application-contract-service

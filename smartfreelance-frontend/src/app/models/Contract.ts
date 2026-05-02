@@ -28,3 +28,32 @@ export interface ContractStatistics {
   activeContracts: number;
   clientSpending: number;
 }
+
+export interface ContractFraudIssue {
+  contractId: number;
+  issueType: string;
+  severity: 'High' | 'Medium' | 'Low' | string;
+  explanation: string;
+}
+
+export interface ContractFraudScore {
+  contractId: number;
+  riskScore: number;
+  riskLevel: 'CRITICAL_RISK' | 'AT_RISK' | 'LOW_RISK' | string;
+  recommendation: string;
+  issues: ContractFraudIssue[];
+}
+
+export interface ContractSignatureVerificationRequest {
+  role: 'CLIENT' | 'FREELANCER' | string;
+  drawnSignatureDataUrl: string;
+  realSignatureDataUrl: string;
+}
+
+export interface ContractSignatureVerificationResult {
+  contractId: number;
+  role: string;
+  similarityScore: number;
+  verdict: 'MATCH' | 'REVIEW' | 'NO_MATCH' | string;
+  message: string;
+}

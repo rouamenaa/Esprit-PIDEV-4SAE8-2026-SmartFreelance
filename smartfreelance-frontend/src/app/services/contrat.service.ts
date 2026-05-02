@@ -1,7 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Contrat, ContractStatistics } from '../models/Contract';
+import {
+  Contrat,
+  ContractStatistics,
+  ContractFraudScore,
+  ContractSignatureVerificationRequest,
+  ContractSignatureVerificationResult,
+} from '../models/Contract';
 import { Observable, map } from 'rxjs';
 import { PaginatedResponse } from '../models/PaginatedResponse';
 
@@ -15,8 +21,7 @@ function normalizeContrat(raw: Contrat | Record<string, unknown>): Contrat {
 
 /** Maps form/partial data to API request body (Contrat shape) */
 function toApiBody(data: Partial<Contrat>): Partial<Contrat> {
-  const latePenaltyPercent = data.latePenaltyPercent ?? (data as any).late_penalty_percent;
-  const body: Partial<Contrat> = {
+  return {
     clientId: data.clientId ?? (data as any).client_id,
     freelancerId: data.freelancerId ?? (data as any).freelancer_id,
     titre: data.titre ?? (data as any).title ?? '',
@@ -25,11 +30,8 @@ function toApiBody(data: Partial<Contrat>): Partial<Contrat> {
     dateDebut: data.dateDebut ?? (data as any).startDate ?? (data as any).start_date ?? '',
     dateFin: data.dateFin ?? (data as any).endDate ?? (data as any).end_date ?? '',
     statut: data.statut ?? 'BROUILLON',
+    latePenaltyPercent: data.latePenaltyPercent ?? (data as any).late_penalty_percent ?? undefined,
   };
-  if (latePenaltyPercent != null) {
-    body.latePenaltyPercent = latePenaltyPercent;
-  }
-  return body;
 }
 
 @Injectable({
@@ -137,5 +139,16 @@ export class ContratService {
         clientSpending: Number(raw['clientSpending'] ?? raw['client_spending'] ?? 0),
       }))
     );
+  }
+
+  getFraudScore(id: number): Observable<ContractFraudScore> {
+    return this.http.get<ContractFraudScore>(`${this.url}/${id}/fraud-score`);
+  }
+
+  verifySignature(
+    id: number,
+    payload: ContractSignatureVerificationRequest
+  ): Observable<ContractSignatureVerificationResult> {
+    return this.http.post<ContractSignatureVerificationResult>(`${this.url}/${id}/signature/verify`, payload);
   }
 }

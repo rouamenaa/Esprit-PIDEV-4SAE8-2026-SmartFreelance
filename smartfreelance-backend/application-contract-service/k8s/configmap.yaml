@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: application-contract-service-config
+  labels:
+    app: application-contract-service
+data:
+  SPRING_PROFILES_ACTIVE: "k8s"
+  SERVER_PORT: "8083"
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-service:8761/eureka"
+  PROJECT_SERVICE_BASE_URL: "http://project-service:8082"
+  ZIPKIN_ENDPOINT: "http://jaeger-collector.monitoring.svc.cluster.local:9411/api/v2/spans"
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: application-contract-service-config
+data:
+  SPRING_PROFILES_ACTIVE: "k8s"
+  SERVER_PORT: "8083"
+  SPRING_APPLICATION_NAME: "microservice-condidature"
+  # PostgreSQL (HA/replication is provided by your DB operator or cloud service)
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgresql:5432/condidature_db"
+  SPRING_DATASOURCE_DRIVER_CLASS_NAME: "org.postgresql.Driver"
+  SPRING_JPA_DATABASE_PLATFORM: "org.hibernate.dialect.PostgreSQLDialect"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+  SPRING_JPA_SHOW_SQL: "false"
+  # Redis (adjust host to match your Redis / Valkey release, e.g. redis-master)
+  SPRING_DATA_REDIS_HOST: "redis-master"
+  SPRING_DATA_REDIS_PORT: "6379"
+  # RabbitMQ (Kafka can sit alongside at platform level for other consumers)
+  SPRING_RABBITMQ_HOST: "rabbitmq"
+  SPRING_RABBITMQ_PORT: "5672"
+  SPRING_RABBITMQ_USERNAME: "guest"
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+  EUREKA_CLIENT_REGISTER_WITH_EUREKA: "true"
+  EUREKA_CLIENT_FETCH_REGISTRY: "true"
+  PROJECT_SERVICE_BASE_URL: "http://project-service:8082"
+  MANAGEMENT_TRACING_SAMPLING_PROBABILITY: "0.1"
+  MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: "http://jaeger-collector.observability.svc.cluster.local:9411/api/v2/spans"

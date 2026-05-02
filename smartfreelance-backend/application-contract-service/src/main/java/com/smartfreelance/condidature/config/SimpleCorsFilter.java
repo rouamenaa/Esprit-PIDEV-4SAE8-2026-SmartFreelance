@@ -1,19 +1,22 @@
 package com.smartfreelance.condidature.config;
 
-import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 
-@Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
-@Slf4j
+/**
+ * Adds CORS headers to every response and handles OPTIONS preflight with 200.
+ * Registered with highest precedence in WebCorsConfig.
+ */
 public class SimpleCorsFilter implements Filter {
+
+    private static final String ORIGIN = "http://localhost:4200";
+    private static final String ORIGIN_127 = "http://127.0.0.1:4200";
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -21,8 +24,16 @@ public class SimpleCorsFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
         HttpServletRequest request = (HttpServletRequest) req;
 
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+        String origin = request.getHeader("Origin");
+        if (origin == null || origin.isEmpty()) {
+            origin = ORIGIN;
+        }
+        if (!ORIGIN.equals(origin) && !ORIGIN_127.equals(origin)) {
+            origin = ORIGIN;
+        }
+
+        response.setHeader("Access-Control-Allow-Origin", origin);
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD");
         response.setHeader("Access-Control-Allow-Headers", "*");
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Max-Age", "3600");
@@ -33,14 +44,5 @@ public class SimpleCorsFilter implements Filter {
         }
 
         chain.doFilter(req, res);
-    }
-
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        log.info("CORS Filter initialized");
-    }
-
-    @Override
-    public void destroy() {
     }
 }

@@ -1,0 +1,62 @@
+pipeline {
+  agent any
+
+  options {
+    timestamps()
+    disableConcurrentBuilds()
+  }
+
+  environment {
+    SERVICE_NAME = "application-contract-service"
+    SERVICE_DIR = "smartfreelance-backend/application-contract-service"
+  }
+
+  stages {
+    stage("Checkout") {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage("Build") {
+      steps {
+        dir("${env.SERVICE_DIR}") {
+          sh "mvn -B -DskipTests clean package"
+        }
+      }
+    }
+
+    stage("Test") {
+      steps {
+        dir("${env.SERVICE_DIR}") {
+          sh "mvn -B test"
+        }
+      }
+    }
+
+    stage("Jasmi Validation") {
+      steps {
+        dir("${env.SERVICE_DIR}") {
+          sh "mvn -B verify"
+        }
+      }
+    }
+
+    stage("SonarQube Analysis") {
+      steps {
+        dir("${env.SERVICE_DIR}") {
+          withSonarQubeEnv("sonarqube-server") {
+            sh "mvn -B sonar:sonar -Dsonar.projectKey=application-contract-service -Dsonar.projectName=application-contract-service"
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      junit allowEmptyResults: true, testResults: "${env.SERVICE_DIR}/target/surefire-reports/*.xml"
+      archiveArtifacts artifacts: "${env.SERVICE_DIR}/target/*.jar,${env.SERVICE_DIR}/target/site/jacoco/**", allowEmptyArchive: true
+    }
+  }
+}

@@ -26,5 +26,52 @@
         <span class="stats-card__value">{{ stats.clientSpending | number:'1.2-2' }}</span>
       </div>
     </div>
+
+    <section class="stats-page__fraud">
+      <h2 class="stats-page__subtitle">Fraud Detection Analysis</h2>
+      <p class="stats-page__hint">
+        Rule-based checks on contract status, timeline, financial patterns, and entity consistency.
+      </p>
+
+      <div *ngIf="fraudIssues.length > 0; else noFraudIssues" class="fraud-table-wrap">
+        <table class="fraud-table">
+          <thead>
+            <tr>
+              <th>Contract ID</th>
+              <th>Issue Type</th>
+              <th>Severity</th>
+              <th>Explanation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let issue of fraudIssues">
+              <td>#{{ issue.contractId }}</td>
+              <td>{{ issue.issueType }}</td>
+              <td>
+                <span
+                  class="fraud-severity"
+                  [ngClass]="{
+                    'fraud-severity--high': issue.severity === 'High',
+                    'fraud-severity--medium': issue.severity === 'Medium',
+                    'fraud-severity--low': issue.severity === 'Low'
+                  }"
+                >
+                  {{ issue.severity }}
+                </span>
+              </td>
+              <td>{{ issue.explanation }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noFraudIssues>
+        <p class="stats-page__ok">No red flags detected by current fraud rules.</p>
+      </ng-template>
+
+      <div class="stats-page__summary">
+        <strong>Manual Audit Recommendation:</strong>
+        <span>{{ auditSummary }}</span>
+      </div>
+    </section>
   </ng-container>
 </div>
