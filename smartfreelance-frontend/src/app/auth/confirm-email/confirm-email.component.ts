@@ -20,14 +20,27 @@ export class ConfirmEmailComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const token = this.route.snapshot.queryParamMap.get('token');
-    if (!token) { this.status = 'error'; return; }
+  const token = this.route.snapshot.queryParamMap.get('token');
 
-    this.http.get(`http://localhost:8085/auth/confirm?token=${token}`).subscribe({
-      next: () => this.status = 'success',
-      error: () => this.status = 'error'
-    });
+  console.log("TOKEN =", token); // debug
+
+  if (!token) {
+    this.status = 'error';
+    return;
   }
+
+  this.http.get(`http://localhost:8085/auth/confirm?token=${token}`)
+    .subscribe({
+      next: (res) => {
+        console.log("CONFIRM SUCCESS", res);
+        this.status = 'success';
+      },
+      error: (err) => {
+        console.error("CONFIRM ERROR", err);
+        this.status = 'error';
+      }
+    });
+}
 
   goLogin() { this.router.navigate(['/login']); }
 }

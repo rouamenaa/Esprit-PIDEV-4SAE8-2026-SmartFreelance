@@ -35,7 +35,7 @@ export class UsersListComponent implements OnInit {
     this.isAdmin = this.authService.getRole() === 'ADMIN';
     this.loadUsers();
   }
-
+ 
   get totalProjects(): number {
     return this.users.reduce((acc, u) => acc + (u.totalProjects || 0), 0);
   }

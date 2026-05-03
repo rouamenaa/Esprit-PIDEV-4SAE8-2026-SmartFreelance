@@ -1,6 +1,9 @@
 package com.example.micro_user.Entity;
 
-import com.example.micro_user.Entity.Role;   // 🔥 important
+import com.example.micro_user.Entity.Role;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.List;
 
 public class UserDTO {
 
@@ -11,6 +14,7 @@ public class UserDTO {
 
     private String username;
     private String email;
+    private List<Float> faceDescriptor;
 
 
 

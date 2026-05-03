@@ -16,22 +16,22 @@ public class EmailService {
     private String from;
 
     public void sendConfirmationEmail(String to, String token) {
-        String link = "http://localhost:4200/confirm?token=" + token;
+        try {
+            String link = "http://localhost:4200/confirm?token=" + token;
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(from);
-        message.setTo(to);
-        message.setSubject("Confirm your SmartFreelance account");
-        message.setText(
-                "Hello,\n\n" +
-                        "Thank you for signing up on SmartFreelance!\n\n" +
-                        "Please click the link below to confirm your email address:\n\n" +
-                        link + "\n\n" +
-                        "This link expires in 24 hours.\n\n" +
-                        "If you did not create an account, please ignore this email.\n\n" +
-                        "SmartFreelance Team"
-        );
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(from);
+            message.setTo(to);
+            message.setSubject("Confirm your SmartFreelance account");
+            message.setText(
+                    "Hello,\n\n" +
+                            "Please confirm your email:\n" + link
+            );
 
-        mailSender.send(message);
+            mailSender.send(message);
+
+        } catch (Exception e) {
+            throw new RuntimeException("EMAIL_NOT_VALID");
+        }
     }
 }

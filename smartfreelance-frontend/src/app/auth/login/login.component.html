@@ -1,5 +1,4 @@
 <div class="login-page">
-
   <div class="login-card">
 
     <!-- Logo / Brand -->
@@ -16,7 +15,11 @@
       <h1 class="login-title">Welcome back</h1>
       <p class="login-subtitle">Sign in to your account</p>
     </div>
-
+   <app-face-login 
+  [email]="email"
+  (faceMatched)="onFaceSuccess($event)"
+  (faceError)="onFaceError($event)">
+</app-face-login>
     <form #loginForm="ngForm" (ngSubmit)="login()">
 
       <!-- Email -->
@@ -81,6 +84,7 @@
           <polyline points="12 5 19 12 12 19"/>
         </svg>
       </button>
+      <div id="recaptcha-container"></div>
 
       <!-- Register link -->
       <p class="register-link">

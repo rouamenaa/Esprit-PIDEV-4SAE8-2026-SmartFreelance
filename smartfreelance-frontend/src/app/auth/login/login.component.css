@@ -219,3 +219,13 @@ button:hover {
   color: red;
   margin-top: 10px;
 }
+.captcha-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.g-recaptcha {
+  transform: scale(0.95); /* optional: smaller */
+  transform-origin: center;
+}

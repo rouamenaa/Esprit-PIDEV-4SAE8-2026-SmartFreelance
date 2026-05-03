@@ -4,6 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RouterModule } from '@angular/router';
+import * as faceapi from 'face-api.js';
+import { AfterViewInit } from '@angular/core';
+
+declare var grecaptcha: any;
+
 
 @Component({
   selector: 'app-utilisateur',
@@ -12,9 +17,9 @@ import { RouterModule } from '@angular/router';
   templateUrl: './utilisateur.component.html',
   styleUrls: ['./utilisateur.component.css']
 })
-export class UtilisateurComponent implements OnInit {
+export class UtilisateurComponent implements OnInit, AfterViewInit {
   // Disable external AI verification calls (no API key needed).
-  
+
   user: any = { id: null, email: '', name: '', password: '', role: '' };
   users: any[] = [];
   isEditMode: boolean = false;
@@ -26,6 +31,11 @@ export class UtilisateurComponent implements OnInit {
   successMessage: string = '';
   isLoading: boolean = false;
   hoveredIndex: number | null = null;
+  video!: HTMLVideoElement;
+  canvas!: HTMLCanvasElement;
+  faceDescriptor: Float32Array | null = null;
+  recaptchaWidgetId: any;
+
 
   selectedFile: File | null = null;
   selectedFileName: string = '';
@@ -37,42 +47,93 @@ export class UtilisateurComponent implements OnInit {
   registeredEmail: string = '';
 
   private registerUrl = 'http://localhost:8085/auth/register';
-  private usersUrl   = 'http://localhost:8085/auth/all';
-  private usersUrl1  = 'http://localhost:8085/auth/user';
+  private usersUrl = 'http://localhost:8085/auth/all';
+  private usersUrl1 = 'http://localhost:8085/auth/user';
+
 
   constructor(
     private http: HttpClient,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
-goToLogin() {
-  this.router.navigate(['/login']);
-}
-  ngOnInit() {
+  ) { }
+  goToLogin() {
+    this.router.navigate(['/login']);
+  }
+  async ngOnInit() {
     this.route.queryParams.subscribe(params => {
       if (params['role']) {
         this.user.role = params['role'];
       }
     });
+
+    await this.loadFaceModels();
+
     this.loadUsers();
   }
 
+  // ✅ CORRECT PLACE
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      if ((window as any).grecaptcha) {
+        this.renderCaptcha();
+      }
+    }, 500);
+
+    this.startCamera(); // 👈 important
+  }
+
+  async loadFaceModels() {
+    const MODEL_URL = '/models';
+
+    await Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+      faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+      faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+    ]);
+
+    console.log('✅ Face models loaded');
+  }
+
+  async startCamera() {
+    this.video = document.getElementById('video') as HTMLVideoElement;
+
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    this.video.srcObject = stream;
+
+    await this.video.play();
+  }
+
+  async captureFace() {
+    const detection = await faceapi
+      .detectSingleFace(this.video, new faceapi.TinyFaceDetectorOptions())
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+    if (!detection) {
+      alert('❌ No face detected');
+      return;
+    }
+
+    this.faceDescriptor = detection.descriptor;
+    console.log('✅ Face captured');
+  }
+
   goHome() { this.router.navigate(['/home']); }
-// =======
-//   private registerUrl = 'http://localhost:8085/auth/register';
-//   private usersUrl = 'http://localhost:8085/auth/all';
-//   private usersUrl1 = 'http://localhost:8085/auth/user';
+  // =======
+  //   private registerUrl = 'http://localhost:8085/auth/register';
+  //   private usersUrl = 'http://localhost:8085/auth/all';
+  //   private usersUrl1 = 'http://localhost:8085/auth/user';
 
-//   constructor(private http: HttpClient, private router: Router) {}
+  //   constructor(private http: HttpClient, private router: Router) {}
 
-//   ngOnInit() {
-//     this.loadUsers();
-//   } 
+  //   ngOnInit() {
+  //     this.loadUsers();
+  //   } 
 
-//   goHome() {
-//     this.router.navigate(['/home']);
-//   }
-// >>>>>>> a084d154fb5e9c0f17cf6e3e48ec9b63dbf3dd50
+  //   goHome() {
+  //     this.router.navigate(['/home']);
+  //   }
+  // >>>>>>> a084d154fb5e9c0f17cf6e3e48ec9b63dbf3dd50
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
@@ -94,10 +155,10 @@ goToLogin() {
   validateEmail(): boolean {
     if (!this.user.email) { this.emailError = 'Email is required'; return false; }
     if (!this.isValidEmail(this.user.email)) { this.emailError = 'Invalid email format'; return false; }
-// =======
-//     if (!this.user.email) { this.emailError = 'Email est obligatoire'; return false; }
-//     if (!this.isValidEmail(this.user.email)) { this.emailError = 'Format email invalide (ex: nom@domaine.com)'; return false; }
-// >>>>>>> a084d154fb5e9c0f17cf6e3e48ec9b63dbf3dd50
+    // =======
+    //     if (!this.user.email) { this.emailError = 'Email est obligatoire'; return false; }
+    //     if (!this.isValidEmail(this.user.email)) { this.emailError = 'Format email invalide (ex: nom@domaine.com)'; return false; }
+    // >>>>>>> a084d154fb5e9c0f17cf6e3e48ec9b63dbf3dd50
     this.emailError = '';
     return true;
   }
@@ -126,73 +187,70 @@ goToLogin() {
     return true;
   }
 
+
   addUser() {
     this.submitError = '';
-    if (!this.isEditMode ) {
-      if (!this.verificationResult) {
-        alert('⚠️ Please verify an AI document before adding a user.');
-        return;
-      }
-      if (!this.verificationResult.valid) {
-        alert('❌ Invalid document. Adding is blocked.');
-
-        return;
-      }
-    }
 
     if (!this.validateEmail()) return;
     if (!this.validateName()) return;
     if (!this.validatePassword()) return;
     if (!this.validateRole()) return;
 
+    if (!this.faceDescriptor) {
+      alert("❌ Capture face first");
+      return;
+    }
+
+    // ✅ GET CAPTCHA TOKEN (v2)
+    const captchaToken = (window as any).grecaptcha.getResponse(this.recaptchaWidgetId); if (!captchaToken) {
+      alert("⚠️ Please check the captcha");
+      return;
+    }
+
     this.isLoading = true;
-    this.successMessage = '';
 
     const payload = {
       username: this.user.name,
-      nom: this.user.name,
       email: this.user.email,
       password: this.user.password,
-      role: this.user.role
+      faceDescriptor: JSON.stringify(this.faceDescriptor),
+      captchaToken: captchaToken
     };
 
-    if (this.isEditMode) {
-      this.http.put(`${this.usersUrl1}/${this.user.id}`, payload, {
-        headers: this.getHeaders(),
-        responseType: 'text'
-      }).subscribe({
-        next: () => {
-          this.successMessage = 'User updated successfully!';
+    this.http.post(this.registerUrl, payload).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.registeredEmail = this.user.email;
+        this.registrationDone = true;
 
-          this.loadUsers();
-          this.resetForm();
-          this.isLoading = false;
-        },
-        error: (err) => {
-          this.isLoading = false;
-          if (err.status === 409) this.emailError = 'This email already exists';
-          else this.submitError = this.toFriendlyError(err, 'update');
-        }
+        // 🔥 RESET CAPTCHA
+        (window as any).grecaptcha.reset();
+      },
+      error: (err) => {
+        this.isLoading = false;
+
+        console.log("ERROR BACKEND:", err.error);
+
+        if (err.status === 409) this.emailError = 'This email already exists';
+        else this.submitError = err.error?.message || 'Registration failed ❌';
+      }
+    });
+  }
+
+  renderCaptcha() {
+    const container = document.getElementById('recaptcha-container');
+
+    if (!container) {
+      console.error("❌ recaptcha container NOT FOUND");
+      return;
+    }
+
+    if ((window as any).grecaptcha) {
+      this.recaptchaWidgetId = (window as any).grecaptcha.render(container, {
+        sitekey: ''
       });
     } else {
-      // ✅ Register — afficher écran de confirmation au lieu de rediriger
-
-      this.http.post(this.registerUrl, payload, {
-        headers: this.getHeaders(),
-      }).subscribe({
-        next: () => {
-          this.isLoading = false;
-          this.registeredEmail = this.user.email; // ✅ sauvegarder l'email
-          this.registrationDone = true;           // ✅ afficher l'écran
-        },
-        error: (err) => {
-          this.isLoading = false;
-          if (err.status === 409) this.emailError = 'This email already exists';
-          else if (err.status === 403) this.roleError = 'ADMIN ne peut pas etre cree via ce formulaire.';
-          else this.submitError = this.toFriendlyError(err, 'register');
-
-        }
-      });
+      console.error("❌ reCAPTCHA not loaded");
     }
   }
 
@@ -264,19 +322,19 @@ goToLogin() {
       this.verificationResult = null;
     } else {
       alert('Please select a PDF file only.');
-    
+
     }
   }
 
   async verifyDocument() {
     if (!this.selectedFile) return;
-    
+
     this.isVerifying = true;
     this.verificationResult = null;
 
     try {
       const apiKey = '';
- 
+
       const text = await this.fileToText(this.selectedFile);
 
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -292,19 +350,19 @@ goToLogin() {
             role: 'user',
             content: `Here is the content of a document (CV or diploma):
 
-${text}
+  ${text}
 
-Reply ONLY in JSON without markdown:
-{
-  "valid": true or false,
-  "name": "First Last detected or null",
-  "message": "Short explanation in English"
-}
-Criteria:
-- valid = true if a readable full name is clearly present
-- valid = false if empty or no name
-- name = the full name detected (or null)
-- message = explanation in 1 sentence`
+  Reply ONLY in JSON without markdown:
+  {
+    "valid": true or false,
+    "name": "First Last detected or null",
+    "message": "Short explanation in English"
+  }
+  Criteria:
+  - valid = true if a readable full name is clearly present
+  - valid = false if empty or no name
+  - name = the full name detected (or null)
+  - message = explanation in 1 sentence`
 
           }]
         })

@@ -1,6 +1,7 @@
 package com.example.micro_user.Entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 
 @Entity
@@ -36,7 +37,6 @@ public class User {
 
     @Column
     private String confirmationToken;
-<<<<<<< HEAD
     // 🔥 PROFILE
     private String bio;
 
@@ -77,10 +77,7 @@ public class User {
     // 📊 ANALYTICS
     private Integer totalProjects = 0;
     private Double successRate = 0.0;
+    @Column(columnDefinition = "TEXT")
+    private String faceDescriptor;
 
 }
-=======
-}
-
-
->>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25

@@ -163,4 +163,30 @@ export class ReviewPageComponent implements OnInit {
   goBack(): void {
     this.router.navigate(['/users']);
   }
+  analyzeFeedback(text: string): number {
+  const positiveWords = ['good', 'great', 'excellent', 'amazing', 'perfect', 'nice', 'fast', 'professional'];
+  const negativeWords = ['bad', 'poor', 'slow', 'terrible', 'worst', 'awful', 'late', 'bug'];
+
+  let score = 0;
+
+  const words = text.toLowerCase().split(' ');
+
+  words.forEach(word => {
+    if (positiveWords.includes(word)) score++;
+    if (negativeWords.includes(word)) score--;
+  });
+
+  // 🎯 Convert score → rating
+  if (score >= 3) return 5;
+  if (score === 2) return 4;
+  if (score === 1) return 3;
+  if (score === 0) return 3;
+  if (score === -1) return 2;
+  return 1;
+}
+autoRate() {
+  if (!this.comment || this.comment.length < 5) return;
+
+  this.rating = this.analyzeFeedback(this.comment);
+}
 }

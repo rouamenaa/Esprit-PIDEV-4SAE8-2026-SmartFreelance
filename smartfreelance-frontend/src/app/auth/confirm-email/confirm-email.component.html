@@ -1,1 +1,20 @@
-<p>confirm-email works!</p>
+<div class="confirm-container">
+
+  <div *ngIf="status === 'loading'">
+    <h2>⏳ Confirming your email...</h2>
+    <p>Please wait...</p>
+  </div>
+
+  <div *ngIf="status === 'success'">
+    <h2>✅ Email confirmed!</h2>
+    <p>Your account is now active.</p>
+    <button (click)="goLogin()">Go to Login</button>
+  </div>
+
+  <div *ngIf="status === 'error'">
+    <h2>❌ Confirmation failed</h2>
+    <p>Invalid or expired link.</p>
+    <button (click)="goLogin()">Back to Login</button>
+  </div>
+
+</div>

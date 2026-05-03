@@ -119,6 +119,7 @@ export const routes: Routes = [
         loadComponent: () => import('./features/portfolio-project/portfolio-project').then(m => m.PortfolioProjectComponent),
         canActivate: [roleGuard(['FREELANCER'])]
       },
+      
       {
         path: 'skills',
         loadComponent: () => import('./features/skill/skill').then(m => m.SkillComponent),

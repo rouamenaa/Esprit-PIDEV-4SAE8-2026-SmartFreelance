@@ -2,10 +2,8 @@ package com.example.micro_user.Service.auth;
 
 import com.example.micro_user.Entity.Role;
 import com.example.micro_user.Entity.User;
-<<<<<<< HEAD
 import com.example.micro_user.Entity.UserStatus;
-=======
->>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
+
 import com.example.micro_user.Repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,8 +34,6 @@ public class UserService {
 
         return userRepository.save(user);
     }
-<<<<<<< HEAD
-
     private int calculateCompletion(User user) {
         int score = 0;
 
@@ -81,7 +77,4 @@ public class UserService {
         user.setDeleted(true);
         userRepository.save(user);
     }
-
-=======
->>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 }

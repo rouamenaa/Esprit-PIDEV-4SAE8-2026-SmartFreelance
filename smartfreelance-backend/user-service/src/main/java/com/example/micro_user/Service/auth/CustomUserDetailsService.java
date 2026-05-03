@@ -1,10 +1,8 @@
 package com.example.micro_user.Service.auth;
 
 import com.example.micro_user.Entity.User;
-<<<<<<< HEAD
 import com.example.micro_user.Entity.UserStatus;
-=======
->>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
+
 import com.example.micro_user.Repository.UserRepository;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,11 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-<<<<<<< HEAD
     public UserDetails loadUserByUsername(String     username) throws UsernameNotFoundException {
-=======
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
->>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
@@ -62,7 +56,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
         return null;
     }
-<<<<<<< HEAD
 
     private int calculateCompletion(User user) {
         int score = 0;
@@ -126,8 +119,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         return (double) success / total * 100;
     }
 
-=======
->>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
 }
 
 

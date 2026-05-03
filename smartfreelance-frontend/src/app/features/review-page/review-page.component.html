@@ -19,6 +19,7 @@
       </div>
     </div>
   </div>
+  
 
   <!-- Success Message -->
   <div *ngIf="showSuccessMessage" class="success-message">
@@ -132,13 +133,14 @@
         <div class="form-group" *ngIf="canReview">
           <label for="comment" class="form-label">Your feedback</label>
           <textarea [(ngModel)]="comment"
-                    id="comment"
-                    placeholder="Share your experience with this user..."
-                    rows="6"
-                    class="form-textarea"
-                    [disabled]="isSubmitting"
-                    maxlength="500">
-          </textarea>
+          (input)="autoRate()"
+          id="comment"
+          placeholder="Share your experience with this user..."
+          rows="6"
+          class="form-textarea"
+          [disabled]="isSubmitting"
+          maxlength="500">
+</textarea>
           <p class="char-count">{{ comment.length }} / 500</p>
         </div>
 
