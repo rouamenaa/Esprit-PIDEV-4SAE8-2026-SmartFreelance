@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: formation-service
+  labels:
+    app: formation-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: formation-service
+  template:
+    metadata:
+      labels:
+        app: formation-service
+    spec:
+      containers:
+      - name: formation-service
+        image: azizaroua/formation-service:IMAGE_TAG
+        ports:
+        - containerPort: 8080

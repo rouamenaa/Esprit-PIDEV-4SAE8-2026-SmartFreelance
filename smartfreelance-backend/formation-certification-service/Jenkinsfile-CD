@@ -1,0 +1,68 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag to build and deploy')
+    }
+
+    environment {
+        DOCKER_REPO = 'azizaroua/formation-service'
+        DOCKER_CREDENTIALS_ID = 'docker'
+        APP_PATH = 'smartfreelance-backend/formation-certification-service'
+    }
+
+    stages {
+        stage('Docker Build') {
+            steps {
+                script {
+                    echo "Building Docker image: ${DOCKER_REPO}:${IMAGE_TAG}"
+                    sh "docker build -t ${DOCKER_REPO}:${IMAGE_TAG} ${APP_PATH}"
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                script {
+                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
+                        sh "docker push ${DOCKER_REPO}:${IMAGE_TAG}"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    echo "Deploying version ${IMAGE_TAG} to Minikube"
+                    // Update IMAGE_TAG placeholder in deployment.yaml
+                    sh "sed -i 's/IMAGE_TAG/${IMAGE_TAG}/g' ${APP_PATH}/k8s/deployment.yaml"
+                    
+                    // Apply Kubernetes manifests
+                    sh "kubectl apply -f ${APP_PATH}/k8s/deployment.yaml"
+                    sh "kubectl apply -f ${APP_PATH}/k8s/service.yaml"
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                sh "kubectl get pods"
+                sh "kubectl get services"
+            }
+        }
+    }
+
+    post {
+        always {
+            // Revert changes to deployment.yaml to avoid committing the specific tag
+            sh "git checkout ${APP_PATH}/k8s/deployment.yaml || true"
+        }
+        success {
+            echo 'Deployment successful!'
+        }
+        failure {
+            echo 'Deployment failed!'
+        }
+    }
+}

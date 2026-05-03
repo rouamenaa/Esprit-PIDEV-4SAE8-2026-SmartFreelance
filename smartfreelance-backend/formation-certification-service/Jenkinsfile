@@ -19,7 +19,7 @@ pipeline {
                 echo 'Building project...'
                 sh '''
                     cd smartfreelance-backend/formation-certification-service
-                    mvn clean compile
+                    mvn clean package -DskipTests
                 '''
             }
         }
@@ -50,6 +50,7 @@ pipeline {
     post {
         success {
             echo 'Pipeline completed successfully!'
+            build job: 'CD-Pipeline', parameters: [string(name: 'IMAGE_TAG', value: "${BUILD_NUMBER}")]
         }
         failure {
             echo 'Pipeline failed!'
