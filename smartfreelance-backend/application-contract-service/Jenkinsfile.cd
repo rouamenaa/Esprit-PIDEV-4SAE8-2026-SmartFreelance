@@ -68,41 +68,42 @@ pipeline {
       steps {
         withCredentials([file(credentialsId: "kubeconfig-application-contract-service", variable: "KUBECONFIG_FILE")]) {
           dir("${env.SERVICE_DIR}") {
-            sh """
-              export KUBECONFIG=${KUBECONFIG_FILE}
+            sh '''
+set -e
+export KUBECONFIG="$KUBECONFIG_FILE"
 
-              k() {
-                # NOTE: --validate=false avoids flaky OpenAPI schema downloads from apiserver
-                # NOTE: --request-timeout helps on slow/overloaded clusters
-                kubectl --request-timeout=120s "$@"
-              }
+k() {
+  # NOTE: --validate=false avoids flaky OpenAPI schema downloads from apiserver
+  # NOTE: --request-timeout helps on slow/overloaded clusters
+  kubectl --request-timeout=120s "$@"
+}
 
-              apply_retry() {
-                file="$1"
-                for i in 1 2 3 4 5; do
-                  if k apply --validate=false -f "$file" -n ${K8S_NAMESPACE}; then
-                    return 0
-                  fi
-                  sleep $((i * 3))
-                done
-                return 1
-              }
+apply_retry() {
+  file="$1"
+  for i in 1 2 3 4 5; do
+    if k apply --validate=false -f "$file" -n "$K8S_NAMESPACE"; then
+      return 0
+    fi
+    sleep $((i * 3))
+  done
+  return 1
+}
 
-              k version --client
-              k cluster-info || true
+k version --client
+k cluster-info || true
 
-              apply_retry k8s/configmap.yaml
-              apply_retry k8s/secret.yaml
-              apply_retry k8s/deployment.yaml
-              apply_retry k8s/service.yaml
-              apply_retry k8s/ingress.yaml
-              apply_retry k8s/hpa.yaml
-              apply_retry k8s/pdb.yaml
-              apply_retry k8s/servicemonitor.yaml
+apply_retry k8s/configmap.yaml
+apply_retry k8s/secret.yaml
+apply_retry k8s/deployment.yaml
+apply_retry k8s/service.yaml
+apply_retry k8s/ingress.yaml
+apply_retry k8s/hpa.yaml
+apply_retry k8s/pdb.yaml
+apply_retry k8s/servicemonitor.yaml
 
-              k set image deployment/${K8S_DEPLOYMENT} application-contract-service=${FULL_IMAGE} -n ${K8S_NAMESPACE}
-              k rollout status deployment/${K8S_DEPLOYMENT} -n ${K8S_NAMESPACE} --timeout=240s
-            """
+k set image deployment/"$K8S_DEPLOYMENT" application-contract-service="$FULL_IMAGE" -n "$K8S_NAMESPACE"
+k rollout status deployment/"$K8S_DEPLOYMENT" -n "$K8S_NAMESPACE" --timeout=240s
+            '''
           }
         }
       }
