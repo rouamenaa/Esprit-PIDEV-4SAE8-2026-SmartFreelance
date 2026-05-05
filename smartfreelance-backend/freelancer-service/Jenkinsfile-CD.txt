@@ -23,6 +23,7 @@ pipeline {
             steps {
                 sh '''
                     echo "Checking Kubernetes context..."
+                    export KUBECONFIG=$KUBECONFIG
                     kubectl config current-context
                     kubectl cluster-info
                 '''
@@ -60,7 +61,7 @@ pipeline {
                 echo 'Deploying to Minikube cluster...'
                 dir("${SERVICE_DIR}") {
                     sh '''
-                        export KUBECONFIG=/home/vagrant/.kube/config
+                        export KUBECONFIG=/var/lib/jenkins/.kube/config
 
                         kubectl apply -f deployment.yaml
                         kubectl apply -f service.yaml
@@ -75,7 +76,7 @@ pipeline {
         stage('Get URL') {
             steps {
                 sh '''
-                    minikube service $KUBE_SERVICE --url
+                    minikube service $KUBE_SERVICE --url || true
                 '''
             }
         }
