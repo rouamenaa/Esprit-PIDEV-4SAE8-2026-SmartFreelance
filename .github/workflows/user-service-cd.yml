@@ -63,7 +63,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: docker-build-push
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/salim'
     environment: production
 
     steps:
