@@ -5,20 +5,18 @@ FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-# ✅ cache Maven (IMPORTANT)
-RUN mkdir -p /root/.m2
-
-# 1. Copy pom first
+# Copy only pom first (cache dependencies)
 COPY pom.xml .
 
-# 2. Preload dependencies
-RUN mvn -B -T 1C dependency:go-offline --no-transfer-progress
+# Download dependencies once (cached layer)
+RUN mvn -B dependency:go-offline --no-transfer-progress
 
-# 3. Copy source code
+# Copy source
 COPY src ./src
 
-# 4. Build (fast + parallel + no logs spam)
-RUN mvn -B -T 1C clean package -DskipTests --no-transfer-progress
+# Build project
+RUN mvn -B clean package -DskipTests --no-transfer-progress
+
 
 # =========================
 # Stage 2: RUNTIME
