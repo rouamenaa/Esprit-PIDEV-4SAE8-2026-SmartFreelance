@@ -5,7 +5,6 @@ metadata:
 spec:
   replicas: 1
 
-  # ✅ FIX: prevents rollout stuck issue
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -22,6 +21,9 @@ spec:
         app: smartfreelance
 
     spec:
+
+      # ✅ MUST be HERE (pod level, NOT container)
+      terminationGracePeriodSeconds: 10
 
       initContainers:
         - name: wait-for-mysql
@@ -46,6 +48,3 @@ spec:
               value: root
             - name: SPRING_DATASOURCE_PASSWORD
               value: root
-
-          # ✅ IMPORTANT FIX
-          terminationGracePeriodSeconds: 10
