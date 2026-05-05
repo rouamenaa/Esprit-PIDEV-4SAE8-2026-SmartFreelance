@@ -53,6 +53,9 @@ pipeline {
         }
         success {
             echo 'Pipeline completed successfully!'
+
+            // 🔥 Trigger downstream job
+            build job: 'aziz-pi-cd', wait: false
         }
         failure {
             echo 'Pipeline failed!'
