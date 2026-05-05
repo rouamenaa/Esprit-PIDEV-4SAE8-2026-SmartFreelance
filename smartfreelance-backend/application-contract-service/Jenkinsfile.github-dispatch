@@ -1,0 +1,39 @@
+// Triggers GitHub Actions workflow `.github/workflows/application-contract-service.yml` (must have workflow_dispatch).
+// Jenkins job: Pipeline from SCM → Script Path = smartfreelance-backend/application-contract-service/Jenkinsfile.github-dispatch
+// Credentials: Jenkins "Secret text" with a GitHub PAT (classic: repo + workflow scope, or fine-grained: Actions read/write).
+
+pipeline {
+  agent any
+
+  parameters {
+    string(name: 'GIT_REF', defaultValue: 'main', description: 'Branch or tag passed to workflow_dispatch')
+    string(
+      name: 'GITHUB_REPOSITORY',
+      defaultValue: 'rouamenaa/Esprit-PIDEV-4SAE8-2026-SmartFreelance',
+      description: 'owner/repo on github.com'
+    )
+    string(
+      name: 'WORKFLOW_FILE',
+      defaultValue: 'application-contract-service.yml',
+      description: 'Filename under .github/workflows/'
+    )
+  }
+
+  stages {
+    stage('Dispatch GitHub Actions CI') {
+      steps {
+        withCredentials([string(credentialsId: 'github-actions-dispatch-token', variable: 'GH_TOKEN')]) {
+          sh """
+            set -euo pipefail
+            curl -fsS -X POST \\
+              -H "Accept: application/vnd.github+json" \\
+              -H "Authorization: Bearer \${GH_TOKEN}" \\
+              -H "X-GitHub-Api-Version: 2022-11-28" \\
+              "https://api.github.com/repos/${params.GITHUB_REPOSITORY}/actions/workflows/${params.WORKFLOW_FILE}/dispatches" \\
+              -d '{"ref":"${params.GIT_REF}"}'
+          """
+        }
+      }
+    }
+  }
+}
