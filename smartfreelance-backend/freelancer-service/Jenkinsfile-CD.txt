@@ -23,7 +23,7 @@ pipeline {
             steps {
                 sh '''
                     echo "Checking Kubernetes context..."
-                    export KUBECONFIG=$KUBECONFIG
+                    export KUBECONFIG=/var/lib/jenkins/.kube/config
                     kubectl config current-context
                     kubectl cluster-info
                 '''
@@ -34,7 +34,9 @@ pipeline {
             steps {
                 echo 'Building Docker image...'
                 dir("${SERVICE_DIR}") {
-                    sh 'docker build -t $DOCKER_IMAGE:latest .'
+                    sh """
+                        docker build -t ${DOCKER_IMAGE}:latest .
+                    """
                 }
             }
         }
@@ -47,11 +49,11 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh '''
-                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                        docker push $DOCKER_IMAGE:latest
+                    sh """
+                        echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                        docker push ${DOCKER_IMAGE}:latest
                         docker logout
-                    '''
+                    """
                 }
             }
         }
@@ -60,24 +62,24 @@ pipeline {
             steps {
                 echo 'Deploying to Minikube cluster...'
                 dir("${SERVICE_DIR}") {
-                    sh '''
+                    sh """
                         export KUBECONFIG=/var/lib/jenkins/.kube/config
 
                         kubectl apply -f deployment.yaml
                         kubectl apply -f service.yaml
 
-                        kubectl rollout restart deployment/$KUBE_DEPLOYMENT
-                        kubectl rollout status deployment/$KUBE_DEPLOYMENT --timeout=180s
-                    '''
+                        kubectl rollout restart deployment/${KUBE_DEPLOYMENT}
+                        kubectl rollout status deployment/${KUBE_DEPLOYMENT} --timeout=180s
+                    """
                 }
             }
         }
 
         stage('Get URL') {
             steps {
-                sh '''
-                    minikube service $KUBE_SERVICE --url || true
-                '''
+                sh """
+                    minikube service ${KUBE_SERVICE} --url || true
+                """
             }
         }
     }
