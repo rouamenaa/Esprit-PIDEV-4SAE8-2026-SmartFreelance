@@ -19,20 +19,9 @@ pipeline {
             }
         }
 
-        stage('Verify Kubernetes') {
+        stage('Build Docker Image') {
             steps {
-                sh """
-                    echo "Checking Kubernetes context..."
-                    export KUBECONFIG=${KUBECONFIG}
-                    kubectl config current-context
-                    kubectl cluster-info
-                """
-            }
-        }
-
-        stage('Build Image') {
-            steps {
-                echo 'Building Docker image...'
+                echo 'Building Freelancer Service Docker image...'
                 dir("${SERVICE_DIR}") {
                     sh """
                         docker build -t ${DOCKER_IMAGE}:latest .
@@ -41,9 +30,9 @@ pipeline {
             }
         }
 
-        stage('Push Image') {
+        stage('Push Docker Image') {
             steps {
-                echo 'Pushing Docker image...'
+                echo 'Pushing image to Docker Hub...'
                 withCredentials([usernamePassword(
                     credentialsId: "${DOCKER_CREDENTIALS}",
                     usernameVariable: 'DOCKER_USER',
@@ -60,7 +49,7 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                echo 'Deploying to Minikube cluster...'
+                echo 'Deploying Freelancer Service to Kubernetes...'
                 dir("${SERVICE_DIR}") {
                     sh """
                         export KUBECONFIG=${KUBECONFIG}
@@ -69,14 +58,26 @@ pipeline {
                         kubectl apply -f deployment.yaml
                         kubectl apply -f service.yaml
 
-                        echo "Waiting for deployment to be ready..."
+                        echo "Waiting for deployment to become ready..."
                         kubectl rollout status deployment/${KUBE_DEPLOYMENT} --timeout=300s
                     """
                 }
             }
         }
 
-        stage('Get URL') {
+        stage('Verify Deployment') {
+            steps {
+                sh """
+                    echo "Pods:"
+                    kubectl get pods
+
+                    echo "Services:"
+                    kubectl get svc
+                """
+            }
+        }
+
+        stage('Get Service URL') {
             steps {
                 sh """
                     echo "Service URL:"
@@ -88,10 +89,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ CI/CD pipeline completed successfully!'
+            echo '✅ Freelancer-service deployed successfully!'
         }
         failure {
-            echo '❌ Pipeline failed! Check Kubernetes / Docker logs.'
+            echo '❌ Deployment failed — check logs, DB config, or pod status.'
         }
     }
 }
