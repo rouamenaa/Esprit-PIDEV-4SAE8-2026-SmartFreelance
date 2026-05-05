@@ -4,7 +4,7 @@ pipeline {
     environment {
         SERVICE_DIR = 'smartfreelance-backend/freelancer-service'
         DOCKER_IMAGE = 'nassimrafrafi/smartfreelance'
-        DOCKER_CREDENTIALS = 'docker'
+        DOCKER_CREDENTIALS = 'dockerr' // ✅ FIXED HERE
         KUBE_DEPLOYMENT = 'smartfreelance-deployment'
         KUBE_SERVICE = 'smartfreelance-service'
     }
