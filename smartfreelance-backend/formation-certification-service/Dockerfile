@@ -1,45 +1,38 @@
 # =========================
-# STAGE 1: BUILD
+# BUILD STAGE (FAST + CACHED)
 # =========================
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-# Optional but helps Maven stability in Docker/Jenkins
+# Maven cache inside container (important)
 ENV MAVEN_OPTS="-Dmaven.repo.local=/root/.m2/repository"
 
-# Create Maven cache folder
-RUN mkdir -p /root/.m2
-
-# Copy only pom first (better caching)
+# Copy ONLY pom first (max cache efficiency)
 COPY pom.xml .
 
-# (OPTIONAL FIX FOR SSL / NETWORK ISSUES)
-# If your network is unstable, this helps Maven trust connections
-RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
-
-# Download dependencies (SAFE version - no go-offline crash)
-RUN mvn -B dependency:resolve-plugins dependency:resolve --no-transfer-progress
+# Pre-download dependencies (safe + fast)
+RUN mvn -B dependency:go-offline --no-transfer-progress
 
 # Copy source code
 COPY src ./src
 
-# Build application
+# Build (fast + skip tests)
 RUN mvn -B clean package -DskipTests --no-transfer-progress
 
 
 # =========================
-# STAGE 2: RUNTIME
+# RUNTIME STAGE (LIGHTWEIGHT)
 # =========================
 FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# Copy jar from build stage
+# Copy jar only
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose port (change if your app uses different port)
+# Expose port
 EXPOSE 8084
 
-# Run application
+# Run app
 ENTRYPOINT ["java", "-jar", "app.jar"]
