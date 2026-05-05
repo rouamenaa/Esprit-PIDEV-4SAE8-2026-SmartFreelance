@@ -1,24 +1,34 @@
-# Stage 1: Build stage
+# =========================
+# Stage 1: BUILD
+# =========================
 FROM maven:3.9.6-eclipse-temurin-17 AS build
+
 WORKDIR /app
 
-# Copy pom.xml and download dependencies (for better caching)
+# 1. Copy pom first (cache dependencies)
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
 
-# Copy the source code and build the application
+# 2. Download dependencies (cached layer)
+RUN mvn -T 1C dependency:go-offline -B
+
+# 3. Copy source code
 COPY src ./src
-RUN mvn clean package -DskipTests
 
-# Stage 2: Runtime stage
+# 4. Build project
+RUN mvn -T 1C clean package -DskipTests
+
+# =========================
+# Stage 2: RUNTIME
+# =========================
 FROM eclipse-temurin:17-jre-alpine
+
 WORKDIR /app
 
-# Copy the built JAR from the build stage
-COPY --from=build /app/target/PI-0.0.1-SNAPSHOT.jar app.jar
+# Copy jar
+COPY --from=build /app/target/*.jar app.jar
 
-# Expose the application port
+# Port
 EXPOSE 8084
 
-# Run the application
+# Run
 ENTRYPOINT ["java", "-jar", "app.jar"]
