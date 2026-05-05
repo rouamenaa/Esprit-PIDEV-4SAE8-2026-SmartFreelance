@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'sonarr' // Jenkins SonarQube server ID
+        SONARQUBE_ENV = 'sonarr'
         SERVICE_DIR = 'smartfreelance-backend/freelancer-service'
     }
 
@@ -41,13 +41,16 @@ pipeline {
                 }
             }
         }
-
     }
 
     post {
         success {
             echo 'Pipeline completed successfully!'
+
+            // Trigger CD pipeline
+            build job: 'pi-nassim-cd'
         }
+
         failure {
             echo 'Pipeline failed!'
         }
