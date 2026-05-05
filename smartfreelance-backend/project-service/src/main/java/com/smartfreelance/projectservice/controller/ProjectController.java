@@ -2,9 +2,12 @@ package com.smartfreelance.projectservice.controller;
 
 import com.smartfreelance.projectservice.entity.Project;
 import com.smartfreelance.projectservice.service.ProjectService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -81,11 +84,31 @@ public class ProjectController {
         return projectService.getAllProjects();
     }
 
+    @GetMapping("/clients/{clientId}")
+    public List<Project> getProjectsByClientId(@PathVariable Long clientId) {
+        return projectService.getProjectsByClientId(clientId);
+    }
+
+    @GetMapping("/freelancers/{freelancerId}")
+    public List<Project> getProjectsByFreelancerId(@PathVariable Long freelancerId) {
+        return projectService.getProjectsByFreelancerId(freelancerId);
+    }
+
     // ================= GET BY ID =================
 
     @GetMapping("/{id}")
     public Project getProjectById(@PathVariable Long id) {
         return projectService.getProjectById(id);
+    }
+
+    @PutMapping("/{id}/assign-freelancer")
+    public Project assignFreelancer(@PathVariable Long id,
+                                    @RequestBody Map<String, Long> payload) {
+        Long freelancerId = payload != null ? payload.get("freelancerId") : null;
+        if (freelancerId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "freelancerId is required");
+        }
+        return projectService.assignFreelancer(id, freelancerId);
     }
 
     // ================= UPDATE =================
