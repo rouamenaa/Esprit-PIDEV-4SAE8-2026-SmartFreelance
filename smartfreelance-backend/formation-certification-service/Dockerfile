@@ -1,27 +1,22 @@
 # =========================
-# BUILD STAGE
+# STAGE 1: BUILD (minimal work)
 # =========================
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-ENV MAVEN_OPTS="-Dmaven.repo.local=/root/.m2/repository"
-
-# Copy pom first (cache dependencies)
+# Copy only pom first (for cache)
 COPY pom.xml .
-
-# Only resolve what is needed (FAST + SAFE)
-RUN mvn -B dependency:resolve-plugins dependency:resolve --no-transfer-progress
 
 # Copy source
 COPY src ./src
 
-# Build project
+# Build directly (NO dependency phases, NO extra steps)
 RUN mvn -B clean package -DskipTests --no-transfer-progress
 
 
 # =========================
-# RUNTIME STAGE
+# STAGE 2: RUNTIME (very light)
 # =========================
 FROM eclipse-temurin:17-jre-alpine
 
