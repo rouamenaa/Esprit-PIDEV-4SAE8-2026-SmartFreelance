@@ -1,6 +1,7 @@
 name: application-contract-service CI
 
 on:
+  workflow_dispatch:
   push:
     branches: ["main"]
     paths:
@@ -13,12 +14,22 @@ on:
       - "smartfreelance-backend/application-contract-service/**"
       - ".github/workflows/application-contract-service.yml"
 
+permissions:
+  contents: read
+
+concurrency:
+  group: application-contract-service-ci-${{ github.ref }}
+  cancel-in-progress: true
+      
 env:
   SERVICE_DIR: smartfreelance-backend/application-contract-service
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.SERVICE_DIR }}
 
     steps:
       - name: Checkout
@@ -32,10 +43,8 @@ jobs:
           cache: maven
 
       - name: Run tests
-        working-directory: ${{ env.SERVICE_DIR }}
         run: mvn -B clean test
 
       - name: Build JAR
-        working-directory: ${{ env.SERVICE_DIR }}
         run: mvn -B -DskipTests package
 

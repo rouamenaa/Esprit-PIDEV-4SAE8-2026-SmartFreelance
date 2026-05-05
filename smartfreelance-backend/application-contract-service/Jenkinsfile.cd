@@ -30,9 +30,15 @@ pipeline {
           sh '''
             set -e
             d() {
-              # Jenkins often runs as "jenkins" without docker group permissions.
-              # Try normal docker first, then fall back to sudo.
-              docker "$@" || sudo docker "$@"
+              # Use docker when the daemon is reachable; only use sudo if it is non-interactive
+              # (never "sudo docker" after a real build error — that prompts for a TTY password).
+              if docker info >/dev/null 2>&1; then
+                docker "$@"
+              elif sudo -n docker info >/dev/null 2>&1; then
+                sudo -n docker "$@"
+              else
+                docker "$@"
+              fi
             }
 
             d version
@@ -52,7 +58,13 @@ pipeline {
           sh '''
             set -euo pipefail
             d() {
-              docker "$@" || sudo docker "$@"
+              if docker info >/dev/null 2>&1; then
+                docker "$@"
+              elif sudo -n docker info >/dev/null 2>&1; then
+                sudo -n docker "$@"
+              else
+                docker "$@"
+              fi
             }
 
             printf '%s\n' "$HARBOR_PASSWORD" | d login "$HARBOR_REGISTRY" -u "$HARBOR_USERNAME" --password-stdin
@@ -79,7 +91,13 @@ pipeline {
     always {
       sh '''
         d() {
-          docker "$@" || sudo docker "$@"
+          if docker info >/dev/null 2>&1; then
+            docker "$@"
+          elif sudo -n docker info >/dev/null 2>&1; then
+            sudo -n docker "$@"
+          else
+            docker "$@"
+          fi
         }
 
         d image rm "$FULL_IMAGE" "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:latest" || true
