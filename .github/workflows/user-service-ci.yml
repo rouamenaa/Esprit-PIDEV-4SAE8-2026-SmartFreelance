@@ -1,40 +1,35 @@
-name: User Service CI
+pipeline {
+  agent any
 
-on:
-  push:
-    paths:
-      - "smartfreelance-backend/user-service/**"
-      - ".github/workflows/user-service-ci.yml"
-  pull_request:
-    paths:
-      - "smartfreelance-backend/user-service/**"
-      - ".github/workflows/user-service-ci.yml"
+  stages {
+    stage("Checkout") {
+      steps {
+        checkout scm
+      }
+    }
 
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+    stage("Set Java 17") {
+      steps {
+        sh """
+          export JAVA_HOME=\$(dirname \$(dirname \$(readlink -f \$(which javac))))
+          java -version
+          mvn -version
+        """
+      }
+    }
 
-    defaults:
-      run:
-        working-directory: smartfreelance-backend/user-service
+    stage("Build & Test") {
+      steps {
+        dir("smartfreelance-backend/user-service") {
+          sh "mvn -B clean verify"
+        }
+      }
+    }
 
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-          cache: maven
-
-      - name: Run unit tests and build
-        run: mvn -B clean verify
-
-      - name: Upload JaCoCo report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: user-service-jacoco-report
-          path: smartfreelance-backend/user-service/target/site/jacoco/**
+    stage("Archive JaCoCo") {
+      steps {
+        archiveArtifacts artifacts: "smartfreelance-backend/user-service/target/site/jacoco/**", fingerprint: true, allowEmptyArchive: true
+      }
+    }
+  }
+}
