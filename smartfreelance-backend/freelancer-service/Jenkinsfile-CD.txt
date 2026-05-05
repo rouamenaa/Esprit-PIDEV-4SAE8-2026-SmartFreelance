@@ -21,12 +21,12 @@ pipeline {
 
         stage('Verify Kubernetes') {
             steps {
-                sh '''
+                sh """
                     echo "Checking Kubernetes context..."
-                    export KUBECONFIG=/var/lib/jenkins/.kube/config
+                    export KUBECONFIG=${KUBECONFIG}
                     kubectl config current-context
                     kubectl cluster-info
-                '''
+                """
             }
         }
 
@@ -63,13 +63,14 @@ pipeline {
                 echo 'Deploying to Minikube cluster...'
                 dir("${SERVICE_DIR}") {
                     sh """
-                        export KUBECONFIG=/var/lib/jenkins/.kube/config
+                        export KUBECONFIG=${KUBECONFIG}
 
+                        echo "Applying Kubernetes manifests..."
                         kubectl apply -f deployment.yaml
                         kubectl apply -f service.yaml
 
-                        kubectl rollout restart deployment/${KUBE_DEPLOYMENT}
-                        kubectl rollout status deployment/${KUBE_DEPLOYMENT} --timeout=180s
+                        echo "Waiting for deployment to be ready..."
+                        kubectl rollout status deployment/${KUBE_DEPLOYMENT} --timeout=300s
                     """
                 }
             }
@@ -78,6 +79,7 @@ pipeline {
         stage('Get URL') {
             steps {
                 sh """
+                    echo "Service URL:"
                     minikube service ${KUBE_SERVICE} --url || true
                 """
             }
@@ -89,7 +91,7 @@ pipeline {
             echo '✅ CI/CD pipeline completed successfully!'
         }
         failure {
-            echo '❌ Pipeline failed! Check Kubernetes / Docker configuration.'
+            echo '❌ Pipeline failed! Check Kubernetes / Docker logs.'
         }
     }
 }
