@@ -1,0 +1,57 @@
+name: Project Service CD
+
+on:
+  workflow_run:
+    workflows: [ "Project Service CI" ]
+    types: [ completed ]
+    branches: [ main ]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: project-service-cd-main
+      cancel-in-progress: true
+    env:
+      IMAGE_NAME: rouamenaa452/smartfreelance-project-service
+      IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+      NAMESPACE: smartfreelance
+      DEPLOYMENT_NAME: project-service
+      CONTAINER_NAME: project-service
+
+    defaults:
+      run:
+        working-directory: smartfreelance-backend/project-service
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build & Push Project Service
+        uses: docker/build-push-action@v6
+        with:
+          context: smartfreelance-backend/project-service
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.IMAGE_NAME }}:latest
+
+      - name: Setup Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Deploy Project Service
+        run: |
+          kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
+            ${{ env.CONTAINER_NAME }}=${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+            -n ${{ env.NAMESPACE }}
+          kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} -n ${{ env.NAMESPACE }}
