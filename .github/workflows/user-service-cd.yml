@@ -3,7 +3,7 @@ name: User Service CD
 on:
   push:
     branches:
-      - main
+      - salim
     paths:
       - "smartfreelance-backend/user-service/**"
       - ".github/workflows/user-service-cd.yml"
