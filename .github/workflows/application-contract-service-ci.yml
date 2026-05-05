@@ -1,0 +1,77 @@
+name: Application Contract Service CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'smartfreelance-backend/application-contract-service/**'
+      - '.github/workflows/application-contract-service-ci.yml'
+      - '.github/workflows/application-contract-service-cd.yml'
+  pull_request:
+    paths:
+      - 'smartfreelance-backend/application-contract-service/**'
+      - '.github/workflows/application-contract-service-ci.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    defaults:
+      run:
+        working-directory: smartfreelance-backend/application-contract-service
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Run tests + JaCoCo + SonarQube
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY_CONTRACT }}
+          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+        run: >
+          mvn -B clean verify sonar:sonar
+          -Dspring.profiles.active=test
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.login=${SONAR_TOKEN}
+          -Dsonar.projectKey=${SONAR_PROJECT_KEY}
+          -Dsonar.organization=${SONAR_ORGANIZATION}
+          -Dsonar.qualitygate.wait=true
+
+      - name: Upload JaCoCo report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report-application-contract
+          path: smartfreelance-backend/application-contract-service/target/site/jacoco/
+
+      - name: Upload Surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports-application-contract
+          path: smartfreelance-backend/application-contract-service/target/surefire-reports/
+
+      - name: Print test failure summary
+        if: failure()
+        run: |
+          if [ -d target/surefire-reports ]; then
+            grep -R "<<< FAILURE\!\|<<< ERROR\!\|Failures:\|Errors:" target/surefire-reports || true
+            for f in target/surefire-reports/*.txt; do
+              echo "---- $f ----"
+              tail -n 120 "$f" || true
+            done
+          fi

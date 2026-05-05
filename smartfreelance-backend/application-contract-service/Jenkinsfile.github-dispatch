@@ -1,4 +1,4 @@
-// Triggers GitHub Actions workflow `.github/workflows/application-contract-service.yml` (must have workflow_dispatch).
+// Triggers `.github/workflows/application-contract-service-ci.yml` (needs workflow_dispatch on that workflow).
 // Jenkins job: Pipeline from SCM → Script Path = smartfreelance-backend/application-contract-service/Jenkinsfile.github-dispatch
 // Credentials: Jenkins "Secret text" with a GitHub PAT (classic: repo + workflow scope, or fine-grained: Actions read/write).
 
@@ -14,7 +14,7 @@ pipeline {
     )
     string(
       name: 'WORKFLOW_FILE',
-      defaultValue: 'application-contract-service.yml',
+      defaultValue: 'application-contract-service-ci.yml',
       description: 'Filename under .github/workflows/'
     )
   }

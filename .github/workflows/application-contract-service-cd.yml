@@ -1,57 +1,59 @@
-name: application-contract-service CD
+name: Application Contract Service CD
 
 on:
-  workflow_dispatch:
   workflow_run:
-    workflows: ["application-contract-service CI"]
-    types: [completed]
-    branches: ["main"]
-
-permissions:
-  contents: read
-
-concurrency:
-  group: application-contract-service-cd-${{ github.ref }}
-  cancel-in-progress: true
-
-env:
-  SERVICE_DIR: smartfreelance-backend/application-contract-service
-  IMAGE_NAME: application-contract-service
+    workflows: [ "Application Contract Service CI" ]
+    types: [ completed ]
+    branches: [ main ]
 
 jobs:
-  docker-publish:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    concurrency:
+      group: application-contract-service-cd-main
+      cancel-in-progress: true
+    env:
+      IMAGE_NAME: rouamenaa452/smartfreelance-application-contract-service
+      IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+      NAMESPACE: smartfreelance
+      DEPLOYMENT_NAME: application-contract-service
+      CONTAINER_NAME: application-contract-service
+
+    defaults:
+      run:
+        working-directory: smartfreelance-backend/application-contract-service
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
+      - name: Login DockerHub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,format=short,prefix=
-            type=raw,value=latest
-
-      - name: Build and push image
+      - name: Build & Push Application Contract Service
         uses: docker/build-push-action@v6
         with:
-          context: ${{ env.SERVICE_DIR }}
-          file: ${{ env.SERVICE_DIR }}/Dockerfile
+          context: smartfreelance-backend/application-contract-service
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.IMAGE_NAME }}:latest
+
+      - name: Setup Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Deploy Application Contract Service
+        run: |
+          kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
+            ${{ env.CONTAINER_NAME }}=${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+            -n ${{ env.NAMESPACE }}
+          kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} -n ${{ env.NAMESPACE }}
