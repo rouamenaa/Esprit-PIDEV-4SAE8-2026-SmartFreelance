@@ -50,7 +50,7 @@ pipeline {
     post {
         success {
             echo 'Pipeline completed successfully!'
-            build job: 'CD-Pipeline', parameters: [string(name: 'IMAGE_TAG', value: "${BUILD_NUMBER}")]
+            build job: 'aziz-pi-cd', parameters: [string(name: 'IMAGE_TAG', value: "${BUILD_NUMBER}")]
         }
         failure {
             echo 'Pipeline failed!'
