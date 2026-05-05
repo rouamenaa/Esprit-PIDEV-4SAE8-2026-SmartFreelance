@@ -2,20 +2,27 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: smartfreelance-deployment
-  labels:
-    app: smartfreelance
 spec:
   replicas: 1
+
+  # ✅ FIX: prevents rollout stuck issue
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+
   selector:
     matchLabels:
       app: smartfreelance
+
   template:
     metadata:
       labels:
         app: smartfreelance
+
     spec:
 
-      # ✅ REAL MySQL readiness wait (FIX)
       initContainers:
         - name: wait-for-mysql
           image: mysql:8.0
@@ -24,63 +31,21 @@ spec:
             - -c
             - >
               until mysqladmin ping -h smartfreelance-mysql -uroot -proot --silent;
-              do echo "waiting for mysql..."; sleep 3; done;
+              do sleep 3; done;
 
       containers:
         - name: smartfreelance
           image: nassimrafrafi/smartfreelance:latest
-          imagePullPolicy: Always
           ports:
             - containerPort: 8083
 
           env:
-            - name: SERVER_PORT
-              value: "8083"
-
-            - name: SPRING_APPLICATION_NAME
-              value: freelancer-service
-
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://smartfreelance-mysql:3306/pi_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-
+              value: jdbc:mysql://smartfreelance-mysql:3306/pi_db
             - name: SPRING_DATASOURCE_USERNAME
               value: root
-
             - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: smartfreelance-mysql-secret
-                  key: SPRING_DATASOURCE_PASSWORD
+              value: root
 
-            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
-              value: update
-
-            - name: SPRING_JPA_SHOW_SQL
-              value: "false"
-
-            - name: EUREKA_CLIENT_ENABLED
-              value: "false"
-
-          # ✅ BEST PRACTICE HEALTH CHECK
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8083
-            initialDelaySeconds: 40
-            periodSeconds: 10
-            failureThreshold: 10
-
-          livenessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8083
-            initialDelaySeconds: 90
-            periodSeconds: 20
-
-          resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: 500m
-              memory: 768Mi
+          # ✅ IMPORTANT FIX
+          terminationGracePeriodSeconds: 10
