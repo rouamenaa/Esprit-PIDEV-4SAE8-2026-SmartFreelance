@@ -8,7 +8,7 @@ pipeline {
         KUBE_DEPLOYMENT = 'smartfreelance-deployment'
         KUBE_SERVICE = 'smartfreelance-service'
 
-        // ✅ Force Jenkins environment (CRITICAL FIX)
+        // 🔥 FIX: isolate Jenkins completely from vagrant/minikube old state
         MINIKUBE_HOME = '/var/lib/jenkins/.minikube'
         KUBECONFIG = '/var/lib/jenkins/.kube/config'
     }
@@ -17,7 +17,8 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'nassim-back', url: 'https://github.com/rouamenaa/Esprit-PIDEV-4SAE8-2026-SmartFreelance.git'
+                git branch: 'nassim-back',
+                url: 'https://github.com/rouamenaa/Esprit-PIDEV-4SAE8-2026-SmartFreelance.git'
             }
         }
 
@@ -49,7 +50,7 @@ pipeline {
 
         stage('Ensure Minikube') {
             steps {
-                echo 'Setting up clean Minikube...'
+                echo 'Starting clean Minikube (FIXED)...'
                 sh '''
                     export MINIKUBE_HOME=$MINIKUBE_HOME
                     export KUBECONFIG=$KUBECONFIG
@@ -57,13 +58,21 @@ pipeline {
                     mkdir -p $MINIKUBE_HOME
                     mkdir -p $(dirname $KUBECONFIG)
 
-                    # 🔥 Clean old broken configs (VERY IMPORTANT)
+                    # 🔥 HARD RESET (important fix for apiserver crash)
+                    minikube delete || true
                     rm -rf $MINIKUBE_HOME/*
                     rm -rf $(dirname $KUBECONFIG)/*
 
-                    # Start fresh Minikube
-                    minikube start --driver=docker
+                    # 🚀 Stable startup configuration
+                    minikube start \
+                        --driver=docker \
+                        --memory=3000mb \
+                        --cpus=2 \
+                        --wait=apiserver,system_pods \
+                        --force
 
+                    # Verify cluster
+                    kubectl cluster-info
                     kubectl get nodes
                 '''
             }
