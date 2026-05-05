@@ -4,12 +4,17 @@ pipeline {
     environment {
         SERVICE_DIR = 'smartfreelance-backend/freelancer-service'
         DOCKER_IMAGE = 'nassimrafrafi/smartfreelance'
-        DOCKER_CREDENTIALS = 'dockerr' // ✅ FIXED HERE
+        DOCKER_CREDENTIALS = 'dockerr'
         KUBE_DEPLOYMENT = 'smartfreelance-deployment'
         KUBE_SERVICE = 'smartfreelance-service'
+
+        // ✅ Force Jenkins environment (CRITICAL FIX)
+        MINIKUBE_HOME = '/var/lib/jenkins/.minikube'
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'nassim-back', url: 'https://github.com/rouamenaa/Esprit-PIDEV-4SAE8-2026-SmartFreelance.git'
@@ -36,6 +41,7 @@ pipeline {
                     sh '''
                         echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                         docker push $DOCKER_IMAGE:latest
+                        docker logout
                     '''
                 }
             }
@@ -43,21 +49,37 @@ pipeline {
 
         stage('Ensure Minikube') {
             steps {
-                echo 'Checking Minikube...'
+                echo 'Setting up clean Minikube...'
                 sh '''
-                    minikube status || minikube start --driver=docker
-                    kubectl config use-context minikube
+                    export MINIKUBE_HOME=$MINIKUBE_HOME
+                    export KUBECONFIG=$KUBECONFIG
+
+                    mkdir -p $MINIKUBE_HOME
+                    mkdir -p $(dirname $KUBECONFIG)
+
+                    # 🔥 Clean old broken configs (VERY IMPORTANT)
+                    rm -rf $MINIKUBE_HOME/*
+                    rm -rf $(dirname $KUBECONFIG)/*
+
+                    # Start fresh Minikube
+                    minikube start --driver=docker
+
+                    kubectl get nodes
                 '''
             }
         }
 
         stage('Deploy to Minikube') {
             steps {
-                echo 'Deploying to Minikube...'
+                echo 'Deploying to Kubernetes...'
                 dir("${SERVICE_DIR}") {
                     sh '''
+                        export MINIKUBE_HOME=$MINIKUBE_HOME
+                        export KUBECONFIG=$KUBECONFIG
+
                         kubectl apply -f k8s/deployment.yaml
                         kubectl apply -f k8s/service.yaml
+
                         kubectl rollout restart deployment $KUBE_DEPLOYMENT
                         kubectl rollout status deployment/$KUBE_DEPLOYMENT --timeout=180s
                     '''
@@ -67,18 +89,23 @@ pipeline {
 
         stage('Get URL') {
             steps {
-                echo 'Getting Minikube service URL...'
-                sh 'minikube service $KUBE_SERVICE --url'
+                echo 'Getting service URL...'
+                sh '''
+                    export MINIKUBE_HOME=$MINIKUBE_HOME
+                    export KUBECONFIG=$KUBECONFIG
+
+                    minikube service $KUBE_SERVICE --url
+                '''
             }
         }
     }
 
     post {
         success {
-            echo 'CD pipeline completed successfully!'
+            echo '✅ CD pipeline completed successfully!'
         }
         failure {
-            echo 'CD pipeline failed!'
+            echo '❌ CD pipeline failed!'
         }
     }
 }
