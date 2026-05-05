@@ -1,10 +1,18 @@
 name: application-contract-service CD
 
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: ["application-contract-service CI"]
     types: [completed]
     branches: ["main"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: application-contract-service-cd-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   SERVICE_DIR: smartfreelance-backend/application-contract-service
@@ -12,7 +20,7 @@ env:
 
 jobs:
   docker-publish:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
