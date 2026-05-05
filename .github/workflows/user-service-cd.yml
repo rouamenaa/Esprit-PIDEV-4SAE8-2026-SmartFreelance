@@ -48,6 +48,56 @@ pipeline {
     }
   }
 }
+pipeline {
+  agent any
+
+  environment {
+    IMAGE_NAME = "your-dockerhub-username/user-service"
+    IMAGE_TAG = "${env.BUILD_NUMBER}"
+  }
+
+  stages {
+    stage("Checkout") {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage("Build & Test") {
+      steps {
+        dir("smartfreelance-backend/user-service") {
+          sh "mvn -B clean verify"
+        }
+      }
+    }
+
+    stage("Build Docker Image") {
+      steps {
+        dir("smartfreelance-backend/user-service") {
+          sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:latest ."
+        }
+      }
+    }
+
+    stage("Push Docker Image") {
+      steps {
+        withCredentials([usernamePassword(credentialsId: "dockerhub-creds", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
+          sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
+          sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+          sh "docker push ${IMAGE_NAME}:latest"
+        }
+      }
+    }
+
+    stage("Deploy to Kubernetes") {
+      steps {
+        sh "kubectl apply -f smartfreelance-backend/user-service/devops/k8s/namespace.yml"
+        sh "kubectl apply -f smartfreelance-backend/user-service/devops/k8s/user-service-deployment.yml"
+        sh "kubectl apply -f smartfreelance-backend/user-service/devops/k8s/user-service-service.yml"
+      }
+    }
+  }
+}
 name: User Service CD
 
 on:
