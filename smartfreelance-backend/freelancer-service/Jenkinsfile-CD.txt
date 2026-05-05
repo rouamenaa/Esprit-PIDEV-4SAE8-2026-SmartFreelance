@@ -7,10 +7,6 @@ pipeline {
         DOCKER_CREDENTIALS = 'dockerr'
         KUBE_DEPLOYMENT = 'smartfreelance-deployment'
         KUBE_SERVICE = 'smartfreelance-service'
-
-        // 🔥 FIX: isolate Jenkins completely from vagrant/minikube old state
-        MINIKUBE_HOME = '/var/lib/jenkins/.minikube'
-        KUBECONFIG = '/var/lib/jenkins/.kube/config'
     }
 
     stages {
@@ -48,44 +44,11 @@ pipeline {
             }
         }
 
-        stage('Ensure Minikube') {
+        stage('Deploy to Kubernetes') {
             steps {
-                echo 'Starting clean Minikube (FIXED)...'
-                sh '''
-                    export MINIKUBE_HOME=$MINIKUBE_HOME
-                    export KUBECONFIG=$KUBECONFIG
-
-                    mkdir -p $MINIKUBE_HOME
-                    mkdir -p $(dirname $KUBECONFIG)
-
-                    # 🔥 HARD RESET (important fix for apiserver crash)
-                    minikube delete || true
-                    rm -rf $MINIKUBE_HOME/*
-                    rm -rf $(dirname $KUBECONFIG)/*
-
-                    # 🚀 Stable startup configuration
-                    minikube start \
-                        --driver=docker \
-                        --memory=3000mb \
-                        --cpus=2 \
-                        --wait=apiserver,system_pods \
-                        --force
-
-                    # Verify cluster
-                    kubectl cluster-info
-                    kubectl get nodes
-                '''
-            }
-        }
-
-        stage('Deploy to Minikube') {
-            steps {
-                echo 'Deploying to Kubernetes...'
+                echo 'Deploying to existing Minikube cluster...'
                 dir("${SERVICE_DIR}") {
                     sh '''
-                        export MINIKUBE_HOME=$MINIKUBE_HOME
-                        export KUBECONFIG=$KUBECONFIG
-
                         kubectl apply -f k8s/deployment.yaml
                         kubectl apply -f k8s/service.yaml
 
@@ -99,22 +62,17 @@ pipeline {
         stage('Get URL') {
             steps {
                 echo 'Getting service URL...'
-                sh '''
-                    export MINIKUBE_HOME=$MINIKUBE_HOME
-                    export KUBECONFIG=$KUBECONFIG
-
-                    minikube service $KUBE_SERVICE --url
-                '''
+                sh 'minikube service $KUBE_SERVICE --url'
             }
         }
     }
 
     post {
         success {
-            echo '✅ CD pipeline completed successfully!'
+            echo '✅ CI/CD pipeline completed successfully!'
         }
         failure {
-            echo '❌ CD pipeline failed!'
+            echo '❌ Pipeline failed!'
         }
     }
 }
