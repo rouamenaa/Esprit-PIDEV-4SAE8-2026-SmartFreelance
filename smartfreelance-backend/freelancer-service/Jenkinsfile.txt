@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'sonar'
+        SONARQUBE_ENV = 'sonarr' // Jenkins SonarQube server ID
+        SERVICE_DIR = 'smartfreelance-backend/freelancer-service'
     }
 
     stages {
@@ -14,7 +15,8 @@ pipeline {
 
         stage('Build') {
             steps {
-                dir('smartfreelance-backend/freelancer-service') {
+                echo 'Building project...'
+                dir("${SERVICE_DIR}") {
                     sh 'mvn clean compile'
                 }
             }
@@ -22,31 +24,24 @@ pipeline {
 
         stage('Test') {
             steps {
-                dir('smartfreelance-backend/freelancer-service') {
-                    sh '''
-                    mvn test \
-                    -Dspring.profiles.active=test \
-                    -Deureka.client.enabled=false \
-                    -Dspring.cloud.discovery.enabled=false
-                    '''
+                echo 'Running tests...'
+                dir("${SERVICE_DIR}") {
+                    sh 'mvn test'
                 }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                dir('smartfreelance-backend/freelancer-service') {
-                    withSonarQubeEnv("${SONARQUBE_ENV}") {
-                        sh '''
-                        mvn sonar:sonar \
-                        -Dspring.profiles.active=test \
-                        -Deureka.client.enabled=false \
-                        -Dspring.cloud.discovery.enabled=false
-                        '''
+                echo 'Running SonarQube analysis...'
+                withSonarQubeEnv("${SONARQUBE_ENV}") {
+                    dir("${SERVICE_DIR}") {
+                        sh 'mvn sonar:sonar'
                     }
                 }
             }
         }
+
     }
 
     post {

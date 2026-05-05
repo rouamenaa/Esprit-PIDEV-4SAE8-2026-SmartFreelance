@@ -1,0 +1,84 @@
+pipeline {
+    agent any
+
+    environment {
+        SERVICE_DIR = 'smartfreelance-backend/freelancer-service'
+        DOCKER_IMAGE = 'nassimrafrafi/smartfreelance'
+        DOCKER_CREDENTIALS = 'docker'
+        KUBE_DEPLOYMENT = 'smartfreelance-deployment'
+        KUBE_SERVICE = 'smartfreelance-service'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'nassim-back', url: 'https://github.com/rouamenaa/Esprit-PIDEV-4SAE8-2026-SmartFreelance.git'
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                echo 'Building Docker image...'
+                dir("${SERVICE_DIR}") {
+                    sh 'docker build -t $DOCKER_IMAGE:latest .'
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                echo 'Pushing Docker image...'
+                withCredentials([usernamePassword(
+                    credentialsId: "${DOCKER_CREDENTIALS}",
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push $DOCKER_IMAGE:latest
+                    '''
+                }
+            }
+        }
+
+        stage('Ensure Minikube') {
+            steps {
+                echo 'Checking Minikube...'
+                sh '''
+                    minikube status || minikube start --driver=docker
+                    kubectl config use-context minikube
+                '''
+            }
+        }
+
+        stage('Deploy to Minikube') {
+            steps {
+                echo 'Deploying to Minikube...'
+                dir("${SERVICE_DIR}") {
+                    sh '''
+                        kubectl apply -f k8s/deployment.yaml
+                        kubectl apply -f k8s/service.yaml
+                        kubectl rollout restart deployment $KUBE_DEPLOYMENT
+                        kubectl rollout status deployment/$KUBE_DEPLOYMENT --timeout=180s
+                    '''
+                }
+            }
+        }
+
+        stage('Get URL') {
+            steps {
+                echo 'Getting Minikube service URL...'
+                sh 'minikube service $KUBE_SERVICE --url'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'CD pipeline completed successfully!'
+        }
+        failure {
+            echo 'CD pipeline failed!'
+        }
+    }
+}
