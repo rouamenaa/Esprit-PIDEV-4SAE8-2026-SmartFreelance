@@ -141,4 +141,32 @@ class ProjectControllerIntegrationTest {
                 mockMvc.perform(get("/api/projects/{id}", created.getId()))
                                 .andExpect(status().isNotFound());
         }
+
+        @Test
+        void assignFreelancer_shouldReturnBadRequest_whenFreelancerIdMissing() throws Exception {
+                UserExternalDTO client = new UserExternalDTO();
+                client.setId(1L);
+                client.setRole("CLIENT");
+                when(userServiceClient.getUserById(1L)).thenReturn(client);
+
+                Project project = new Project();
+                project.setTitle("Project Missing Freelancer");
+                project.setClientId(1L);
+                project.setStatus(ProjectStatus.DRAFT);
+
+                String json = objectMapper.writeValueAsString(project);
+                MvcResult createResult = mockMvc.perform(post("/api/projects")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isOk())
+                                .andReturn();
+
+                Project created = objectMapper.readValue(createResult.getResponse().getContentAsString(),
+                                Project.class);
+
+                mockMvc.perform(put("/api/projects/{id}/assign-freelancer", created.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{}"))
+                                .andExpect(status().isBadRequest());
+        }
 }
