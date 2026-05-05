@@ -2,11 +2,19 @@ pipeline {
     agent any
 
     environment {
+        // Repo structure (based on your screenshot)
         SERVICE_DIR = 'smartfreelance-backend/freelancer-service'
+
+        // Docker
         DOCKER_IMAGE = 'nassimrafrafi/smartfreelance'
         DOCKER_CREDENTIALS = 'dockerr'
+
+        // Kubernetes
         KUBE_DEPLOYMENT = 'smartfreelance-deployment'
         KUBE_SERVICE = 'smartfreelance-service'
+
+        // IMPORTANT: Fix Jenkins kube access
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'
     }
 
     stages {
@@ -14,22 +22,35 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'nassim-back',
-                url: 'https://github.com/rouamenaa/Esprit-PIDEV-4SAE8-2026-SmartFreelance.git'
+                    url: 'https://github.com/rouamenaa/Esprit-PIDEV-4SAE8-2026-SmartFreelance.git'
             }
         }
 
-        stage('Build Image') {
+        stage('Verify Kubernetes Connection') {
+            steps {
+                sh '''
+                    echo "Checking cluster connection..."
+                    kubectl version --client
+                    kubectl cluster-info
+                    kubectl get nodes
+                '''
+            }
+        }
+
+        stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
                 dir("${SERVICE_DIR}") {
-                    sh 'docker build -t $DOCKER_IMAGE:latest .'
+                    sh '''
+                        docker build -t $DOCKER_IMAGE:latest .
+                    '''
                 }
             }
         }
 
-        stage('Push Image') {
+        stage('Push Docker Image') {
             steps {
-                echo 'Pushing Docker image...'
+                echo 'Pushing Docker image to DockerHub...'
                 withCredentials([usernamePassword(
                     credentialsId: "${DOCKER_CREDENTIALS}",
                     usernameVariable: 'DOCKER_USER',
@@ -44,25 +65,32 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy to Kubernetes (Minikube)') {
             steps {
-                echo 'Deploying to existing Minikube cluster...'
+                echo 'Deploying to Kubernetes...'
                 dir("${SERVICE_DIR}") {
                     sh '''
+                        echo "Applying Kubernetes manifests..."
+
                         kubectl apply -f deployment.yaml
                         kubectl apply -f service.yaml
 
-                        kubectl rollout restart deployment $KUBE_DEPLOYMENT
+                        echo "Restarting deployment..."
+                        kubectl rollout restart deployment/$KUBE_DEPLOYMENT
+
+                        echo "Waiting for rollout..."
                         kubectl rollout status deployment/$KUBE_DEPLOYMENT --timeout=180s
                     '''
                 }
             }
         }
 
-        stage('Get URL') {
+        stage('Expose Service URL') {
             steps {
-                echo 'Getting service URL...'
-                sh 'minikube service $KUBE_SERVICE --url'
+                echo 'Getting Minikube service URL...'
+                sh '''
+                    minikube service $KUBE_SERVICE --url
+                '''
             }
         }
     }
@@ -72,7 +100,7 @@ pipeline {
             echo '✅ CI/CD pipeline completed successfully!'
         }
         failure {
-            echo '❌ Pipeline failed!'
+            echo '❌ Pipeline failed - check Kubernetes or Docker configuration!'
         }
     }
 }
