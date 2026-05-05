@@ -1,38 +1,34 @@
 # =========================
-# BUILD STAGE (FAST + CACHED)
+# BUILD STAGE
 # =========================
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-# Maven cache inside container (important)
 ENV MAVEN_OPTS="-Dmaven.repo.local=/root/.m2/repository"
 
-# Copy ONLY pom first (max cache efficiency)
+# Copy pom first (cache dependencies)
 COPY pom.xml .
 
-# Pre-download dependencies (safe + fast)
-RUN mvn -B dependency:go-offline --no-transfer-progress
+# Only resolve what is needed (FAST + SAFE)
+RUN mvn -B dependency:resolve-plugins dependency:resolve --no-transfer-progress
 
-# Copy source code
+# Copy source
 COPY src ./src
 
-# Build (fast + skip tests)
+# Build project
 RUN mvn -B clean package -DskipTests --no-transfer-progress
 
 
 # =========================
-# RUNTIME STAGE (LIGHTWEIGHT)
+# RUNTIME STAGE
 # =========================
 FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# Copy jar only
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose port
 EXPOSE 8084
 
-# Run app
 ENTRYPOINT ["java", "-jar", "app.jar"]
