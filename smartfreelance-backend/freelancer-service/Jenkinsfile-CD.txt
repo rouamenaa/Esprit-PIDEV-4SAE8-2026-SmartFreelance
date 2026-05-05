@@ -49,8 +49,8 @@ pipeline {
                 echo 'Deploying to existing Minikube cluster...'
                 dir("${SERVICE_DIR}") {
                     sh '''
-                        kubectl apply -f k8s/deployment.yaml
-                        kubectl apply -f k8s/service.yaml
+                        kubectl apply -f deployment.yaml
+                        kubectl apply -f service.yaml
 
                         kubectl rollout restart deployment $KUBE_DEPLOYMENT
                         kubectl rollout status deployment/$KUBE_DEPLOYMENT --timeout=180s
