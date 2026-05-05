@@ -2,21 +2,44 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag')
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag (ex: latest or commit SHA)')
     }
 
     environment {
         DOCKER_REPO = 'azizaroua/formation-service'
         APP_PATH = 'smartfreelance-backend/formation-certification-service'
+        K8S_PATH = 'smartfreelance-backend/formation-certification-service/k8s'
     }
 
     stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
 
         stage('Docker Build') {
             steps {
                 script {
                     echo "Building Docker image: ${DOCKER_REPO}:${params.IMAGE_TAG}"
                     sh "docker build -t ${DOCKER_REPO}:${params.IMAGE_TAG} ${APP_PATH}"
+                }
+            }
+        }
+
+        stage('Docker Login') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-hub',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh """
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        """
+                    }
                 }
             }
         }
@@ -36,9 +59,9 @@ pipeline {
                     echo "Deploying version ${params.IMAGE_TAG}"
 
                     sh """
-                        sed -i 's/IMAGE_TAG/${params.IMAGE_TAG}/g' ${APP_PATH}/k8s/deployment.yaml
-                        kubectl apply -f ${APP_PATH}/k8s/deployment.yaml
-                        kubectl apply -f ${APP_PATH}/k8s/service.yaml
+                        sed -i 's|IMAGE_TAG|${params.IMAGE_TAG}|g' ${K8S_PATH}/deployment.yaml
+                        kubectl apply -f ${K8S_PATH}/deployment.yaml
+                        kubectl apply -f ${K8S_PATH}/service.yaml
                     """
                 }
             }
@@ -46,21 +69,24 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                sh "kubectl get pods"
+                sh "kubectl get pods -o wide"
                 sh "kubectl get services"
             }
         }
     }
 
     post {
-        always {
-            sh "git checkout ${APP_PATH}/k8s/deployment.yaml || true"
-        }
         success {
-            echo "Deployment successful!"
+            echo "🚀 Deployment SUCCESS"
         }
+
         failure {
-            echo "Deployment failed!"
+            echo "❌ Deployment FAILED"
+        }
+
+        always {
+            sh "docker logout || true"
+            sh "git checkout -- ${K8S_PATH}/deployment.yaml || true"
         }
     }
 }
