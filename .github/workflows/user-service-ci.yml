@@ -38,4 +38,16 @@ pipeline {
       }
     }
   }
+
+  post {
+    success {
+      echo 'CI passed — triggering CD pipeline...'
+      build job: 'user-service-cd',
+            wait: false,
+            parameters: []
+    }
+    failure {
+      echo 'CI failed — CD pipeline will NOT be triggered.'
+    }
+  }
 }
