@@ -10,15 +10,16 @@ pipeline {
 
     stage("Build & Test (Java 17)") {
       steps {
-        script {
-          docker.image("maven:3.9.9-eclipse-temurin-17").inside("-v $HOME/.m2:/root/.m2") {
-            dir("smartfreelance-backend/user-service") {
-              sh "java -version"
-              sh "mvn -version"
-              sh "mvn -B clean verify"
-            }
-          }
-        }
+        sh """
+          docker run --rm \
+            -u \$(id -u):\$(id -g) \
+            -v "\$PWD:/workspace" \
+            -v "\$HOME/.m2:/var/maven/.m2" \
+            -e MAVEN_CONFIG=/var/maven/.m2 \
+            -w /workspace/smartfreelance-backend/user-service \
+            maven:3.9.9-eclipse-temurin-17 \
+            sh -lc 'java -version && mvn -version && mvn -B clean verify'
+        """
       }
     }
 
