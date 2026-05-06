@@ -14,15 +14,11 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                echo 'Building project...'
-                sh '''
-                    cd smartfreelance-backend/formation-certification-service
-                    mvn clean package -DskipTests
-                '''
-            }
-        }
+       stage('Build') {
+    steps {
+        sh 'cd smartfreelance-backend/formation-certification-service && mvn clean package -DskipTests'
+    }
+}
 
         stage('Test') {
             steps {
