@@ -34,7 +34,7 @@ jobs:
         run: |
           ls -la
           if [ -f package-lock.json ]; then
-            npm ci
+            npm ci || npm install --no-audit --no-fund
           else
             npm install --no-audit --no-fund
           fi
