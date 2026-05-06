@@ -61,8 +61,8 @@ pipeline {
                     sh """
                         sed -i 's|IMAGE_TAG|${params.IMAGE_TAG}|g' ${K8S_PATH}/deployment.yaml
                         
-                        minikube kubectl -- apply -f ${K8S_PATH}/deployment.yaml
-                        minikube kubectl -- apply -f ${K8S_PATH}/service.yaml
+                       kubectl apply -f smartfreelance-backend/formation-certification-service/k8s/deployment.yaml
+kubectl apply -f smartfreelance-backend/formation-certification-service/k8s/service.yaml
                     """
                 }
             }
