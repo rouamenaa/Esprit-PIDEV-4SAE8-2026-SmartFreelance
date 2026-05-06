@@ -16,14 +16,23 @@ pipeline {
     stage("Build & Test (Java 17)") {
       steps {
         sh """
-          docker run --rm \
-            -u \$(id -u):\$(id -g) \
-            -v "\$PWD:/workspace" \
-            -v "\$HOME/.m2:/var/maven/.m2" \
-            -e MAVEN_CONFIG=/var/maven/.m2 \
-            -w /workspace/smartfreelance-backend/user-service \
-            maven:3.9.9-eclipse-temurin-17 \
-            sh -lc 'java -version && mvn -version && mvn -B clean verify'
+          set -e
+          JDK_DIR="\$WORKSPACE/.jdk17"
+          if [ ! -x "\$JDK_DIR/bin/java" ]; then
+            rm -rf "\$JDK_DIR"
+            mkdir -p "\$JDK_DIR"
+            curl -fsSL "https://github.com/adoptium/temurin17-binaries/releases/latest/download/OpenJDK17U-jdk_x64_linux_hotspot.tar.gz" \
+              -o "\$WORKSPACE/jdk17.tar.gz"
+            tar -xzf "\$WORKSPACE/jdk17.tar.gz" -C "\$JDK_DIR" --strip-components=1
+            rm -f "\$WORKSPACE/jdk17.tar.gz"
+          fi
+
+          export JAVA_HOME="\$JDK_DIR"
+          export PATH="\$JAVA_HOME/bin:\$PATH"
+          java -version
+          mvn -version
+          cd smartfreelance-backend/user-service
+          mvn -B clean verify
         """
       }
     }
