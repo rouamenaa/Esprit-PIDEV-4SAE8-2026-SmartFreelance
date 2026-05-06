@@ -21,7 +21,7 @@ jobs:
       CONTAINER_NAME: project-service
 
     steps:
-      - name: Checkout code (without external action)
+      - name: Download source archive (without external action)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -30,10 +30,18 @@ jobs:
           rm -rf "$SRC_DIR"
           mkdir -p "$SRC_DIR"
           cd "$SRC_DIR"
-          git init
-          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-          git fetch --depth=1 origin "${{ github.event.workflow_run.head_sha }}"
-          git checkout FETCH_HEAD
+          curl --http1.1 -L \
+            --retry 5 \
+            --retry-delay 5 \
+            --retry-all-errors \
+            --connect-timeout 20 \
+            --max-time 600 \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -o source.tar.gz \
+            "https://api.github.com/repos/${{ github.repository }}/tarball/${{ github.event.workflow_run.head_sha }}"
+          tar -xzf source.tar.gz --strip-components=1
+          rm -f source.tar.gz
           echo "SRC_DIR=$SRC_DIR" >> "$GITHUB_ENV"
 
       - name: Login DockerHub (without external action)
