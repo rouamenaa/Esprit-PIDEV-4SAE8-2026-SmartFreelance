@@ -4,6 +4,8 @@ pipeline {
   environment {
     IMAGE_NAME = "your-dockerhub-username/user-service"
     IMAGE_TAG = "${env.BUILD_NUMBER}"
+    JAVA_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"
+    PATH = "${JAVA_HOME}/bin:${env.PATH}"
   }
 
   stages {
@@ -15,25 +17,16 @@ pipeline {
 
     stage("Build & Test (Java 17)") {
       steps {
-        sh """
-          set -e
-          JDK_DIR="\$WORKSPACE/.jdk17"
-          if [ ! -x "\$JDK_DIR/bin/java" ]; then
-            rm -rf "\$JDK_DIR"
-            mkdir -p "\$JDK_DIR"
-            curl -fsSL "https://api.adoptium.net/v3/binary/latest/17/ga/linux/x64/jdk/hotspot/normal/eclipse" \
-              -o "\$WORKSPACE/jdk17.tar.gz"
-            tar -xzf "\$WORKSPACE/jdk17.tar.gz" -C "\$JDK_DIR" --strip-components=1
-            rm -f "\$WORKSPACE/jdk17.tar.gz"
-          fi
+        dir("smartfreelance-backend/user-service") {
+          sh '''
+            set -e
+            echo "Using JAVA_HOME=$JAVA_HOME"
+            java -version
+            mvn -version
 
-          export JAVA_HOME="\$JDK_DIR"
-          export PATH="\$JAVA_HOME/bin:\$PATH"
-          java -version
-          mvn -version
-          cd smartfreelance-backend/user-service
-          mvn -B clean verify
-        """
+            mvn -B clean verify
+          '''
+        }
       }
     }
 
@@ -47,19 +40,27 @@ pipeline {
 
     stage("Push Docker Image") {
       steps {
-        withCredentials([usernamePassword(credentialsId: "dockerhub-creds", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
-          sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
-          sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-          sh "docker push ${IMAGE_NAME}:latest"
+        withCredentials([usernamePassword(
+          credentialsId: "dockerhub-creds",
+          usernameVariable: "DOCKER_USER",
+          passwordVariable: "DOCKER_PASS"
+        )]) {
+          sh '''
+            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+            docker push ${IMAGE_NAME}:${IMAGE_TAG}
+            docker push ${IMAGE_NAME}:latest
+          '''
         }
       }
     }
 
     stage("Deploy to Kubernetes") {
       steps {
-        sh "kubectl apply -f smartfreelance-backend/user-service/devops/k8s/namespace.yml"
-        sh "kubectl apply -f smartfreelance-backend/user-service/devops/k8s/user-service-deployment.yml"
-        sh "kubectl apply -f smartfreelance-backend/user-service/devops/k8s/user-service-service.yml"
+        sh '''
+          kubectl apply -f smartfreelance-backend/user-service/devops/k8s/namespace.yml
+          kubectl apply -f smartfreelance-backend/user-service/devops/k8s/user-service-deployment.yml
+          kubectl apply -f smartfreelance-backend/user-service/devops/k8s/user-service-service.yml
+        '''
       }
     }
   }
