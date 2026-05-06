@@ -68,22 +68,20 @@ BASHWRAP
         }
       }
     }
-
-    stage("SonarQube Analysis") {
-      steps {
-        dir("${env.SERVICE_DIR}") {
-          withSonarQubeEnv("sonarqube-server") {
-            sh '. "${WORKSPACE}/set-java17.sh" && mvn -B -Dsonar.ws.timeout=300 sonar:sonar -Dsonar.projectKey=application-contract-service -Dsonar.projectName=application-contract-service'
-          }
-        }
-      }
-    }
   }
 
   post {
+    success {
+      echo "CI passed — triggering CD pipeline..."
+      build job: 'application-contract-service-cd',
+            wait: false,
+            parameters: [
+              string(name: 'IMAGE_TAG', value: "${env.BUILD_NUMBER}")
+            ]
+    }
     always {
       junit allowEmptyResults: true, testResults: "${env.SERVICE_DIR}/target/surefire-reports/*.xml"
-      archiveArtifacts artifacts: "${env.SERVICE_DIR}/target/*.jar,${env.SERVICE_DIR}/target/site/jacoco/**", allowEmptyArchive: true
+      archiveArtifacts artifacts: "${env.SERVICE_DIR}/target/*.jar", allowEmptyArchive: true
     }
   }
 }

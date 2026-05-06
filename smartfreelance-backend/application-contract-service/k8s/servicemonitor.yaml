@@ -1,20 +1,4 @@
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: application-contract-service
-  labels:
-    app: application-contract-service
-spec:
-  selector:
-    matchLabels:
-      app: application-contract-service
-  namespaceSelector:
-    any: true
-  endpoints:
-    - port: http
-      path: /actuator/prometheus
-      interval: 15s
-apiVersion: monitoring.coreos.com/v1
+piVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: application-contract-service
@@ -26,7 +10,7 @@ spec:
       app: application-contract-service
   namespaceSelector:
     matchNames:
-      - default
+      - smartfreelance
   endpoints:
     - port: http
       path: /actuator/prometheus
