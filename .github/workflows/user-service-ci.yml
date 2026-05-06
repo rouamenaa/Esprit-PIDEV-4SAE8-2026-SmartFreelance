@@ -2,6 +2,7 @@ pipeline {
   agent any
 
   stages {
+
     stage("Checkout") {
       steps {
         checkout scm
@@ -13,20 +14,29 @@ pipeline {
         sh """
           set -e
           JDK_DIR="\$WORKSPACE/.jdk17"
+
           if [ ! -x "\$JDK_DIR/bin/java" ]; then
             rm -rf "\$JDK_DIR"
             mkdir -p "\$JDK_DIR"
+
             curl -fsSL "https://api.adoptium.net/v3/binary/latest/17/ga/linux/x64/jdk/hotspot/normal/eclipse" \
               -o "\$WORKSPACE/jdk17.tar.gz"
-            tar -xzf "\$WORKSPACE/jdk17.tar.gz" -C "\$JDK_DIR" --strip-components=1
+
+            tar -xzf "\$WORKSPACE/jdk17.tar.gz" \
+              -C "\$JDK_DIR" \
+              --strip-components=1
+
             rm -f "\$WORKSPACE/jdk17.tar.gz"
           fi
 
           export JAVA_HOME="\$JDK_DIR"
           export PATH="\$JAVA_HOME/bin:\$PATH"
+
           java -version
           mvn -version
+
           cd smartfreelance-backend/user-service
+
           mvn -B clean verify
         """
       }
@@ -34,18 +44,34 @@ pipeline {
 
     stage("Archive JaCoCo") {
       steps {
-        archiveArtifacts artifacts: "smartfreelance-backend/user-service/target/site/jacoco/**", fingerprint: true, allowEmptyArchive: true
+        archiveArtifacts artifacts: "smartfreelance-backend/user-service/target/site/jacoco/**",
+                          fingerprint: true,
+                          allowEmptyArchive: true
       }
     }
   }
 
   post {
+
+    always {
+
+      // Publish JUnit test results
+      junit 'smartfreelance-backend/user-service/target/surefire-reports/*.xml'
+
+      // Archive JaCoCo reports
+      archiveArtifacts artifacts: 'smartfreelance-backend/user-service/target/site/jacoco/**',
+                        fingerprint: true,
+                        allowEmptyArchive: true
+    }
+
     success {
       echo 'CI passed — triggering CD pipeline...'
+
       build job: 'user-service-cd',
             wait: false,
             parameters: []
     }
+
     failure {
       echo 'CI failed — CD pipeline will NOT be triggered.'
     }
