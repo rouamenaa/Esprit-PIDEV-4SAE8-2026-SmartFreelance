@@ -41,7 +41,7 @@ actionPlan: Task[] = [];
 generatingPlan = false;
 planGenerated = false;
 planError = '';
-
+//azerty
   loadingReport = false;
   loadingTickets = false;
   generatingReport = false;
