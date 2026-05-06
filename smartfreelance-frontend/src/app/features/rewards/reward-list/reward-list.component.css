@@ -60,45 +60,21 @@
   text-decoration: none;
 }
 
-.btn-add {
-  background: #f0a500;
-  color: #fff;
-}
-
+.btn-add { background: #f0a500; color: #fff; }
 .btn-add:hover {
   background: #d4920a;
-  box-shadow: 0 4px 12px rgba(240, 165, 0, 0.35);
+  box-shadow: 0 4px 12px rgba(240,165,0,0.35);
   transform: translateY(-1px);
 }
 
-.btn-view {
-  background: #f0f2f5;
-  color: #4a4f68;
-}
+.btn-view { background: #f0f2f5; color: #4a4f68; }
+.btn-view:hover { background: #e2e5ec; }
 
-.btn-view:hover {
-  background: #e2e5ec;
-}
+.btn-edit { background: #eef2ff; color: #4f6ef7; }
+.btn-edit:hover { background: #4f6ef7; color: #fff; }
 
-.btn-edit {
-  background: #eef2ff;
-  color: #4f6ef7;
-}
-
-.btn-edit:hover {
-  background: #4f6ef7;
-  color: #fff;
-}
-
-.btn-delete {
-  background: #fff0f0;
-  color: #e53e3e;
-}
-
-.btn-delete:hover {
-  background: #e53e3e;
-  color: #fff;
-}
+.btn-delete { background: #fff0f0; color: #e53e3e; }
+.btn-delete:hover { background: #e53e3e; color: #fff; }
 
 .cards-grid {
   display: grid;
@@ -110,14 +86,14 @@
   background: #fff;
   border-radius: 14px;
   border: 1px solid #e8eaf0;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
 .reward-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 28px rgba(240, 165, 0, 0.15);
+  box-shadow: 0 8px 28px rgba(240,165,0,0.15);
   border-color: #f0d080;
 }
 
@@ -139,10 +115,7 @@
   gap: 0.85rem;
 }
 
-.card-icon {
-  font-size: 2rem;
-  flex-shrink: 0;
-}
+.card-icon { font-size: 2rem; flex-shrink: 0; }
 
 .card-title-wrapper {
   display: flex;
@@ -180,36 +153,6 @@
   border-radius: 20px;
 }
 
-.card-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.22rem 0.65rem;
-  border-radius: 20px;
-}
-
-.chip-level {
-  background: #fff8e1;
-  color: #b45309;
-}
-
-.chip-score {
-  background: #f0f4ff;
-  color: #4f6ef7;
-}
-
-.chip-formation {
-  background: #f0fdf4;
-  color: #15803d;
-}
-
 .card-footer-row {
   display: flex;
   gap: 0.5rem;
@@ -231,9 +174,7 @@
   gap: 0.75rem;
 }
 
-.empty-icon {
-  font-size: 3rem;
-}
+.empty-icon { font-size: 3rem; }
 
 .empty-state h4 {
   margin: 0;
@@ -249,21 +190,8 @@
 }
 
 @media (max-width: 640px) {
-  .list-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .cards-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .card-footer-row {
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
-    justify-content: center;
-  }
+  .list-header { flex-direction: column; align-items: flex-start; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .card-footer-row { flex-direction: column; }
+  .btn { width: 100%; justify-content: center; }
 }

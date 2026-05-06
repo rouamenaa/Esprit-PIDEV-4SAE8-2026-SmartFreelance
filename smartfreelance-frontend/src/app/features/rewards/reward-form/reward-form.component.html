@@ -50,10 +50,10 @@
             placeholder="Enter reward name..."
             [(ngModel)]="reward.name"
             required
-            #rname="ngModel"
-            [class.input-error]="rname.invalid && rname.touched"
+            #name="ngModel"
+            [class.input-error]="name.invalid && name.touched"
           />
-          <div class="field-error" *ngIf="rname.invalid && rname.touched">
+          <div class="field-error" *ngIf="name.invalid && name.touched">
             ⚠ Name is required.
           </div>
         </div>
@@ -69,78 +69,15 @@
             name="type"
             [(ngModel)]="reward.type"
             required
-            #rtype="ngModel"
-            [class.input-error]="rtype.invalid && rtype.touched"
+            #type="ngModel"
+            [class.input-error]="type.invalid && type.touched"
           >
             <option value="" disabled>Select a type...</option>
             <option *ngFor="let t of rewardTypes" [value]="t">{{ t }}</option>
           </select>
-          <div class="field-error" *ngIf="rtype.invalid && rtype.touched">
+          <div class="field-error" *ngIf="type.invalid && type.touched">
             ⚠ Type is required.
           </div>
-        </div>
-
-        <!-- Level -->
-        <div class="field-group">
-          <label for="level" class="field-label">
-            <span class="field-icon">⭐</span> Level <span class="required">*</span>
-          </label>
-          <select
-            class="field-input"
-            id="level"
-            name="level"
-            [(ngModel)]="reward.level"
-            required
-            #rlevel="ngModel"
-            [class.input-error]="rlevel.invalid && rlevel.touched"
-          >
-            <option value="" disabled>Select a level...</option>
-            <option *ngFor="let l of rewardLevels" [value]="l">{{ l }}</option>
-          </select>
-          <div class="field-error" *ngIf="rlevel.invalid && rlevel.touched">
-            ⚠ Level is required.
-          </div>
-        </div>
-
-        <!-- Min Score Required -->
-        <div class="field-group">
-          <label for="minScoreRequired" class="field-label">
-            <span class="field-icon">🎯</span> Min Score Required (%) <span class="required">*</span>
-          </label>
-          <div class="input-prefix-wrapper">
-            <span class="input-prefix">%</span>
-            <input
-              type="number"
-              class="field-input with-prefix"
-              id="minScoreRequired"
-              name="minScoreRequired"
-              placeholder="Ex: 75"
-              [(ngModel)]="reward.minScoreRequired"
-              required
-              min="0"
-              max="100"
-              #rminScore="ngModel"
-              [class.input-error]="rminScore.invalid && rminScore.touched"
-            />
-          </div>
-          <div class="field-error" *ngIf="rminScore.invalid && rminScore.touched">
-            ⚠ Min score is required (0–100).
-          </div>
-        </div>
-
-        <!-- Icon URL (optional) -->
-        <div class="field-group">
-          <label for="iconUrl" class="field-label">
-            <span class="field-icon">🖼️</span> Icon URL <span class="optional">(optional)</span>
-          </label>
-          <input
-            type="text"
-            class="field-input"
-            id="iconUrl"
-            name="iconUrl"
-            placeholder="https://example.com/icon.png"
-            [(ngModel)]="reward.iconUrl"
-          />
         </div>
 
         <!-- Hidden formation -->

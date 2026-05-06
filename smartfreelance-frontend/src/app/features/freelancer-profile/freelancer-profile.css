@@ -66,14 +66,6 @@
 .profile-header h2 {
   font-size: 32px;
   font-weight: 800;
-
- 
-  color: #f8fafc;
-
-
-  color: #0a0a0a;
-
-
   margin: 0;
   letter-spacing: -0.5px;
 }
@@ -234,7 +226,6 @@
   margin: 0 0 20px 0;
   font-size: 20px;
   font-weight: 700;
-
 }
 
 .action-buttons {
@@ -254,11 +245,6 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 24px;
-
-  color: #f8fafc;
-
-  color: #f8fafc;
-
 }
 
 .advanced-header mat-icon {

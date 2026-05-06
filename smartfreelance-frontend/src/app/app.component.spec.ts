@@ -1,16 +1,14 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
       imports: [
-        RouterModule.forRoot([]),
+        RouterModule.forRoot([])
+      ],
+      declarations: [
         AppComponent
       ],
     }).compileComponents();
@@ -28,10 +26,10 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('smartfreelance-frontend');
   });
 
-  it('should render router outlet', () => {
+  it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('router-outlet')).toBeTruthy();
+    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, smartfreelance-frontend');
   });
 });

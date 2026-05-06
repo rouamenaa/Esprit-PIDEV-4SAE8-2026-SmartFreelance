@@ -5,8 +5,6 @@ export interface Project {
   budget: number;
   deadline: string;
   status: string;
-  clientId?: number | null;
-  freelancerId?: number | null;
 
   category?: string;
   stack?: string[];

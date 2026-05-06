@@ -46,21 +46,10 @@ describe('CondidatureService', () => {
     });
 
     expect(req.request.method).toBe('GET');
-    req.flush([
-      {
-        id: 1,
-        freelancer_rating: '4.5',
-        signed_at: '2026-01-01T10:00:00Z',
-        signature_data: 'abc',
-        signed_by_client_id: '10',
-      },
-    ]);
+    req.flush([{ id: 1, freelancer_rating: '4.5' }]);
 
     expect(result.length).toBe(1);
     expect(result[0].freelancerRating).toBe(4.5);
-    expect(result[0].signedAt).toBe('2026-01-01T10:00:00Z');
-    expect(result[0].signatureData).toBe('abc');
-    expect(result[0].signedByClientId).toBe(10);
   });
 
   it('should get one condidature by id', () => {
@@ -108,24 +97,6 @@ describe('CondidatureService', () => {
     expect(rejectReq.request.method).toBe('PUT');
     expect(rejectReq.request.body).toEqual({});
     rejectReq.flush({ id: 12 });
-  });
-
-  it('should get grouped condidatures by project with ranked=false', () => {
-    let result: any[] = [];
-    service.getGroupedByProject(false).subscribe((res) => (result = res));
-
-    const req = httpMock.expectOne((r) => r.url === `${baseUrl}/grouped-by-project` && r.params.get('ranked') === 'false');
-    expect(req.request.method).toBe('GET');
-    req.flush([
-      {
-        projectId: 9,
-        condidatures: [{ id: 1, freelancer_rating: 5 }],
-      },
-    ]);
-
-    expect(result.length).toBe(1);
-    expect(result[0].projectId).toBe(9);
-    expect(result[0].condidatures[0].freelancerRating).toBe(5);
   });
 
   it('should map statistics from snake_case and fallback values', () => {

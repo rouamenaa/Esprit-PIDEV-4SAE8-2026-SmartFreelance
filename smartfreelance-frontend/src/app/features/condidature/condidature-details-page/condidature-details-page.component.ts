@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Condidature, CondidatureDetailStats } from '../../../models/Condidature';
 import { CondidatureService } from '../../../services/condidature.service';
-import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-condidature-details-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatIconModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './condidature-details-page.component.html',
   styleUrl: './condidature-details-page.component.css',
 })
@@ -28,7 +27,7 @@ export class CondidatureDetailsPageComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     const idNum = id ? parseInt(id, 10) : NaN;
     if (!id || isNaN(idNum)) {
-      this.error = 'Invalid id';
+      this.error = 'Identifiant invalide';
       this.loading = false;
       return;
     }
@@ -38,7 +37,7 @@ export class CondidatureDetailsPageComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.error = 'Application not found';
+        this.error = 'Candidature introuvable';
         this.loading = false;
       },
     });

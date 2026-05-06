@@ -21,35 +21,10 @@
       </li>
       <li>
         <a routerLink="/condidatures" routerLinkActive="active"><i class="fa fa-file-text-o"></i><span>Project Application</span></a>
-        <a href="widgets.html"><i class="fa fa-th"></i><span>Widgets</span></a>
-        <a href="login"><i class="fa fa-th"></i><span>Widgets</span></a> 
-
       </li>
       <li>
-        <a href="projects"><i class="fa fa-dashboard"></i><span>Projects</span></a>
+        <a routerLink="/contrats" routerLinkActive="active"><i class="fa fa-paperclip"></i><span>Contracts</span></a>
       </li>
-      <li>
-        <a routerLink="/formations" routerLinkActive="active">
-          <i class="fa fa-certificate"></i><span>Formations</span>
-        </a>
-      </li>
-      <li>
-        <a routerLink="/condidatures" routerLinkActive="active">
-          <i class="fa fa-file-text-o"></i><span>Project Application</span>
-        </a>
-      </li>
-      <li>
-        <a routerLink="/contrats" routerLinkActive="active">
-          <i class="fa fa-paperclip"></i><span>Contracts</span>
-        </a>
->>>>>>> e4221754f136f047a3ba33c4b8b1c487929367e7
-      </li>
-      <li>
-        <a routerLink="/profil-freelancer" routerLinkActive="active">
-          <i class="fa fa-user"></i><span>Freelancer Profile</span>
-        </a>
-      </li>
-<<<<<<< HEAD
       <li>
         <a routerLink="/profil-freelancer" routerLinkActive="active"><i class="fa fa-user"></i><span>Freelancer Profile</span></a>
       </li>
@@ -57,53 +32,6 @@
         <a routerLink="/chatbot" routerLinkActive="active"><i class="fa fa-comments"></i><span>Chatbot</span></a>
       </li>
       
-=======
-=======
-      <li *ngIf="isAdmin()">
-        <a routerLink="/admin" routerLinkActive="active">
-          <i class="fa fa-dashboard"></i><span>Admin Dashboard</span>
-        </a>
-      </li>
-      <li *ngIf="isAdmin() || isClient() || isFreelancer()">
-        <a routerLink="/projects" routerLinkActive="active">
-          <i class="fa fa-dashboard"></i><span>Back Home</span>
-        </a>
-      </li>
-      <li *ngIf="isAdmin() || isClient() || isFreelancer()">
-        <a routerLink="/projects" routerLinkActive="active">
-          <i class="fa fa-dashboard"></i><span>Projects</span>
-        </a>
-      </li>
-      <li *ngIf="isAdmin() || isClient()">
-        <a routerLink="/formations" routerLinkActive="active">
-          <i class="fa fa-certificate"></i><span>Training</span>
-        </a>
-      </li>
-      <li *ngIf="isAdmin() || isClient() || isFreelancer()">
-        <a routerLink="/condidatures" routerLinkActive="active">
-          <i class="fa fa-file-text-o"></i><span>Project Application</span>
-        </a>
-      </li>
-      <li *ngIf="isAdmin() || isClient()">
-        <a routerLink="/contrats" routerLinkActive="active">
-          <i class="fa fa-paperclip"></i><span>Contracts</span>
-        </a>
-      </li>
-      <li *ngIf="isFreelancer()">
-        <a routerLink="/profil-freelancer" routerLinkActive="active">
-          <i class="fa fa-user"></i><span>Freelancer Profile</span>
-        </a>
-      </li>
-      <li *ngIf="isFreelancer()">
-        <a routerLink="/portfolio" routerLinkActive="active">
-          <i class="fa fa-briefcase"></i><span>Portfolio</span>
-        </a>
-      </li>
-      <li *ngIf="isFreelancer() || isClient()">
-        <a routerLink="/skills" routerLinkActive="active">
-          <i class="fa fa-star"></i><span>Skills</span>
-        </a>
-      </li>
     </ul>
   </div>
 </aside>

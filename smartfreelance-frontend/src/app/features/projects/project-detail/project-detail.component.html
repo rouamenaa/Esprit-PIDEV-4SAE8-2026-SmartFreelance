@@ -6,25 +6,6 @@
   <!-- HEADER -->
   <h2 class="project-header">Project Details</h2>
 
-  <div *ngIf="project && canManageCurrentProject()" class="detail-actions">
-    <button mat-stroked-button color="primary" (click)="editCurrentProject()">
-      <mat-icon>edit</mat-icon>
-      Modifier
-    </button>
-    <button mat-stroked-button color="accent" (click)="approveCurrentProject()">
-      <mat-icon>check_circle</mat-icon>
-      Approuver
-    </button>
-    <button mat-stroked-button color="warn" (click)="deleteCurrentProject()">
-      <mat-icon>delete</mat-icon>
-      Supprimer
-    </button>
-  </div>
-
-  <div *ngIf="actionMessage" class="detail-feedback" [ngClass]="actionMessageType">
-    {{ actionMessage }}
-  </div>
-
   <!-- ERROR -->
   <div *ngIf="error" class="error">{{ error }}</div>
 
@@ -70,21 +51,8 @@
             <span class="detail-value">{{ project.deadline | date:'mediumDate' }}</span>
           </div>
         </div>
-        <div class="detail-row">
-          <mat-icon class="detail-icon">groups</mat-icon>
-          <div>
-            <span class="detail-label">Candidatures</span>
-            <span class="detail-value">
-              {{ projectCandidatureInsight.total }} total, {{ projectCandidatureInsight.accepted }} acceptee(s), {{ projectCandidatureInsight.pending }} en attente
-            </span>
-          </div>
-        </div>
       </div>
     </section>
-    <button mat-stroked-button [routerLink]="['/projects', project.id, 'audits']">
-  <mat-icon>fact_check</mat-icon>
-  Audits
-</button>
 
     <!-- 2️⃣ AI Suggestions -->
     <section class="ai-suggestions" *ngIf="aiSummary">
@@ -122,7 +90,6 @@
           </div>
           <span class="ai-badge">AI Suggestion</span>
         </div>
-<<<<<<< HEAD
 
         <div class="suggestion-card" *ngIf="project.duration && project.duration !== 'Unknown'">
           <mat-icon class="suggestion-icon">schedule</mat-icon>
@@ -150,35 +117,6 @@
     </span>
   </div>
 
-=======
-
-        <div class="suggestion-card" *ngIf="project.duration && project.duration !== 'Unknown'">
-          <mat-icon class="suggestion-icon">schedule</mat-icon>
-          <div class="suggestion-content">
-            <span class="suggestion-label">Duration</span>
-            <span class="suggestion-value">{{ project.duration }}</span>
-          </div>
-          <span class="ai-badge">AI Suggestion</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3️⃣ Progress -->
-<section class="section-card progress-section">
-  <div class="progress-header">
-    <div>
-      <h3>Project Progress</h3>
-      <p class="progress-subtitle">
-        Tracks task completion over time and evaluates whether the project is on schedule relative to its deadline.
-      </p>
-    </div>
-    <span class="progress-status-badge" [ngStyle]="{'background-color': progressStatusColor}">
-      <mat-icon>{{ isOverdue ? 'error' : project.status === 'COMPLETED' ? 'check_circle' : daysRemaining <= 7 ? 'schedule' : 'verified' }}</mat-icon>
-      {{ progressStatus }}
-    </span>
-  </div>
-
->>>>>>> b230f03a4d557058bac697a597ff718c4e6e9e25
   <div class="progress-kpi-row">
     <div class="progress-kpi-card">
       <mat-icon style="color:#3b82f6">task_alt</mat-icon>

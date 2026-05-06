@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Contrat } from '../../../models/Contract';
 import { ContratService } from '../../../services/contrat.service';
-import { ContractEditComponent } from '../../Contract/contract-edit/contract-edit.component';
+import { ContractEditComponent } from '../contract-edit/contract-edit.component';
 
 @Component({
   selector: 'app-contract-edit-page',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, RouterModule, ContractEditComponent],
   templateUrl: './contract-edit-page.component.html',
   styleUrl: './contract-edit-page.component.css',
 })

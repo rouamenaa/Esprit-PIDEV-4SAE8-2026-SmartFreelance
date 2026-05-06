@@ -42,25 +42,16 @@
       <div class="card-body">
 
         <div class="card-top">
-          <div class="card-icon">
-            <ng-container [ngSwitch]="r.level">
-              <span *ngSwitchCase="'EXPERT'">🏆</span>
-              <span *ngSwitchCase="'ADVANCED'">🥇</span>
-              <span *ngSwitchCase="'INTERMEDIATE'">🥈</span>
-              <span *ngSwitchDefault>🥉</span>
-            </ng-container>
-          </div>
+          <div class="card-icon">🏆</div>
           <div class="card-title-wrapper">
             <h5 class="card-title">{{ r.name }}</h5>
             <span class="type-badge">{{ r.type }}</span>
           </div>
         </div>
 
-        <!-- Level + Score chips -->
-        <div class="card-chips">
-          <span class="chip chip-level" *ngIf="r.level">{{ r.level }}</span>
-          <span class="chip chip-score" *ngIf="r.minScoreRequired != null">🎯 {{ r.minScoreRequired }}%</span>
-          <span class="chip chip-formation" *ngIf="r.formation?.id">📚 #{{ r.formation?.id }}</span>
+        <!-- ✅ formation?.id au lieu de formationId -->
+        <div class="card-meta" *ngIf="r.formation?.id">
+          <span class="meta-chip">📚 Formation #{{ r.formation?.id }}</span>
         </div>
 
         <div class="card-footer-row">

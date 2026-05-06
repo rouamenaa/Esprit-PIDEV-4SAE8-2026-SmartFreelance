@@ -1,7 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
 import { ContratService } from '../../../services/contrat.service';
 import { ContractTableComponent } from './contract-table.component';
@@ -12,16 +9,12 @@ describe('ContractTableComponent', () => {
   let contratServiceSpy: jasmine.SpyObj<ContratService>;
 
   beforeEach(async () => {
-    contratServiceSpy = jasmine.createSpyObj<ContratService>('ContratService', ['getAll', 'getStatistics']);
+    contratServiceSpy = jasmine.createSpyObj<ContratService>('ContratService', ['getAll', 'delete']);
     contratServiceSpy.getAll.and.returnValue(of([]));
-    contratServiceSpy.getStatistics.and.returnValue(
-      of({ completedContracts: 0, activeContracts: 0, clientSpending: 0 } as any)
-    );
+    contratServiceSpy.delete.and.returnValue(of(void 0));
 
     await TestBed.configureTestingModule({
-      declarations: [ContractTableComponent],
-      imports: [CommonModule, FormsModule],
-      schemas: [NO_ERRORS_SCHEMA],
+      imports: [ContractTableComponent],
       providers: [{ provide: ContratService, useValue: contratServiceSpy }],
     }).compileComponents();
 
@@ -31,18 +24,7 @@ describe('ContractTableComponent', () => {
   });
 
   it('should load contracts on init', () => {
-    const data = [
-      {
-        id: 1,
-        clientId: 1,
-        freelancerId: 2,
-        titre: 'C1',
-        montant: 100,
-        dateDebut: '2026-01-01',
-        dateFin: '2026-02-01',
-        statut: 'BROUILLON',
-      },
-    ] as any;
+    const data = [{ id: 1, statut: 'BROUILLON' }] as any;
     contratServiceSpy.getAll.and.returnValue(of(data));
 
     component.load();
@@ -51,34 +33,22 @@ describe('ContractTableComponent', () => {
     expect(component.list.length).toBe(1);
   });
 
-  it('should open delete modal when id exists', () => {
+  it('should map status classes', () => {
+    expect(component.getStatutClass('ACTIF')).toBe('statut-actif');
+    expect(component.getStatutClass('ANNULE')).toBe('statut-annule');
+    expect(component.getStatutClass(undefined)).toBe('');
+  });
+
+  it('should format date safely', () => {
+    expect(component.formatDate(undefined)).toBe('-');
+    expect(component.formatDate('not-a-date')).toBe('not-a-date');
+  });
+
+  it('should delete only when confirmed', () => {
+    spyOn(window, 'confirm').and.returnValue(true);
+
     component.delete({ id: 10 } as any);
 
-    expect(component.showDeleteModal).toBeTrue();
-    expect(component.selectedContract?.id).toBe(10);
-  });
-
-  it('should not open delete modal when id is missing', () => {
-    component.delete({} as any);
-
-    expect(component.showDeleteModal).toBeFalse();
-    expect(component.selectedContract).toBeNull();
-  });
-
-  it('should close delete modal and clear selected contract', () => {
-    component.delete({ id: 10 } as any);
-    component.onCloseDelete();
-
-    expect(component.showDeleteModal).toBeFalse();
-    expect(component.selectedContract).toBeNull();
-  });
-
-  it('should reload data and stats when delete is confirmed by child component', () => {
-    component.onDeleted();
-
-    expect(contratServiceSpy.getAll).toHaveBeenCalled();
-    expect(contratServiceSpy.getStatistics).toHaveBeenCalled();
-    expect(component.showDeleteModal).toBeFalse();
-    expect(component.selectedContract).toBeNull();
+    expect(contratServiceSpy.delete).toHaveBeenCalledWith(10);
   });
 });

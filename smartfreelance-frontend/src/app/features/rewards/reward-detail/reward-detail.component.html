@@ -8,50 +8,28 @@
 </div>
 
 <div class="detail-container" *ngIf="!loading && reward">
-
   <div class="detail-card">
 
-    <!-- HEADER -->
     <div class="detail-header">
-
       <div class="detail-title-wrapper">
         <span class="detail-badge">Reward</span>
         <h2 class="detail-title">{{ reward.name }}</h2>
       </div>
-
       <div class="detail-actions">
         <button class="btn btn-back" (click)="goBack()">← Back</button>
         <button class="btn btn-edit" (click)="edit()">✏️ Edit</button>
         <button class="btn btn-delete" (click)="delete()">🗑️ Delete</button>
       </div>
-
     </div>
 
-    <!-- BODY -->
     <div class="detail-body">
-
-      <!-- ICON VISUAL -->
       <div class="reward-visual">
-
-        <div class="reward-icon">
-          <ng-container [ngSwitch]="reward.level">
-
-            <span *ngSwitchCase="'EXPERT'">🏆</span>
-            <span *ngSwitchCase="'ADVANCED'">🥇</span>
-            <span *ngSwitchCase="'INTERMEDIATE'">🥈</span>
-            <span *ngSwitchDefault>🥉</span>
-
-          </ng-container>
-        </div>
-
+        <div class="reward-icon">🏆</div>
         <div class="reward-glow"></div>
-
       </div>
 
-      <!-- META GRID -->
       <div class="detail-meta-grid">
 
-        <!-- TYPE -->
         <div class="meta-card">
           <div class="meta-icon">🎁</div>
           <div class="meta-info">
@@ -60,57 +38,16 @@
           </div>
         </div>
 
-        <!-- LEVEL -->
-        <div class="meta-card">
-          <div class="meta-icon">⭐</div>
-          <div class="meta-info">
-            <span class="meta-label">Level</span>
-            <span
-              class="meta-value level-badge"
-              [ngClass]="'level-' + (reward.level ? reward.level.toLowerCase() : '')">
-              {{ reward.level }}
-            </span>
-          </div>
-        </div>
-
-        <!-- MIN SCORE -->
-        <div class="meta-card">
-          <div class="meta-icon">🎯</div>
-          <div class="meta-info">
-            <span class="meta-label">Min Score</span>
-            <span class="meta-value">{{ reward.minScoreRequired }}%</span>
-          </div>
-        </div>
-
-        <!-- FORMATION -->
-        <div class="meta-card" *ngIf="reward.formation && reward.formation.id">
-
+        <!-- ✅ formation?.id au lieu de formationId -->
+        <div class="meta-card" *ngIf="reward.formation?.id">
           <div class="meta-icon">📚</div>
-
           <div class="meta-info">
             <span class="meta-label">Linked Formation</span>
-            <span class="meta-value"># {{ reward.formation.id }}</span>
+            <span class="meta-value"># {{ reward.formation?.id }}</span>
           </div>
-
         </div>
 
       </div>
-
-      <!-- IMAGE -->
-      <div class="icon-preview" *ngIf="reward.iconUrl">
-
-        <p class="icon-label">🖼️ Custom Icon</p>
-
-        <img
-          [src]="reward.iconUrl"
-          alt="Reward icon"
-          class="reward-img"
-          width="200"
-          height="200"
-        />
-
-      </div>
-
     </div>
 
   </div>

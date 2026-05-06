@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ProjectService } from '../../../services/project.service';
-import { AuthService } from '../../../core/serviceslogin/auth.service';
 
 @Component({
   selector: 'app-project-create',
@@ -19,7 +18,6 @@ export class ProjectCreateComponent {
   constructor(
     private fb: FormBuilder,
     private projectService: ProjectService,
-    private authService: AuthService,
     private router: Router
   ) {
     this.projectForm = this.fb.group({
@@ -43,14 +41,8 @@ export class ProjectCreateComponent {
     if (this.projectForm.invalid) return;
 
     this.loading = true;
-    const role = this.authService.getRole();
-    const userId = this.authService.getUserId();
-    const payload = { ...this.projectForm.value } as Record<string, unknown>;
-    if ((role === 'CLIENT' || role === 'ADMIN') && userId && userId > 0) {
-      payload['clientId'] = userId;
-    }
 
-    this.projectService.create(payload as any).subscribe({
+    this.projectService.create(this.projectForm.value).subscribe({
       next: (res) => {
         console.log('Project created:', res);
         this.router.navigate(['/projects']); 

@@ -6,7 +6,8 @@ import { Contrat, StatutContrat } from '../../../models/Contract';
 
 @Component({
   selector: 'app-contract-edit',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './contract-edit.component.html',
   styleUrl: './contract-edit.component.css',
 })

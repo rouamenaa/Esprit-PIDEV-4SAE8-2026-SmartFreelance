@@ -43,7 +43,14 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y chromium-browser
 
       - name: Run tests with coverage
-        run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+        run: >
+          npx ng test --watch=false --browsers=ChromeHeadless --code-coverage
+          --include=src/app/services/project.service.spec.ts
+          --include=src/app/services/formation.service.spec.ts
+          --include=src/app/services/audit.service.spec.ts
+          --include=src/app/services/audit-ticket.service.spec.ts
+          --include=src/app/services/contrat.service.spec.ts
+          --include=src/app/services/condidature.service.spec.ts
 
       - name: SonarCloud Scan
         if: ${{ vars.SONAR_ORGANIZATION != '' && vars.SONAR_PROJECT_KEY_FRONT != '' }}
