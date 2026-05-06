@@ -9,7 +9,8 @@ pipeline {
         DOCKER_REPO = 'azizaroua/formation-service'
         APP_PATH = 'smartfreelance-backend/formation-certification-service'
         K8S_PATH = 'smartfreelance-backend/formation-certification-service/k8s'
-        KUBECONFIG = '/root/.kube/config'
+        // Chemin correct vers le kubeconfig jenkins (utilisateur jenkins)
+        KUBECONFIG = '/var/jenkins_home/.kube/config'
     }
 
     stages {
@@ -59,11 +60,9 @@ pipeline {
                 script {
                     echo "Deploying version ${params.IMAGE_TAG}"
 
+                    // On utilise la variable d'environnement KUBECONFIG déjà définie
                     sh """
-                        export KUBECONFIG=${KUBECONFIG}
-
                         sed -i 's|IMAGE_TAG|${params.IMAGE_TAG}|g' ${K8S_PATH}/deployment.yaml
-
                         kubectl apply -f ${K8S_PATH}/deployment.yaml
                         kubectl apply -f ${K8S_PATH}/service.yaml
                     """
@@ -74,8 +73,9 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sh """
-                    export KUBECONFIG=${KUBECONFIG}
+                    echo "===== Pods ====="
                     kubectl get pods -o wide
+                    echo "===== Services ====="
                     kubectl get services
                 """
             }
@@ -86,11 +86,9 @@ pipeline {
         success {
             echo "🚀 Deployment SUCCESS"
         }
-
         failure {
             echo "❌ Deployment FAILED"
         }
-
         always {
             sh "docker logout || true"
             sh "git checkout -- ${K8S_PATH}/deployment.yaml || true"
