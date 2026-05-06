@@ -24,6 +24,7 @@ import { AuditScoreService } from '../../../services/audit-score.service';
   templateUrl: './audit-detail.component.html',
   styleUrls: ['./audit-detail.component.css']
 })
+//azert
 export class AuditDetailComponent implements OnInit {
 auditScore: AuditScore | null = null;
 scoreHistory: AuditScore[] = [];
