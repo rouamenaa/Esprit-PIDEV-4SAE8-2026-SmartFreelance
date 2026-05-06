@@ -11,12 +11,13 @@ pipeline {
   }
 
   environment {
-    SERVICE_DIR    = "smartfreelance-backend/application-contract-service"
+    SERVICE_DIR     = "smartfreelance-backend/application-contract-service"
     HARBOR_REGISTRY = "harbor.local"
     HARBOR_PROJECT  = "smartfreelance"
     IMAGE_NAME      = "application-contract-service"
     IMAGE_TAG       = "${params.IMAGE_TAG}"
     FULL_IMAGE      = "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG}"
+    LATEST_IMAGE    = "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:latest"
     K8S_NAMESPACE   = "default"
     K8S_DEPLOYMENT  = "application-contract-service"
   }
@@ -31,20 +32,19 @@ pipeline {
     stage("Build Docker Image") {
       steps {
         dir("${env.SERVICE_DIR}") {
-          sh '''
-            set -e
-            d() {
-              if docker info >/dev/null 2>&1; then
-                docker "$@"
-              elif sudo -n docker info >/dev/null 2>&1; then
-                sudo -n docker "$@"
-              else
-                docker "$@"
-              fi
-            }
+          sh '''#!/bin/bash
+            set -euo pipefail
 
-            d version
-            d build -t "$FULL_IMAGE" -t "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:latest" .
+            if docker info >/dev/null 2>&1; then
+              DOCKER_CMD="docker"
+            elif sudo -n docker info >/dev/null 2>&1; then
+              DOCKER_CMD="sudo -n docker"
+            else
+              DOCKER_CMD="docker"
+            fi
+
+            $DOCKER_CMD version
+            $DOCKER_CMD build -t "$FULL_IMAGE" -t "$LATEST_IMAGE" .
           '''
         }
       }
@@ -57,22 +57,21 @@ pipeline {
           usernameVariable: "HARBOR_USERNAME",
           passwordVariable: "HARBOR_PASSWORD"
         )]) {
-          sh '''
+          sh '''#!/bin/bash
             set -euo pipefail
-            d() {
-              if docker info >/dev/null 2>&1; then
-                docker "$@"
-              elif sudo -n docker info >/dev/null 2>&1; then
-                sudo -n docker "$@"
-              else
-                docker "$@"
-              fi
-            }
 
-            printf '%s\n' "$HARBOR_PASSWORD" | d login "$HARBOR_REGISTRY" -u "$HARBOR_USERNAME" --password-stdin
-            d push "$FULL_IMAGE"
-            d push "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:latest"
-            d logout "$HARBOR_REGISTRY" || true
+            if docker info >/dev/null 2>&1; then
+              DOCKER_CMD="docker"
+            elif sudo -n docker info >/dev/null 2>&1; then
+              DOCKER_CMD="sudo -n docker"
+            else
+              DOCKER_CMD="docker"
+            fi
+
+            printf '%s\n' "$HARBOR_PASSWORD" | $DOCKER_CMD login "$HARBOR_REGISTRY" -u "$HARBOR_USERNAME" --password-stdin
+            $DOCKER_CMD push "$FULL_IMAGE"
+            $DOCKER_CMD push "$LATEST_IMAGE"
+            $DOCKER_CMD logout "$HARBOR_REGISTRY" || true
           '''
         }
       }
@@ -82,7 +81,11 @@ pipeline {
       steps {
         withCredentials([file(credentialsId: "kubeconfig-application-contract-service", variable: "KUBECONFIG_FILE")]) {
           dir("${env.SERVICE_DIR}") {
-            sh 'chmod +x scripts/jenkins-k8s-deploy.sh && ./scripts/jenkins-k8s-deploy.sh'
+            sh '''#!/bin/bash
+              set -euo pipefail
+              chmod +x scripts/jenkins-k8s-deploy.sh
+              ./scripts/jenkins-k8s-deploy.sh
+            '''
           }
         }
       }
@@ -91,18 +94,18 @@ pipeline {
 
   post {
     always {
-      sh '''
-        d() {
-          if docker info >/dev/null 2>&1; then
-            docker "$@"
-          elif sudo -n docker info >/dev/null 2>&1; then
-            sudo -n docker "$@"
-          else
-            docker "$@"
-          fi
-        }
+      sh '''#!/bin/bash
+        set -e
 
-        d image rm "$FULL_IMAGE" "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:latest" || true
+        if docker info >/dev/null 2>&1; then
+          DOCKER_CMD="docker"
+        elif sudo -n docker info >/dev/null 2>&1; then
+          DOCKER_CMD="sudo -n docker"
+        else
+          DOCKER_CMD="docker"
+        fi
+
+        $DOCKER_CMD image rm "$FULL_IMAGE" "$LATEST_IMAGE" || true
       '''
     }
   }
