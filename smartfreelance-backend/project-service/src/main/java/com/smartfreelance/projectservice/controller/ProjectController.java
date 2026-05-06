@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Map;
 
+//azerty
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/api/projects")
@@ -20,20 +21,10 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-
-        @GetMapping("/hello")
-        public String hello() {
-            return "Hello Gateway works!";
-        }
-
-
-
-
-
-
-
-
-
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello Gateway works!";
+    }
 
     // ================= CREATE =================
 
@@ -103,7 +94,7 @@ public class ProjectController {
 
     @PutMapping("/{id}/assign-freelancer")
     public Project assignFreelancer(@PathVariable Long id,
-                                    @RequestBody Map<String, Long> payload) {
+            @RequestBody Map<String, Long> payload) {
         Long freelancerId = payload != null ? payload.get("freelancerId") : null;
         if (freelancerId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "freelancerId is required");
@@ -115,7 +106,7 @@ public class ProjectController {
 
     @PutMapping("/{id}")
     public Project updateProject(@PathVariable Long id,
-                                 @RequestBody Project updatedProject) {
+            @RequestBody Project updatedProject) {
         return projectService.updateProject(id, updatedProject);
     }
 
@@ -146,5 +137,5 @@ public class ProjectController {
     public String getProjectPerformanceLevel(@PathVariable Long id) {
         return projectService.classifyProjectPerformance(id);
     }
-    
+
 }
