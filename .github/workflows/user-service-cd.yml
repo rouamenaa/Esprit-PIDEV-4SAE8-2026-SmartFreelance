@@ -21,7 +21,7 @@ pipeline {
           if [ ! -x "\$JDK_DIR/bin/java" ]; then
             rm -rf "\$JDK_DIR"
             mkdir -p "\$JDK_DIR"
-            curl -fsSL "https://github.com/adoptium/temurin17-binaries/releases/latest/download/OpenJDK17U-jdk_x64_linux_hotspot.tar.gz" \
+            curl -fsSL "https://api.adoptium.net/v3/binary/latest/17/ga/linux/x64/jdk/hotspot/normal/eclipse" \
               -o "\$WORKSPACE/jdk17.tar.gz"
             tar -xzf "\$WORKSPACE/jdk17.tar.gz" -C "\$JDK_DIR" --strip-components=1
             rm -f "\$WORKSPACE/jdk17.tar.gz"
