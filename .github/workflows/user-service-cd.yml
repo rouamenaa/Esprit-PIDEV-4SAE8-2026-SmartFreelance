@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = "your-dockerhub-username/user-service"
+    IMAGE_NAME = "chbaycha/user-service"
     IMAGE_TAG = "${env.BUILD_NUMBER}"
     JAVA_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"
     PATH = "${JAVA_HOME}/bin:${env.PATH}"
