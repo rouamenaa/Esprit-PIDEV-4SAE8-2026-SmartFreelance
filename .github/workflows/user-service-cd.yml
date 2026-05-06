@@ -23,7 +23,6 @@ pipeline {
             echo "Using JAVA_HOME=$JAVA_HOME"
             java -version
             mvn -version
-
             mvn -B clean verify
           '''
         }
@@ -40,21 +39,28 @@ pipeline {
 
     stage("Push Docker Image") {
       steps {
-        withCredentials([usernamePassword(
-          credentialsId: "dockerhub-creds",
-          usernameVariable: "DOCKER_USER",
-          passwordVariable: "DOCKER_PASS"
-        )]) {
-          sh '''
-            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-            docker push ${IMAGE_NAME}:${IMAGE_TAG}
-            docker push ${IMAGE_NAME}:latest
-          '''
+        retry(3) {
+          withCredentials([usernamePassword(
+            credentialsId: "dockerhub-creds",
+            usernameVariable: "DOCKER_USER",
+            passwordVariable: "DOCKER_PASS"
+          )]) {
+            sh '''
+              echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+              docker push ${IMAGE_NAME}:${IMAGE_TAG}
+              docker push ${IMAGE_NAME}:latest
+            '''
+          }
         }
       }
     }
 
     stage("Deploy to Kubernetes") {
+      when {
+        expression {
+          sh(script: 'kubectl cluster-info', returnStatus: true) == 0
+        }
+      }
       steps {
         sh '''
           kubectl apply -f smartfreelance-backend/user-service/devops/k8s/namespace.yml
@@ -62,6 +68,12 @@ pipeline {
           kubectl apply -f smartfreelance-backend/user-service/devops/k8s/user-service-service.yml
         '''
       }
+    }
+  }
+
+  post {
+    always {
+      sh 'docker logout || true'
     }
   }
 }
