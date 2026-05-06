@@ -36,9 +36,9 @@ pipeline {
                         usernameVariable: 'DOCKER_USER',
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
-                        sh """
-                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                        """
+                        sh '''
+                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        '''
                     }
                 }
             }
@@ -60,8 +60,9 @@ pipeline {
 
                     sh """
                         sed -i 's|IMAGE_TAG|${params.IMAGE_TAG}|g' ${K8S_PATH}/deployment.yaml
-                        kubectl apply -f ${K8S_PATH}/deployment.yaml
-                        kubectl apply -f ${K8S_PATH}/service.yaml
+                        
+                        minikube kubectl -- apply -f ${K8S_PATH}/deployment.yaml
+                        minikube kubectl -- apply -f ${K8S_PATH}/service.yaml
                     """
                 }
             }
@@ -69,8 +70,8 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                sh "kubectl get pods -o wide"
-                sh "kubectl get services"
+                sh "minikube kubectl -- get pods -o wide"
+                sh "minikube kubectl -- get services"
             }
         }
     }
