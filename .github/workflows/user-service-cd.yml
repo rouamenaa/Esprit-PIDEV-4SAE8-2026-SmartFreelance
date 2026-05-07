@@ -1,79 +1,131 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    IMAGE_NAME = "chbaycha/user-service"
-    IMAGE_TAG = "${env.BUILD_NUMBER}"
-    JAVA_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"
-    PATH = "${JAVA_HOME}/bin:${env.PATH}"
-  }
+    environment {
+        IMAGE_NAME = "chbaycha/user-service"
+        IMAGE_TAG = "${BUILD_NUMBER}"
 
-  stages {
-    stage("Checkout") {
-      steps {
-        checkout scm
-      }
+        JAVA_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"
+        PATH = "${JAVA_HOME}/bin:${env.PATH}"
+
+        K8S_NAMESPACE = "smartfreelance"
     }
 
-    stage("Build & Test (Java 17)") {
-      steps {
-        dir("smartfreelance-backend/user-service") {
-          sh '''
-            set -e
-            echo "Using JAVA_HOME=$JAVA_HOME"
-            java -version
-            mvn -version
-            mvn -B clean verify
-          '''
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
         }
-      }
-    }
 
-    stage("Build Docker Image") {
-      steps {
-        dir("smartfreelance-backend/user-service") {
-          sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:latest ."
+        stage('Build & Test') {
+            steps {
+                dir('smartfreelance-backend/user-service') {
+                    sh '''
+                        set -e
+
+                        echo "JAVA_HOME=$JAVA_HOME"
+
+                        java -version
+                        mvn -version
+
+                        mvn clean verify -B
+                    '''
+                }
+            }
         }
-      }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('smartfreelance-backend/user-service') {
+
+                    sh '''
+                        docker build \
+                          -t ${IMAGE_NAME}:${IMAGE_TAG} \
+                          -t ${IMAGE_NAME}:latest .
+                    '''
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+
+                    sh '''
+                        set -e
+
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+
+                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                        docker push ${IMAGE_NAME}:latest
+
+                        docker logout
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+
+                withCredentials([
+                    file(
+                        credentialsId: 'kubeconfig-user-service',
+                        variable: 'KUBECONFIG_FILE'
+                    )
+                ]) {
+
+                    dir('smartfreelance-backend/user-service') {
+
+                        sh '''
+                            set -e
+
+                            export KUBECONFIG=$KUBECONFIG_FILE
+
+                            kubectl cluster-info
+
+                            kubectl apply -f devops/k8s/namespace.yml
+
+                            kubectl apply -f devops/k8s/user-service-configmap.yml || true
+                            kubectl apply -f devops/k8s/user-service-secret.yml || true
+
+                            kubectl apply -f devops/k8s/user-service-deployment.yml
+                            kubectl apply -f devops/k8s/user-service-service.yml
+
+                            kubectl rollout restart deployment/user-service -n ${K8S_NAMESPACE}
+
+                            kubectl rollout status deployment/user-service -n ${K8S_NAMESPACE}
+                        '''
+                    }
+                }
+            }
+        }
     }
 
-    stage("Push Docker Image") {
-      steps {
-        retry(3) {
-          withCredentials([usernamePassword(
-            credentialsId: "dockerhub-creds",
-            usernameVariable: "DOCKER_USER",
-            passwordVariable: "DOCKER_PASS"
-          )]) {
+    post {
+
+        always {
+
             sh '''
-              echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-              docker push ${IMAGE_NAME}:${IMAGE_TAG}
-              docker push ${IMAGE_NAME}:latest
+                docker image prune -f || true
             '''
-          }
         }
-      }
-    }
 
-    stage("Deploy to Kubernetes") {
-      when {
-        expression {
-          sh(script: 'kubectl cluster-info', returnStatus: true) == 0
+        success {
+            echo 'Pipeline completed successfully!'
         }
-      }
-      steps {
-        sh '''
-          kubectl apply -f smartfreelance-backend/user-service/devops/k8s/namespace.yml
-          kubectl apply -f smartfreelance-backend/user-service/devops/k8s/user-service-deployment.yml
-          kubectl apply -f smartfreelance-backend/user-service/devops/k8s/user-service-service.yml
-        '''
-      }
-    }
-  }
 
-  post {
-    always {
-      sh 'docker logout || true'
+        failure {
+            echo 'Pipeline failed!'
+        }
     }
-  }
 }
