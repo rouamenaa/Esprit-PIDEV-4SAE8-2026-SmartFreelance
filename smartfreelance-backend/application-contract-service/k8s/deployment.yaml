@@ -25,10 +25,10 @@ spec:
         - name: harbor-registry-secret
       containers:
         - name: application-contract-service
-          image: harbor.local/smartfreelance/application-contract-service:latest
+          image: localhost:8081/smartfreelance/application-contract-service:latest
           imagePullPolicy: Always
           ports:
-          - containerPort: 8083
+            - containerPort: 8083
               name: http
           envFrom:
             - configMapRef:
