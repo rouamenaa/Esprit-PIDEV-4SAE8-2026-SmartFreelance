@@ -16,7 +16,7 @@ public class AuditAiController {
     public AuditAiController(AuditAiService aiService) {
         this.aiService = aiService;
     }
-
+//azertyu
     /**
      * Lance l'analyse IA sur un rapport d'audit.
      * POST /api/audit-ai/analyze/{reportId}
