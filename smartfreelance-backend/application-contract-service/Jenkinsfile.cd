@@ -12,7 +12,7 @@ pipeline {
 
   environment {
     SERVICE_DIR     = "smartfreelance-backend/application-contract-service"
-    HARBOR_REGISTRY = "localhost:8070"
+    HARBOR_REGISTRY = "localhost:8081"
     HARBOR_PROJECT  = "smartfreelance"
     IMAGE_NAME      = "application-contract-service"
     IMAGE_TAG       = "${params.IMAGE_TAG}"
