@@ -89,7 +89,9 @@ pipeline {
                             [ -f devops/k8s/user-service-secret.yml ]    && kubectl apply -f devops/k8s/user-service-secret.yml    || echo "No secret file found, skipping"
 
                             echo "=== Injecting image tag: ${IMAGE_NAME}:${IMAGE_TAG} ==="
-                            sed -i "s|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|g" devops/k8s/user-service-deployment.yml
+                            sed -i "s|image:.*user-service:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|g" devops/k8s/user-service-deployment.yml
+                           echo "Image in manifest after sed:"
+                           grep "image:" devops/k8s/user-service-deployment.yml
 
                             echo "=== Applying deployment and service ==="
                             kubectl apply -f devops/k8s/user-service-deployment.yml
