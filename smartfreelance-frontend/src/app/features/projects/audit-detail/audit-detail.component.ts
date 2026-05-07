@@ -54,7 +54,7 @@ planError = '';
     severity: 'MEDIUM',
     priority: 'MEDIUM'
   };
-
+//azerty
   showDeleteTicketModal = false;
   ticketToDeleteId: number | undefined;
   ticketToDeleteName = '';
