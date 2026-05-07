@@ -2,12 +2,9 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "chbaycha/user-service"
-        IMAGE_TAG = "${BUILD_NUMBER}"
-
-        JAVA_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"
-        PATH = "${JAVA_HOME}/bin:${env.PATH}"
-
+        IMAGE_NAME    = "chbaycha/user-service"
+        IMAGE_TAG     = "${BUILD_NUMBER}"
+        JAVA_HOME     = "/usr/lib/jvm/java-17-openjdk-amd64"
         K8S_NAMESPACE = "smartfreelance"
     }
 
@@ -24,12 +21,9 @@ pipeline {
                 dir('smartfreelance-backend/user-service') {
                     sh '''
                         set -e
-
                         echo "JAVA_HOME=$JAVA_HOME"
-
                         java -version
                         mvn -version
-
                         mvn clean verify -B
                     '''
                 }
@@ -39,19 +33,17 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 dir('smartfreelance-backend/user-service') {
-
-                    sh '''
-                        docker build \
-                          -t ${IMAGE_NAME}:${IMAGE_TAG} \
+                    sh """
+                        docker build \\
+                          -t ${IMAGE_NAME}:${IMAGE_TAG} \\
                           -t ${IMAGE_NAME}:latest .
-                    '''
+                    """
                 }
             }
         }
 
         stage('Push Docker Image') {
             steps {
-
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'dockerhub-creds',
@@ -59,52 +51,56 @@ pipeline {
                         passwordVariable: 'DOCKER_PASS'
                     )
                 ]) {
-
-                    sh '''
+                    sh """
                         set -e
-
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-
+                        echo "\$DOCKER_PASS" | docker login -u "\$DOCKER_USER" --password-stdin
                         docker push ${IMAGE_NAME}:${IMAGE_TAG}
                         docker push ${IMAGE_NAME}:latest
-
                         docker logout
-                    '''
+                    """
                 }
             }
         }
 
         stage('Deploy to Kubernetes') {
+            options {
+                timeout(time: 5, unit: 'MINUTES')
+            }
             steps {
-
                 withCredentials([
                     file(
                         credentialsId: 'kubeconfig-user-service',
                         variable: 'KUBECONFIG_FILE'
                     )
                 ]) {
-
                     dir('smartfreelance-backend/user-service') {
-
-                        sh '''
+                        sh """
                             set -e
+                            export KUBECONFIG=\$KUBECONFIG_FILE
 
-                            export KUBECONFIG=$KUBECONFIG_FILE
-
+                            echo "=== Cluster info ==="
                             kubectl cluster-info
 
-                            kubectl apply -f devops/k8s/namespace.yml
+                            echo "=== Creating namespace ==="
+                            kubectl apply -f devops/k8s/namespace.yml || true
 
-                            kubectl apply -f devops/k8s/user-service-configmap.yml || true
-                            kubectl apply -f devops/k8s/user-service-secret.yml || true
+                            echo "=== Applying configmap and secret (if they exist) ==="
+                            [ -f devops/k8s/user-service-configmap.yml ] && kubectl apply -f devops/k8s/user-service-configmap.yml || echo "No configmap file found, skipping"
+                            [ -f devops/k8s/user-service-secret.yml ]    && kubectl apply -f devops/k8s/user-service-secret.yml    || echo "No secret file found, skipping"
 
+                            echo "=== Injecting image tag: ${IMAGE_NAME}:${IMAGE_TAG} ==="
+                            sed -i "s|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|g" devops/k8s/user-service-deployment.yml
+
+                            echo "=== Applying deployment and service ==="
                             kubectl apply -f devops/k8s/user-service-deployment.yml
                             kubectl apply -f devops/k8s/user-service-service.yml
 
-                            kubectl rollout restart deployment/user-service -n ${K8S_NAMESPACE}
+                            echo "=== Waiting for rollout ==="
+                            kubectl rollout status deployment/user-service -n ${K8S_NAMESPACE} --timeout=120s
 
-                            kubectl rollout status deployment/user-service -n ${K8S_NAMESPACE}
-                        '''
+                            echo "=== Pod status ==="
+                            kubectl get pods -n ${K8S_NAMESPACE}
+                        """
                     }
                 }
             }
@@ -112,19 +108,19 @@ pipeline {
     }
 
     post {
-
         always {
-
-            sh '''
-                docker image prune -f || true
-            '''
+            sh 'docker image prune -f || true'
         }
-
         success {
             echo 'Pipeline completed successfully!'
         }
-
         failure {
+            sh """
+                echo "=== PIPELINE FAILED - Collecting debug info ==="
+                export KUBECONFIG=\$(cat /tmp/kubeconfig 2>/dev/null || echo "")
+                kubectl get pods -n smartfreelance 2>/dev/null || true
+                kubectl describe deployment/user-service -n smartfreelance 2>/dev/null || true
+            """
             echo 'Pipeline failed!'
         }
     }
