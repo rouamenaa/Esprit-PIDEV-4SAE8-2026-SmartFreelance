@@ -54,8 +54,8 @@ pipeline {
       steps {
         withCredentials([usernamePassword(
           credentialsId: "harbor-credentials",
-          usernameVariable: "admin",
-          passwordVariable: "Harbor12345"
+          usernameVariable: "HARBOR_USERNAME",
+          passwordVariable: "HARBOR_PASSWORD"
         )]) {
           sh '''#!/bin/bash
             set -euo pipefail
